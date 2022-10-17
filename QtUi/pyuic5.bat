@@ -1,0 +1,1 @@
+pyuic5.exe -o nodemanager.py nodemanager.ui
