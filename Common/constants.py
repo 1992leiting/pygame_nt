@@ -3,7 +3,7 @@ import os
 
 def csv2dict(file_path):
     if not os.path.exists(file_path):
-        raise 'CSV file not exist:' + file_path
+        raise KeyError('CSV file not exist:' + file_path)
     with open(file_path, 'r', encoding='utf-8') as f:
         dic = {}
         row = f.readline()
@@ -23,7 +23,7 @@ def csv2dict(file_path):
     return dic
 
 
-res_dir = 'C:/Users/leiting/Desktop/pygame/Res/Res/'
+res_dir = 'F:/pygame/Res/Res/'
 if not os.path.exists(res_dir):
     res_dir = 'D:/SynologyDrive/pygame/Res/'
 if not os.path.exists(res_dir):

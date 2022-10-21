@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
-from Qtui.nodemanager import Ui_NodeManager as UIM
+from QtUi.nodemanager import Ui_NodeManager as UIM
 from Nt.nt_item import *
 
 
