@@ -4,25 +4,24 @@ from Node.node import Node
 class Camera(Node):
     def __init__(self):
         super(Camera, self).__init__()
-        self.width, self.height = self.director.WINDOW_W, self.director.WINDOW_H
         self.binding_node = None
         self.limit = [0, 0, 999999, 999999]
 
     @property
     def center_x(self):
-        return self.x + self.width / 2
+        return self.x + self.director.width / 2
 
     @center_x.setter
     def center_x(self, cx):
-        self.x = cx - self.width / 2
+        self.x = cx - self.director.width / 2
 
     @property
     def center_y(self):
-        return self.y + self.height / 2
+        return self.y + self.director.height / 2
 
     @center_y.setter
     def center_y(self, cy):
-        self.y = cy - self.height / 2
+        self.y = cy - self.director.height / 2
 
     def move(self, dx, dy):
         # print('camera move:', dx, dy)

@@ -135,11 +135,11 @@ class LineEdit(Node):
                 self._parse()
 
     def draw(self):
-        self.director.SCREEN.blit(self.surface, (self.x, self.y))
+        self.director.screen.blit(self.surface, (self.x, self.y))
         # active状态下闪烁光标
         if self.is_active:
             if time.time() - self.tk_timer > 0.8:
-                pygame.draw.line(self.director.SCREEN, self.text_color, (self.cursor_x + self.x, self.cursor_y + self.y), (self.cursor_x + self.x, self.cursor_y + self.font_size + self.y), width=1)
+                pygame.draw.line(self.director.screen, self.text_color, (self.cursor_x + self.x, self.cursor_y + self.y), (self.cursor_x + self.x, self.cursor_y + self.font_size + self.y), width=1)
             if time.time() - self.tk_timer > 1.6:
                 self.tk_timer = time.time()
 

@@ -250,7 +250,7 @@ class RichText(Node):
                     self.dynamic_surface.blit(_frame, (word.x, word.y - word.ky))
         self.surface.blit(self.dynamic_surface, (0, self.scroll))
         self.surface.blit(self.static_surface, (0, self.scroll))
-        self.director.SCREEN.blit(self.surface, (self.x, self.y))
+        self.director.screen.blit(self.surface, (self.x, self.y))
 
     def check_event(self):
         pos = self.director.get_mouse_pos(self.mouse_filter)

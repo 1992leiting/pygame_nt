@@ -63,7 +63,7 @@ class Button(Node):
         if self.cur_img:
             # 单帧按钮按下时偏移1个像素模拟按下效果
             if self.is_pressed and self.is_single_frame:
-                self.director.SCREEN.blit(self.cur_img, (self.x + 1, self.y + 1))
+                self.director.screen.blit(self.cur_img, (self.x + 1, self.y + 1))
             else:
-                self.director.SCREEN.blit(self.cur_img, (self.x, self.y))
-        # pygame.draw.rect(self.director.SCREEN, (255, 255, 255), self.rect, 1)
+                self.director.screen.blit(self.cur_img, (self.x, self.y))
+        # pygame.draw.rect(self.director.screen, (255, 255, 255), self.rect, 1)

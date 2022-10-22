@@ -1,6 +1,6 @@
 from Node.animation import Animation8D
-from common import *
-from constants import *
+from Common.common import *
+from Common.constants import *
 from Node.node import Node
 import time
 

@@ -1,13 +1,12 @@
 import random
-from Database.effect_res import get_effect
 import pygame.mouse
-from common import *
+from Common.common import *
 from Node.node import Node
 from Node.animation import Animation8D
 from Node.image_rect import ImageRect
-from constants import *
+from Common.constants import *
 from Node.label import Label
-from Instance.magic_effect import MagicEffect, BuffEffect
+from Node.magic_effect import MagicEffect, BuffEffect
 from Node.node import Node
 
 
@@ -26,7 +25,6 @@ class BasicCharacter(Node):
         self.is_moving = False
         self.clear_path = False
         self.path = []
-        self.speed = MOVING_SPEED * (60 // self.director.GAME_FPS)  # 保证速度不会因为fps变化而变化
         self.direction = 0
         self.id = 0
         self.type = 'char'
@@ -35,20 +33,24 @@ class BasicCharacter(Node):
         self.mask_rect = pygame.Rect(0, 0, 0, 0)
         self.is_hover = False
         self.mouse_filter = STOP
-        self.setup_ui()
+        # self.setup_from_config('basic_character.conf')
 
-    def setup_ui(self):
-        # UI层
-        self.add_child('behind_buff', Node())  # 后置buff
-        self.add_child('char_stand', Node())  # 身体动画
-        self.add_child('char_walk', Node())  # 身体动画
-        self.add_child('weapon_stand', Node())  # 武器动画
-        self.add_child('weapon_walk', Node())  # 武器动画
-        self.add_child('shadow', Node())  # 脚底阴影
-        self.add_child('title', Node())  # 称谓
-        self.add_child('name', Node())  # 名称
-        self.add_child('front_buff', Node())  # 前置buff
-        self.add_child('effect', Node())  # 特效(攻击特效,升级特效等)
+    @property
+    def speed(self):
+        return MOVING_SPEED * (60 // self.director.game_fps)  # 保证速度不会因为fps变化而变化
+
+    # def setup_ui(self):
+    #     # UI层
+    #     self.add_child('behind_buff', Node())  # 后置buff
+    #     self.add_child('char_stand', Node())  # 身体动画
+    #     self.add_child('char_walk', Node())  # 身体动画
+    #     self.add_child('weapon_stand', Node())  # 武器动画
+    #     self.add_child('weapon_walk', Node())  # 武器动画
+    #     self.add_child('shadow', Node())  # 脚底阴影
+    #     self.add_child('title', Node())  # 称谓
+    #     self.add_child('name', Node())  # 名称
+    #     self.add_child('front_buff', Node())  # 前置buff
+    #     self.add_child('effect', Node())  # 特效(攻击特效,升级特效等)
 
     def set_data(self, data):
         if '模型' in data:
@@ -221,13 +223,13 @@ class BasicCharacter(Node):
 
         # 鼠标指向时指针变化
         if self.is_hover:
-            if self.director.CHAR_HOVER != self.id:
-                self.director.CHAR_HOVER = self.id
+            if self.director.char_hover != self.id:
+                self.director.char_hover = self.id
                 if self.type == 'npc':
                     self.director.root.child('mouse').change_state('事件')
         else:
-            if self.director.CHAR_HOVER == self.id:
-                self.director.CHAR_HOVER = None
+            if self.director.char_hover == self.id:
+                self.director.char_hover = None
                 if self.type == 'npc':
                     self.director.root.child('mouse').set_last_state()
 
@@ -247,6 +249,7 @@ class Character(BasicCharacter):
         self.type = 'player'
 
     def setup_character(self):
+        self.setup_from_config('basic_character.conf')
         name = Label()
         name.text = self.name
         name.font_name = 'mod_AdobeSong.ttf'
@@ -287,7 +290,7 @@ class Character(BasicCharacter):
         self.update_character()
 
         # if self.cur_char_animation:
-        #     pygame.draw.rect(self.director.SCREEN, (255, 255, 255), self.cur_char_animation.rect, 2)
+        #     pygame.draw.rect(self.director.screen, (255, 255, 255), self.cur_char_animation.rect, 2)
 
 
 class NPC(BasicCharacter):
@@ -343,7 +346,7 @@ class BattleUnit(BasicCharacter):
         self.ori_x, self.ori_y = 0, 0  # 单位的原始站位坐标
         self.tmp_x, self.tmp_y = 0, 0  # 临时坐标
         self.shapes = bshapes
-        self.h_speed = MOVING_SPEED * (60 // self.director.GAME_FPS) * 15  # 保证速度不会因为fps变化而变化
+        self.h_speed = MOVING_SPEED * (60 // self.director.game_fps) * 15  # 保证速度不会因为fps变化而变化
         self.l_speed = self.h_speed / 10  # 高速/低速, 用于不同动作
         self.speed = self.h_speed
         self.cur_action = '待战'

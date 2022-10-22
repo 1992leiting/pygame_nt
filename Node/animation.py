@@ -15,14 +15,21 @@ class Animation(Node):
         self.frame_num = 0  # 总帧数
         self.frames = []  # 帧队列,元素为surface或者image
         self.frame_index = 0  # 帧序号
-        self.cur_frame = None  # 当前的帧, Image类型
         self.highlight = False
         self.is_playing = True  # 动画是否播放
+
+    @property
+    def cur_frame(self):
+        """
+        当前的帧
+        :return:
+        """
+        return self.frames[self.frame_index]
 
     def update(self):
         if self.is_playing:
             # 利用pygame FPS
-            if self.fps_cnt >= int(self.director.GAME_FPS / self.fps):
+            if self.fps_cnt >= int(self.director.game_fps / self.fps):
                 self.fps_cnt = 0
                 self.frame_index = (self.frame_index + 1) % self.frame_num
             else:
@@ -33,14 +40,12 @@ class Animation(Node):
             #     self.timer = time.time()
             #     self.frame_index = (self.frame_index + 1) % self.frame_num
 
-        self.cur_frame = self.frames[self.frame_index]
-
     def draw(self):
         if self.cur_frame:
             _frame = self.cur_frame.copy()
             if self.highlight:
                 _frame.fill((60, 60, 60), special_flags=pygame.BLEND_RGB_ADD)
-            self.director.SCREEN.blit(_frame, (self.x - self.kx, self.y - self.ky))
+            self.director.screen.blit(_frame, (self.x - self.kx, self.y - self.ky))
 
 
 class Animation8D(Node):
@@ -50,8 +55,12 @@ class Animation8D(Node):
     def __init__(self):
         super().__init__()
         self.direction = 0
-        self.cur_animation = None
         self.is_playing = True
+        self.add_child('0', Animation())
+
+    @property
+    def cur_animation(self):
+        return self.child(str(self.direction))
 
     @property
     def rect(self):
@@ -87,7 +96,6 @@ class Animation8D(Node):
             if self.direction >= self.get_children_count():
                 self.direction -= 4
             if child.node_name == str(self.direction):
-                self.cur_animation = child
                 self.cur_animation.is_playing = self.is_playing
                 self.width = self.cur_animation.width
                 self.height = self.cur_animation.height

@@ -28,7 +28,7 @@ class ImageRect(Node):
         :param color: (r, g, b, a)
         :return:
         """
-        self.image = pygame.Surface((self.director.WINDOW_W, self.director.WINDOW_H), flags=pygame.SRCALPHA)
+        self.image = pygame.Surface((self.director.window_w, self.director.window_h), flags=pygame.SRCALPHA)
         self.image.fill(color)
         return self
 
@@ -40,7 +40,7 @@ class ImageRect(Node):
         if not self.disp_image:
             self.disp_image = self.image
         if self.disp_image:
-            self.director.SCREEN.blit(self.disp_image, (self.x - self.kx, self.y - self.ky))
+            self.director.screen.blit(self.disp_image, (self.x - self.kx, self.y - self.ky))
 
             if len(self.mask_outline['outline']) > 2:
-                pygame.draw.polygon(self.director.SCREEN, self.mask_outline['color'], self.mask_outline['outline'], self.mask_outline['width'])
+                pygame.draw.polygon(self.director.screen, self.mask_outline['color'], self.mask_outline['outline'], self.mask_outline['width'])

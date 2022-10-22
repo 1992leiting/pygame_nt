@@ -339,7 +339,8 @@ def play_scene_bgm(mapid: int):
   :      param mapid: 地图id
   :      return:
     """
-    file = constants.music_dir + str(mapid) + '.mp3'
+    from Common.constants import music_dir
+    file = music_dir + str(mapid) + '.mp3'
     if not os.path.exists(file):
         print('BGM文件丢失:', file)
         return
@@ -348,7 +349,8 @@ def play_scene_bgm(mapid: int):
 
 
 def play_battle_music(name):
-    file = constants.music_dir + name + '.mp3'
+    from Common.constants import music_dir
+    file = music_dir + name + '.mp3'
     if not os.path.exists(file):
         print('BGM文件丢失:', file)
         return

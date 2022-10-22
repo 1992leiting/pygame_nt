@@ -1,6 +1,6 @@
 import pygame.freetype
 from Node.node import Node
-from constants import *
+from Common.constants import *
 
 
 class Label(Node):
@@ -38,5 +38,5 @@ class Label(Node):
 
     def draw(self):
         if self.shadow:
-            self.director.SCREEN.blit(self.shadow_surface, (self.x + 1, self.y + 1))
-        self.director.SCREEN.blit(self.font_surface, (self.x, self.y))
+            self.director.screen.blit(self.shadow_surface, (self.x + 1, self.y + 1))
+        self.director.screen.blit(self.font_surface, (self.x, self.y))

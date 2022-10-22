@@ -13,7 +13,7 @@ from Node.animation import Animation8D
 from Common.constants import *
 from Common.common import *
 
-from res_manager import read_mapx, fill_res
+from Game.res_manager import read_mapx, fill_res
 # ca_mapx = read_mapx(1001)
 # jy_mapx = read_mapx(1501)
 
@@ -50,10 +50,10 @@ class World(Node):
             print('map不存在:', map_id)
             return
         self.remove_all_npcs()
-        self.remove_all_portals()
-        self.remove_all_players()
-        self.remove_all_masks()
-        self.remove_map_jpg()
+        # self.remove_all_portals()
+        # self.remove_all_players()
+        # self.remove_all_masks()
+        # self.remove_map_jpg()
         # if map_id == 1001:
         #     self.director.mapx = ca_mapx
         # elif map_id == 1501:
@@ -61,13 +61,13 @@ class World(Node):
         # else:
         self.director.mapx = read_mapx(map_id)
         # 镜头(先移动镜头, 避免先加载资源之后跳转地图瞬间快速闪动)
-        hero = self.director.root.child('world').child('hero')
-        camera = self.director.root.child('camera')
-        camera.limit = [0, 0, self.director.mapx.width - self.director.WINDOW_W, self.director.mapx.height - self.director.WINDOW_H]
+        hero = self.director.get_node('scene/world_scene/hero')
+        camera = self.director.get_node('scene/world_scene/camera')
+        camera.limit = [0, 0, self.director.mapx.width - self.director.window_w, self.director.mapx.height - self.director.window_h]
         camera.move_to(hero.map_x, hero.map_y)
         # 底图
         map_jpg = ImageRect()
-        self.director.ASTAR.cell = self.director.mapx.navi
+        self.director.astar.cell = self.director.mapx.navi
         map_jpg.image = self.director.mapx.jpg
         self.add_child('mapjpg', map_jpg)
         # 传送阵
@@ -82,7 +82,7 @@ class World(Node):
         for mask in self.director.mapx.masks:
             self.add_child('mapmask_' + str(mask.id), mask)
 
-        self.change_state(self.director.IN_BATTLE)
+        self.change_state(self.director.is_in_battle)
 
     def remove_map_jpg(self):
         self.remove_child('mapjpg')
@@ -164,14 +164,14 @@ class World(Node):
             play_scene_bgm(self.map_id)
 
     def update(self):
-        if self.director.IN_BATTLE:
+        if self.director.is_in_battle:
             return
         # 更新主角坐标
-        if time.time() - self.xy_timer > 1:
-            self.update_hero_xy()
-            self.xy_timer = time.time()
+        # if time.time() - self.xy_timer > 1:
+        #     self.update_hero_xy()
+        #     self.xy_timer = time.time()
         # 距离主角一定范围内才显示
-        hero = self.director.root.child('world').child('hero')
+        hero = self.director.get_node('scene/world_scene/hero')
         for child_name in self.get_children().copy().keys():
             child = self.child(child_name)
             if type(child) == NPC or type(child) == Character or type(child) == MapMask:

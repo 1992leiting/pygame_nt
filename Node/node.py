@@ -20,7 +20,7 @@ class Node:
         self. _x, self._y = 0, 0  # 相对于父节点的坐标
         self.kx, self.ky = 0, 0
         self.width, self.height = 0, 0
-        # self.surface = self.director.screen  # 该节点blit的目标surface，默认为GL.SCREEN
+        # self.surface = self.director.screen  # 该节点blit的目标surface，默认为GL.screen
         self.ysort = False  # 按y坐标进行排序
         self.draw_first = False  # 在所有子节点中优先绘制
         self.mouse_filter = STOP
@@ -29,7 +29,7 @@ class Node:
     @property
     def director(self):
         from Node.director import Director
-        if not self._parent or type(self) == Director:
+        if not self._parent and type(self) == Director:
             return self
         else:
             return self._parent.director
@@ -319,11 +319,25 @@ class Node:
         with open(config_file, 'rb') as f:
             from Common.common import new_node
             config_item = pickle.load(f)
-            if not isinstance(self, type(new_node(config_item.node_type))):
-                print('config节点类型:\'{}\'与本身节点类型\'{}\'不符!'.format(str(new_node(config_item.node_type)), str(type(self))))
-                return
+            node_type = type(new_node(config_item.node_type))
+            if not isinstance(self, node_type):
+                raise TypeError('config节点类型:\'{}\'与本身节点类型\'{}\'不符!'.format(str(node_type), str(type(self))))
         from Common.common import traverse_config_item
         traverse_config_item(config_item, self)
+
+    def get_node(self, path: str):
+        """
+        通过节点路径获得节点
+        :param path:
+        :return:
+        """
+        nodes = path.strip('/').split('/')
+        print('node path:', nodes)
+        target = self
+        for node in nodes:
+            target = target.child(node)
+            print(target, target._children)
+        return target
 
     def check_event(self):
         """

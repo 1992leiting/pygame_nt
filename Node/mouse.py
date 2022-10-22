@@ -30,7 +30,7 @@ class Mouse(Node):
         self.setup()
 
     def setup(self):
-        from res_manager import fill_animation8d
+        from Game.res_manager import fill_animation8d
         fill_animation8d(self.child('animation'), self.res[self.state][0], self.res[self.state][1])
 
     def set_last_state(self):

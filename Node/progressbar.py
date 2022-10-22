@@ -50,4 +50,4 @@ class ProgressBar(Node):
         if not self.disp_image:
             self.disp_image = self.image
         if self.disp_image:
-            self.director.SCREEN.blit(self.disp_image, (self.x - self.kx, self.y - self.ky))
+            self.director.screen.blit(self.disp_image, (self.x - self.kx, self.y - self.ky))
