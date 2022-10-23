@@ -2619,7 +2619,7 @@ static PyObject *__pyx_pf_11res_manager_2fill_res(CYTHON_UNUSED PyObject *__pyx_
  *     from Node.image_rect import ImageRect
  *     from Node.progressbar import ProgressBar             # <<<<<<<<<<<<<<
  *     from Node.animation import Animation8D
- *     from Instance.emoji import Emoji
+ *     from Node.emoji import Emoji
  */
   __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -2640,7 +2640,7 @@ static PyObject *__pyx_pf_11res_manager_2fill_res(CYTHON_UNUSED PyObject *__pyx_
  *     from Node.image_rect import ImageRect
  *     from Node.progressbar import ProgressBar
  *     from Node.animation import Animation8D             # <<<<<<<<<<<<<<
- *     from Instance.emoji import Emoji
+ *     from Node.emoji import Emoji
  *     if type(node) == Button:
  */
   __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 64, __pyx_L1_error)
@@ -2661,7 +2661,7 @@ static PyObject *__pyx_pf_11res_manager_2fill_res(CYTHON_UNUSED PyObject *__pyx_
   /* "res_manager.py":65
  *     from Node.progressbar import ProgressBar
  *     from Node.animation import Animation8D
- *     from Instance.emoji import Emoji             # <<<<<<<<<<<<<<
+ *     from Node.emoji import Emoji             # <<<<<<<<<<<<<<
  *     if type(node) == Button:
  *         fill_button(node, rsp_file, hash_id)
  */
@@ -2682,7 +2682,7 @@ static PyObject *__pyx_pf_11res_manager_2fill_res(CYTHON_UNUSED PyObject *__pyx_
 
   /* "res_manager.py":66
  *     from Node.animation import Animation8D
- *     from Instance.emoji import Emoji
+ *     from Node.emoji import Emoji
  *     if type(node) == Button:             # <<<<<<<<<<<<<<
  *         fill_button(node, rsp_file, hash_id)
  *     elif type(node) == Animation8D:
@@ -2693,7 +2693,7 @@ static PyObject *__pyx_pf_11res_manager_2fill_res(CYTHON_UNUSED PyObject *__pyx_
   if (__pyx_t_3) {
 
     /* "res_manager.py":67
- *     from Instance.emoji import Emoji
+ *     from Node.emoji import Emoji
  *     if type(node) == Button:
  *         fill_button(node, rsp_file, hash_id)             # <<<<<<<<<<<<<<
  *     elif type(node) == Animation8D:
@@ -2753,7 +2753,7 @@ static PyObject *__pyx_pf_11res_manager_2fill_res(CYTHON_UNUSED PyObject *__pyx_
 
     /* "res_manager.py":66
  *     from Node.animation import Animation8D
- *     from Instance.emoji import Emoji
+ *     from Node.emoji import Emoji
  *     if type(node) == Button:             # <<<<<<<<<<<<<<
  *         fill_button(node, rsp_file, hash_id)
  *     elif type(node) == Animation8D:
@@ -7203,7 +7203,7 @@ static PyObject *__pyx_pf_11res_manager_20read_mapx(CYTHON_UNUSED PyObject *__py
  * def read_mapx(map_id):
  *     print('read map:', map_id)             # <<<<<<<<<<<<<<
  *     import time
- *     from Instance.map_mask import MapMask
+ *     from Node.map_mask import MapMask
  */
   __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -7220,7 +7220,7 @@ static PyObject *__pyx_pf_11res_manager_20read_mapx(CYTHON_UNUSED PyObject *__py
  * def read_mapx(map_id):
  *     print('read map:', map_id)
  *     import time             # <<<<<<<<<<<<<<
- *     from Instance.map_mask import MapMask
+ *     from Node.map_mask import MapMask
  *     t = time.time()
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_time, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
@@ -7231,7 +7231,7 @@ static PyObject *__pyx_pf_11res_manager_20read_mapx(CYTHON_UNUSED PyObject *__py
   /* "res_manager.py":218
  *     print('read map:', map_id)
  *     import time
- *     from Instance.map_mask import MapMask             # <<<<<<<<<<<<<<
+ *     from Node.map_mask import MapMask             # <<<<<<<<<<<<<<
  *     t = time.time()
  *     mapx = Mapx()
  */
@@ -7252,7 +7252,7 @@ static PyObject *__pyx_pf_11res_manager_20read_mapx(CYTHON_UNUSED PyObject *__py
 
   /* "res_manager.py":219
  *     import time
- *     from Instance.map_mask import MapMask
+ *     from Node.map_mask import MapMask
  *     t = time.time()             # <<<<<<<<<<<<<<
  *     mapx = Mapx()
  *     mapx.map_id = map_id
@@ -7278,7 +7278,7 @@ static PyObject *__pyx_pf_11res_manager_20read_mapx(CYTHON_UNUSED PyObject *__py
   __pyx_t_2 = 0;
 
   /* "res_manager.py":220
- *     from Instance.map_mask import MapMask
+ *     from Node.map_mask import MapMask
  *     t = time.time()
  *     mapx = Mapx()             # <<<<<<<<<<<<<<
  *     mapx.map_id = map_id

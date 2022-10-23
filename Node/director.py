@@ -105,7 +105,7 @@ class Director(Node):
         """
         _pos = self.mouse_pos
         if mode == STOP:
-            self.mouse_pos = None
+            self.mouse_pos = (-100, -100)
         return _pos
 
     def get_kb_text(self):

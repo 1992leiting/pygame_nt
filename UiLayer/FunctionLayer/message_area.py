@@ -54,7 +54,7 @@ class MessageArea(Node):
                                            'hash_id': 1494002331,
                                            'bottom_left_x': self.director.window_w - 380,
                                            'bottom_left_y': self.director.window_h + 24})
-        # 表情开关.is_playing = False
+        表情开关.is_playing = False
         self.add_child('表情开关', 表情开关)
 
         btn_语音 = set_node_attr(Button(), {'rsp_file': 'other.rsp',
@@ -93,9 +93,13 @@ class MessageArea(Node):
 
     def check_event(self):
         if self.child('表情开关').rect.collidepoint(pygame.mouse.get_pos()):
+            self.child('表情开关').is_playing = True
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
-                self.get_parent().child('emoji_window').visible = not self.get_parent().child('emoji_window').visible
+                emoji_window = self.director.get_node('function_layer/emoji_window')
+                emoji_window.visible = not emoji_window.visible
+        else:
+            self.child('表情开关').is_playing = False
+            self.child('表情开关').cur_animation.frame_index = 0
 
     def update(self):
-        # self.child('表情开关').is_playing = self.child('表情开关').rect.collidepoint(pygame.mouse.get_pos())
         pass

@@ -1,6 +1,48 @@
 from Node.node import Node
 import pygame
 from Common.constants import *
+from Node.image_rect import ImageRect
+from Common.common import *
+
+
+class Window(Node):
+    """
+    游戏窗口类
+    """
+    def __init__(self):
+        super(Window, self).__init__()
+        self.width, self.height = 400, 442
+        self.window_title = '游戏窗口'
+
+    def setup(self):
+        # 背景裁切
+        背景 = set_node_attr(ImageRect(), {'rsp_file': 'wzife4.rsp', 'hash_id': 0xC6476D82})
+        背景.image = auto_sizing(背景.image, self.width, self.height, margin=1)
+        背景.width, 背景.height = self.width, self.height
+        self.add_child('背景', 背景)
+        # 标题栏裁切, 居左
+        标题栏 = set_node_attr(ImageRect(), {'rsp_file': 'wzife4.rsp', 'hash_id': 0x12989E68})
+        标题栏.image = auto_sizing(标题栏.image, self.width - 35, 标题栏.height)
+        标题栏.width, 标题栏.height = self.width, 标题栏.height
+        标题栏.x += 4
+        标题栏.y += 2
+        self.add_child('标题栏', 标题栏)
+        # 标题背景裁切, 居中
+        标题背景 = set_node_attr(ImageRect(), {'rsp_file': 'wzife1.rsp', 'hash_id': 0x446087F2})
+        self.add_child('标题背景', 标题背景)
+        标题背景.image = auto_sizing(标题背景.image, 100, 标题背景.height)
+        标题背景.width, 标题背景.height = 100, 标题背景.height
+        标题背景.x = self.width//2 - 标题背景.width//2
+        标题背景.y += 3
+        # 标题居中
+        from Node.label import Label
+        标题 = Label(text=self.window_title, font_name=SIM_HEI, bold=True, size=15)
+        标题.x = self.width//2 - 标题.width//2
+        标题.y += 2
+        self.add_child('标题', 标题)
+
+        self.x = self.director.window_w//2 - self.width//2
+        self.y = self.director.window_h//2 - self.height//2
 
 
 class WindowLayer(Node):

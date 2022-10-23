@@ -15,7 +15,7 @@ class EmojiWindow(Node):
         背景 = ImageRect()
         fill_res(背景, 'wzife4.rsp', 0x80E0B578)
         背景.image = auto_sizing(背景.image, self.width, self.height)
-        背景.背景, 背景.height = self.width, self.height
+        背景.width, 背景.height = self.width, self.height
         背景.bottom_left_x, 背景.bottom_left_y = self.director.window_w - 600, self.director.window_h - 35
         背景.setup_outline()
         self.add_child('背景', 背景)

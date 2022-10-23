@@ -54,6 +54,7 @@ SERVER_PORT = 8001
 
 # 默认字体
 DEFAULT_FONT = 'simsun.ttf'
+SIM_HEI = 'simhei.ttf'
 
 # 阵营
 OUR = 1  # 我方

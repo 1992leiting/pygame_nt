@@ -2,6 +2,7 @@ from Node.director import game_director
 from Nt.nt_item import ConfigItem
 from Common.common import *
 from UiLayer.FunctionLayer.function_layer import FunctionLayer
+from UiLayer.WindowLayer.window_layer import WindowLayer, Window
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -24,9 +25,16 @@ fl = FunctionLayer()
 director.add_child('function_layer', fl)
 fl.setup()
 
+wl = WindowLayer()
+director.add_child('window_layer', wl)
+
+win = Window()
+director.add_child('win', win)
+win.setup()
+
 while True:
-    director.update()
     director.event_handler.update()
+    director.update()
     traverse_node(director)
     traverse_node_reverse(director)
 

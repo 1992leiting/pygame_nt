@@ -25,8 +25,8 @@ class Camera(Node):
 
     def move(self, dx, dy):
         # print('camera move:', dx, dy)
-        self.center_x += dx
-        self.center_y += dy
+        self.center_x += int(dx)
+        self.center_y += int(dy)
 
     def move_to(self, xx, yy):
         self.center_x, self.center_y = xx, yy

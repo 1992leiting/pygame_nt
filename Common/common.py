@@ -134,7 +134,9 @@ def traverse_node_reverse(node):
     # 先复制所有children, 因为刷新过程中, children可能会变化, 这时候继续遍历会抛出异常
     children = node.get_children().copy()
     if len(children) > 0:
-        for child in children.values():
+        values = list(children.values())
+        values.reverse()
+        for child in values:
             if child.enable and child.visible:
                 child.check_event()
             else:
@@ -274,7 +276,7 @@ def crop_image(image: pygame.image, x, y, w, h):
     return out_image
 
 
-def auto_sizing(image: pygame.image, width, height):
+def auto_sizing(image: pygame.image, width, height, margin=0):
     w, h = image.get_size()  # 原始尺寸
     if width > w or height > h:
         return image
@@ -283,16 +285,16 @@ def auto_sizing(image: pygame.image, width, height):
     x, y, ww, hh = 0, 0, width/2, height/2
     sub_img = image.subsurface(pygame.Rect(x, y, ww, hh))
     surf.blit(sub_img, (0, 0))
-    # 左下角
-    x, y, ww, hh = 0, h - height/2, width/2, height/2
-    sub_img = image.subsurface(pygame.Rect(x, y, ww, hh))
-    surf.blit(sub_img, (0, height/2))
     # 右上角
     x, y, ww, hh = w - width/2, 0, width/2, height/2
     sub_img = image.subsurface(pygame.Rect(x, y, ww, hh))
     surf.blit(sub_img, (width / 2, 0))
+    # 左下角
+    x, y, ww, hh = 0, h - height / 2 + margin, width / 2, height / 2 - margin
+    sub_img = image.subsurface(pygame.Rect(x, y, ww, hh))
+    surf.blit(sub_img, (0, height / 2))
     # 右下角
-    x, y, ww, hh = w - width/2, h - height/2, width/2, height/2
+    x, y, ww, hh = w - width/2, h - height/2 + margin, width/2, height/2 - margin
     sub_img = image.subsurface(pygame.Rect(x, y, ww, hh))
     surf.blit(sub_img, (width / 2, height/2))
     return surf
