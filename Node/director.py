@@ -3,6 +3,7 @@ import pygame
 from Common.constants import *
 from Game.event_handler import EventHandler
 from Game.astar import Astar
+import socket
 
 
 pygame.init()
@@ -15,7 +16,7 @@ class Director(Node):
     导演类, 游戏UI的根节点, 控制整个游戏的UI运行/切换/控制等
     """
     def __init__(self):
-        super(Director, self).__init__()
+        super(Director, self).__init__(director=True)
         self.game_fps = 30
         self.window_w = 800
         self.window_h = 600
@@ -38,6 +39,9 @@ class Director(Node):
         self.char_hover = None
         self.astar = Astar(self)
         self.is_hero_in_portal = False
+
+        self.socket = socket.socket()
+        self.connect_server()
 
     @property
     def window_size(self):
@@ -105,6 +109,44 @@ class Director(Node):
         return _pos
 
     def get_kb_text(self):
-        _text = self.mouse_event
+        _text = self.kb_text
         self.kb_text = ''
         return _text
+
+    def connect_server(self):
+        try:
+            self.socket.connect((SERVER_IP, SERVER_PORT))
+        except:
+            from Common.common import show_error, exit_game
+            show_error('连接服务器失败!', '网络错误')
+            exit_game()
+        else:
+            print('连接游戏服务器成功!')
+    
+    def update(self):
+        self.mouse_pos = pygame.mouse.get_pos()
+        # 移动镜头, 远快近慢优化镜头视觉效果
+        hero = self.get_node('scene/world_scene/hero')
+        camera = self.director.get_node('scene/world_scene/camera')
+        if hero.visible:
+            cdx, cdy = 0, 0
+            if hero.map_x - camera.center_x > 100:
+                cdx = MOVING_SPEED * (hero.map_x - camera.center_x - 100) // 10
+            elif hero.map_x - camera.center_x > 1:
+                cdx = 1
+            if camera.center_x - hero.map_x > 100:
+                cdx = -MOVING_SPEED * (camera.center_x - hero.map_x - 100) // 10
+            elif camera.center_x - hero.map_x > 1:
+                cdx = -1
+            if hero.map_y - camera.center_y > 100:
+                cdy = MOVING_SPEED * (hero.map_y - camera.center_y - 100) // 10
+            elif hero.map_y - camera.center_y > 1:
+                cdy = 1
+            if camera.center_y - hero.map_y > 100:
+                cdy = -MOVING_SPEED * (camera.center_y - hero.map_y - 100) // 10
+            elif camera.center_y - hero.map_y > 1:
+                cdy = -1
+            camera.move(cdx, cdy)
+
+
+game_director = Director()

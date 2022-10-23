@@ -2,9 +2,9 @@ import time
 
 import pygame
 from Node.node import Node
-from constants import *
+from Common.constants import *
 from Node.rich_text import Word
-from common import get_color
+from Common.common import get_color
 
 
 class TextEditManager:
@@ -54,9 +54,11 @@ class LineEdit(Node):
         self.cursor_pos = 0  # 光标的位置(第几个字符的右边)
         self.cursor_x, self.cursor_y = 0, 0  # 光标坐标
         self.is_hover = False
-        if self.director.TE_MGR is None:
-            self.director.TE_MGR = TextEditManager()
-        self.director.TE_MGR.append(self)
+
+    def setup(self):
+        if self.director.te_manager is None:
+            self.director.te_manager = TextEditManager()
+        self.director.te_manager.append(self)
         self._parse()
 
     def insert_text(self, txt: str):
@@ -105,18 +107,18 @@ class LineEdit(Node):
         self.is_hover = self.rect.collidepoint(pygame.mouse.get_pos())
         # 鼠标指向时指针变化
         if self.is_hover:
-            if self.director.TE_HOVER != self:
-                self.director.TE_HOVER = self
-                self.director.root.child('mouse').change_state('输入')
+            if self.director.te_hover != self:
+                self.director.te_hover = self
+                self.director.child('mouse').change_state('输入')
         else:
-            if self.director.TE_HOVER == self:
-                self.director.TE_HOVER = None
-                self.director.root.child('mouse').set_last_state()
+            if self.director.te_hover == self:
+                self.director.te_hover = None
+                self.director.child('mouse').set_last_state()
 
         # 点击激活
         if self.is_hover:
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
-                self.director.TE_MGR.activate(self)
+                self.director.te_manager.activate(self)
 
         # 光标坐标
         self.cursor_x = 0
@@ -215,11 +217,11 @@ class TextEdit(LineEdit):
         if self.is_hover:
             if self.director.TE_HOVER != self:
                 self.director.TE_HOVER = self
-                self.director.root.child('mouse').change_state('输入')
+                self.director.child('mouse').change_state('输入')
         else:
             if self.director.TE_HOVER == self:
                 self.director.TE_HOVER = None
-                self.director.root.child('mouse').set_last_state()
+                self.director.child('mouse').set_last_state()
 
         # 点击激活
         if self.is_hover:

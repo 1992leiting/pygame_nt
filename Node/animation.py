@@ -12,7 +12,6 @@ class Animation(Node):
         self.timer = 0
         self.kx, self.ky = 0, 0
         self.width, self.height = 0, 0
-        self.frame_num = 0  # 总帧数
         self.frames = []  # 帧队列,元素为surface或者image
         self.frame_index = 0  # 帧序号
         self.highlight = False
@@ -25,6 +24,10 @@ class Animation(Node):
         :return:
         """
         return self.frames[self.frame_index]
+
+    @property
+    def frame_num(self):
+        return len(self.frames)
 
     def update(self):
         if self.is_playing:

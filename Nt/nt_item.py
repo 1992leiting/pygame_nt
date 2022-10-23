@@ -21,8 +21,8 @@ class ConfigItem:
 
 
 class TreeWidget(QtWidgets.QTreeWidget):
-    def __init__(self, parent=None):
-        super(TreeWidget, self).__init__(parent)
+    def __init__(self):
+        super(TreeWidget, self).__init__()
         self.setDragDropMode(QtWidgets.QTreeWidget.InternalMove)
         self.setDragEnabled(True)
         self.config_data = None
@@ -92,8 +92,8 @@ class TreeWidget(QtWidgets.QTreeWidget):
 
 
 class TreeWidgetItem(QtWidgets.QTreeWidgetItem):
-    def __init__(self, node_name, node_type, parent=None):
-        super(TreeWidgetItem, self).__init__(parent)
+    def __init__(self, node_name, node_type):
+        super(TreeWidgetItem, self).__init__()
         # 自定义参数, 和节点相关
         self.node_name = node_name
         self.node_type = node_type

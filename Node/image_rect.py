@@ -33,7 +33,7 @@ class ImageRect(Node):
         return self
 
     def crop(self, x, y, width, height):
-        from common import crop_image
+        from Common.common import crop_image
         self.disp_image = crop_image(self.image, x, y, width, height)
 
     def draw(self):

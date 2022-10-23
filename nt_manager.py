@@ -113,6 +113,7 @@ class NewUiMainWindow(UIM):
         if not self.config_file:
             return
         try:
+            self.treeWidget_node_tree.clear()
             self.treeWidget_node_tree.tree_from_config(self.config_file)
             self.show_sb_msg('已加载配置文件:' + self.config_file)
             self.lineEdit_config_file.setText(self.config_file)

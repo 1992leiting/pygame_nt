@@ -113,16 +113,12 @@ def traverse_node(node):
         children['mouse'] = m
 
     if len(children) > 0:
-        # 先绘制draw_first节点
-        for child in children.values():
-            if child.enable and child.visible and child.draw_first:
-                child.draw()
         # 遍历所有子节点并绘制
         for child in children.values():
             if not child.enable:
                 break
             child.update()
-            if child.visible and not child.draw_first:
+            if child.visible:
                 child.draw()
                 if child.ysort:
                     child.process_ysort()
@@ -205,7 +201,7 @@ def set_node_attr(node, attrs: dict):
   :      param attrs: dict类型, 键为参数名称, 值为参数数值
   :      return: 节点对象
     """
-    from res_manager import fill_res
+    from Game.res_manager import fill_res
     if 'rsp_file' in attrs and 'hash_id' in attrs:
         fill_res(node, attrs['rsp_file'], attrs['hash_id'])
     for k, v in attrs.items():
@@ -230,9 +226,9 @@ def exit_game():
 
 def game_start(gl):
     print('game start...')
-    from Instance.character import Character
-    from Instance.world import World
-    from Instance.camera import Camera
+    from Node.character import Character
+    from Node.world import World
+    from Node.camera import Camera
     from UiLayer.FunctionLayer.function_layer import FunctionLayer
     from UiLayer.WindowLayer.window_layer import WindowLayer
 

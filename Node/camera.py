@@ -9,19 +9,19 @@ class Camera(Node):
 
     @property
     def center_x(self):
-        return self.x + self.director.width / 2
+        return self.x + self.director.window_w / 2
 
     @center_x.setter
     def center_x(self, cx):
-        self.x = cx - self.director.width / 2
+        self.x = cx - self.director.window_w / 2
 
     @property
     def center_y(self):
-        return self.y + self.director.height / 2
+        return self.y + self.director.window_h / 2
 
     @center_y.setter
     def center_y(self, cy):
-        self.y = cy - self.director.height / 2
+        self.y = cy - self.director.window_h / 2
 
     def move(self, dx, dy):
         # print('camera move:', dx, dy)
@@ -38,6 +38,7 @@ class Camera(Node):
         self.y = max(self.y, self.limit[1])
         self.y = min(self.y, self.limit[3])
 
-        if self.binding_node:
-            self.binding_node.x = -self.x
-            self.binding_node.y = -self.y
+        # camera本质控制的是父节点的移动, camera偏移多少, 父节点就反方向偏移
+        if self._parent:
+            self._parent.x = -self.x
+            self._parent.y = -self.y

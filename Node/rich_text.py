@@ -1,11 +1,11 @@
 import time
 
 import pygame
-from common import *
+from Common.common import *
 from Node.node import Node
 from Node.label import Label
-from constants import *
-from Instance.emoji import Emoji
+from Common.constants import *
+from Node.emoji import Emoji
 
 
 class Word:
@@ -128,7 +128,7 @@ class RichText(Node):
                             emoji_index = emoji_index * 10 + int(char_list[i + 3])
                             skip = 3
                     if emoji_index is not None:
-                        from res_manager import fill_res
+                        from Game.res_manager import fill_res
                         emoji = Emoji()
                         emoji.surface = self.dynamic_surface
                         fill_res(emoji, 'wzife.rsp', MY_EMOJI[emoji_index])
@@ -153,7 +153,7 @@ class RichText(Node):
                     chl_name = 'dw'
                 if chl_name is not None:
                     skip = 2
-                    from res_manager import fill_res
+                    from Game.res_manager import fill_res
                     emoji = Emoji()
                     emoji.surface = self.dynamic_surface
                     fill_res(emoji, 'wzife.rsp', CHL_EMOJI[chl_name])

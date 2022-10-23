@@ -82,8 +82,6 @@ def fill_emoji(emoji, rsp_file, hash_id):
     emoji.kx, emoji.ky = res.kx, res.ky
     for img in frames:
         emoji.frames.append(img)
-    emoji.frame_num = len(frames)
-    emoji.cur_frame = frames[0]
 
 
 def fill_button(btn, rsp_file, hash_id):
@@ -112,11 +110,11 @@ def fill_animation8d(ani8d, rsp_file, hash_id):
     for i in range(res.dir_cnt):
         frames = res.frames[i]
         ani = Animation()
+        ani.frames = []
         ani.kx, ani.ky = res.kx, res.ky
         ani.width, ani.height = res.width, res.height
         for img in frames:
             ani.frames.append(img)
-        ani.frame_num = len(ani.frames)
         ani8d.add_child(str(i), ani)
     ani8d.width, ani8d.height = res.width, res.height
 

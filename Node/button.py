@@ -1,6 +1,6 @@
 import pygame.mouse
 from Node.node import Node
-from constants import *
+from Common.constants import *
 
 
 class Button(Node):

@@ -17,7 +17,7 @@ class BuffEffect(Animation8D):
         self.setup()
 
     def setup(self):
-        from res_manager import fill_magic_effect
+        from Game.res_manager import fill_magic_effect
         fill_magic_effect(self, '状态_' + self.name)
         front, on_top, offset = get_buff_effect_position(self.name)
         self.is_in_front = front
@@ -42,7 +42,7 @@ class MagicEffect(Animation8D):
         return get_magic_attack_frame(self.name)[0]
 
     def setup(self):
-        from res_manager import fill_magic_effect
+        from Game.res_manager import fill_magic_effect
         fill_magic_effect(self, self.name)
         if self.name == '反震':
             self.frame_index = 3

@@ -62,7 +62,7 @@ def fill_res(node, rsp_file, hash_id):
     from Node.image_rect import ImageRect
     from Node.progressbar import ProgressBar
     from Node.animation import Animation8D
-    from Instance.emoji import Emoji
+    from Node.emoji import Emoji
     if type(node) == Button:
         fill_button(node, rsp_file, hash_id)
     elif type(node) == Animation8D:
@@ -215,7 +215,7 @@ def read_rsp(rsp_file, hash_id):
 def read_mapx(map_id):
     print('read map:', map_id)
     import time
-    from Instance.map_mask import MapMask
+    from Node.map_mask import MapMask
     t = time.time()
     mapx = Mapx()
     mapx.map_id = map_id

@@ -42,7 +42,7 @@ class ProgressBar(Node):
         #     img_bytes = pil_img.tobytes()
         #     self.image = pygame.image.fromstring(img_bytes, (w, self.height), 'RGBA')
         if self.image:
-            from common import crop_image
+            from Common.common import crop_image
             w = int(self.width * self.progress / 100)
             self.disp_image = crop_image(self.image, 0, 0, w, self.height)
 

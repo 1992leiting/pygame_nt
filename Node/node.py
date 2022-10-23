@@ -9,7 +9,12 @@ class Node:
     基础节点类，其他所有UI类型都继承Node
     Node提供各种基础属性和方法
     """
-    def __init__(self):
+    def __init__(self, director=False):
+        if not director:
+            from Node.director import game_director
+            self.director = game_director
+        else:
+            self.director = self
         self.node_name = ''
         self.level = 0  # 节点层级, 根节点为0级, 其子节点为1级, 类推
         self.uuid = 0  # 唯一标识符
@@ -20,23 +25,29 @@ class Node:
         self. _x, self._y = 0, 0  # 相对于父节点的坐标
         self.kx, self.ky = 0, 0
         self.width, self.height = 0, 0
-        # self.surface = self.director.screen  # 该节点blit的目标surface，默认为GL.screen
+        self._surface = None
         self.ysort = False  # 按y坐标进行排序
-        self.draw_first = False  # 在所有子节点中优先绘制
         self.mouse_filter = STOP
         self.timer = 0
 
-    @property
-    def director(self):
-        from Node.director import Director
-        if not self._parent and type(self) == Director:
-            return self
-        else:
-            return self._parent.director
+    # @property
+    # def director(self):
+    #     from Node.director import Director
+    #     if not self._parent and type(self) == Director:
+    #         return self
+    #     else:
+    #         return self._parent.director
 
     @property
     def surface(self):
-        return self.director.screen
+        if not self._surface:
+            return self.director.screen
+        else:
+            return self._surface
+
+    @surface.setter
+    def surface(self, sf):
+        self._surface = sf
 
     """
     x, y是节点的全局坐标(自身坐标所有父节点坐标的和), 位置为左上角
@@ -319,9 +330,9 @@ class Node:
         with open(config_file, 'rb') as f:
             from Common.common import new_node
             config_item = pickle.load(f)
-            node_type = type(new_node(config_item.node_type))
-            if not isinstance(self, node_type):
-                raise TypeError('config节点类型:\'{}\'与本身节点类型\'{}\'不符!'.format(str(node_type), str(type(self))))
+            # node_type = type(new_node(config_item.node_type))
+            # if not isinstance(self, node_type):
+            #     raise TypeError('config节点类型:\'{}\'与本身节点类型\'{}\'不符!'.format(str(node_type), str(type(self))))
         from Common.common import traverse_config_item
         traverse_config_item(config_item, self)
 
@@ -332,11 +343,9 @@ class Node:
         :return:
         """
         nodes = path.strip('/').split('/')
-        print('node path:', nodes)
         target = self
         for node in nodes:
             target = target.child(node)
-            print(target, target._children)
         return target
 
     def check_event(self):

@@ -2,8 +2,8 @@ from pyastar2d import astar_path
 
 
 class Astar:
-    def __init__(self, gl):
-        self.GL = gl
+    def __init__(self, director):
+        self.director = director
         self.cell = None
 
     def find_path(self, source, target):
@@ -14,7 +14,7 @@ class Astar:
             if self.cell[goal[0], goal[1]] > 1:
                 flag = False
                 goal = self.nearest_valid_coord(goal)
-        if goal[0] < 0 or goal[1] > self.GL.WINDOW_W or goal[1] < 0 or goal[1] > self.GL.WINDOW_H:
+        if goal[0] < 0 or goal[1] > self.director.window_w or goal[1] < 0 or goal[1] > self.director.window_h:
             return []
         try:
             path = astar_path(self.cell, start, goal, allow_diagonal=True)

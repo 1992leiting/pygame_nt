@@ -1,7 +1,6 @@
 import random
 import pygame.mouse
 from Common.common import *
-from Node.node import Node
 from Node.animation import Animation8D
 from Node.image_rect import ImageRect
 from Common.constants import *
@@ -19,7 +18,7 @@ class BasicCharacter(Node):
         self.shapes = shapes  # shapes:普通模型, bshapes:战斗模型
         self.model = "龙太子"
         self.weapon = "刑天之逆"
-        self.name = '风一样的男子'
+        self.name = '小菜菜'
         self.title = '江湖小虾'
         self.suit = ''
         self.is_moving = False
@@ -33,7 +32,7 @@ class BasicCharacter(Node):
         self.mask_rect = pygame.Rect(0, 0, 0, 0)
         self.is_hover = False
         self.mouse_filter = STOP
-        # self.setup_from_config('basic_character.conf')
+        self.setup_from_config('basic_character.conf')
 
     @property
     def speed(self):
@@ -94,7 +93,7 @@ class BasicCharacter(Node):
                 chd.set_fps(v)
 
     def setup_basic(self):
-        from res_manager import fill_animation8d, fill_image_rect
+        from Game.res_manager import fill_animation8d, fill_image_rect
         self.clear_children()
         model_index = self.model
         weapon_index = ""
@@ -226,12 +225,12 @@ class BasicCharacter(Node):
             if self.director.char_hover != self.id:
                 self.director.char_hover = self.id
                 if self.type == 'npc':
-                    self.director.root.child('mouse').change_state('事件')
+                    self.director.child('mouse').change_state('事件')
         else:
             if self.director.char_hover == self.id:
                 self.director.char_hover = None
                 if self.type == 'npc':
-                    self.director.root.child('mouse').set_last_state()
+                    self.director.child('mouse').set_last_state()
 
     def check_event(self):
         if self.is_hover:
@@ -249,7 +248,6 @@ class Character(BasicCharacter):
         self.type = 'player'
 
     def setup_character(self):
-        self.setup_from_config('basic_character.conf')
         name = Label()
         name.text = self.name
         name.font_name = 'mod_AdobeSong.ttf'
@@ -426,7 +424,7 @@ class BattleUnit(BasicCharacter):
         self.add_child('name', name)
 
     def setup_basic(self):
-        from res_manager import fill_animation8d, fill_image_rect
+        from Game.res_manager import fill_animation8d, fill_image_rect
 
         model_index = self.model
         weapon_index = ''
@@ -523,12 +521,12 @@ class BattleUnit(BasicCharacter):
             if self.director.CHAR_HOVER != self.id:
                 self.director.CHAR_HOVER = self.id
                 if self.type == 'npc':
-                    self.director.root.child('mouse').change_state('事件')
+                    self.director.child('mouse').change_state('事件')
         else:
             if self.director.CHAR_HOVER == self.id:
                 self.director.CHAR_HOVER = None
                 if self.type == 'npc':
-                    self.director.root.child('mouse').set_last_state()
+                    self.director.child('mouse').set_last_state()
 
         # 抖动
         if self.is_shaking and not self.path:

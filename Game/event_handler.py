@@ -46,10 +46,10 @@ class EventHandler:
                     common.play_char_sound('龙太子', '倒地')
                 if key == pygame.K_F5:
                     self.director.is_in_battle = True
-                    self.director.root.child('world').change_state(True)
+                    self.director.child('world').change_state(True)
                 if key == pygame.K_F6:
                     self.director.is_in_battle = False
-                    self.director.root.child('world').change_state(False)
+                    self.director.child('world').change_state(False)
                 if key == pygame.K_UP:
                     v = pygame.mixer.music.get_volume()
                     common.set_bgm_volume(v + 0.1)
