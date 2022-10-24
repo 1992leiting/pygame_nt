@@ -3,6 +3,7 @@ from Nt.nt_item import ConfigItem
 from Common.common import *
 from UiLayer.FunctionLayer.function_layer import FunctionLayer
 from UiLayer.WindowLayer.window_layer import WindowLayer, Window
+from Node.button import ButtonClassicRed
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -29,8 +30,17 @@ wl = WindowLayer()
 director.add_child('window_layer', wl)
 
 win = Window()
-director.add_child('win', win)
+win.window_title = '确定要退出游戏吗?'
 win.setup()
+btn = ButtonClassicRed('测试按钮', 100)
+btn.x, btn.y = 100, 100
+win.add_child('btn', btn)
+wl.add_child('win', win)
+
+win2 = Window()
+win2.window_title = '符石合成'
+win2.setup()
+wl.add_child('win2', win2)
 
 while True:
     director.event_handler.update()

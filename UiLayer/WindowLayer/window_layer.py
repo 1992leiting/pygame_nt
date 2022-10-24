@@ -3,6 +3,7 @@ import pygame
 from Common.constants import *
 from Node.image_rect import ImageRect
 from Common.common import *
+from Node.button import ButtonClassicClose, Button
 
 
 class Window(Node):
@@ -13,6 +14,25 @@ class Window(Node):
         super(Window, self).__init__()
         self.width, self.height = 400, 442
         self.window_title = '游戏窗口'
+        self.is_pressed = False  # 鼠标按住
+        self.press_x, self.press_y = 0, 0
+        self.ori_x, self.ori_y = 0, 0
+
+    @property
+    def window_name(self):
+        """
+        窗口名称, 和节点名称相同
+        :return:
+        """
+        return self.node_name
+
+    @property
+    def win_manager(self):
+        return self.get_parent()
+
+    @property
+    def is_hover(self):
+        return self.rect.collidepoint(pygame.mouse.get_pos())
 
     def setup(self):
         # 背景裁切
@@ -27,70 +47,117 @@ class Window(Node):
         标题栏.x += 4
         标题栏.y += 2
         self.add_child('标题栏', 标题栏)
-        # 标题背景裁切, 居中
+        # 标题背景裁切, 标题文字, 居中
         标题背景 = set_node_attr(ImageRect(), {'rsp_file': 'wzife1.rsp', 'hash_id': 0x446087F2})
         self.add_child('标题背景', 标题背景)
-        标题背景.image = auto_sizing(标题背景.image, 100, 标题背景.height)
-        标题背景.width, 标题背景.height = 100, 标题背景.height
-        标题背景.x = self.width//2 - 标题背景.width//2
-        标题背景.y += 3
-        # 标题居中
+
         from Node.label import Label
         标题 = Label(text=self.window_title, font_name=SIM_HEI, bold=True, size=15)
         标题.x = self.width//2 - 标题.width//2
         标题.y += 2
         self.add_child('标题', 标题)
 
+        width = max(100, 标题.width + 40)
+        标题背景.image = auto_sizing(标题背景.image, width, 标题背景.height)
+        标题背景.width, 标题背景.height = width, 标题背景.height
+        标题背景.x = self.width // 2 - 标题背景.width // 2
+        标题背景.y += 3
+        # 关闭按钮, 居右
+        关闭按钮 = ButtonClassicClose()
+        关闭按钮.x = self.width - 25
+        关闭按钮.y += 4
+        self.add_child('关闭按钮', 关闭按钮)
+
         self.x = self.director.window_w//2 - self.width//2
         self.y = self.director.window_h//2 - self.height//2
+        self.ori_x, self.ori_y = self.x, self.y
+
+    def check_event(self):
+        # 左键点击激活
+        if self.is_hover:
+            if self.director.match_mouse_event(PASS, MOUSE_LEFT_DOWN):
+                self.win_manager.set_active_window(self.window_name)
+        # 判断是否按住
+        if self.is_hover:
+            if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
+                self.is_pressed = True
+                self.press_x, self.press_y = pygame.mouse.get_pos()
+            if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+                self.is_pressed = False
+                self.ori_x, self.ori_y = self.x, self.y
+        # 按住拖动
+        if self.is_pressed:
+            mpos = pygame.mouse.get_pos()
+            dx = self.press_x - mpos[0]
+            dy = self.press_y - mpos[1]
+            self.x = self.ori_x - dx
+            self.y = self.ori_y - dy
+        # 右键点击关闭
+        if self.is_hover:
+            if self.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
+                self.visible = False
 
 
 class WindowLayer(Node):
+    """
+    游戏的窗口管理器
+    """
     def __init__(self):
         super(WindowLayer, self).__init__()
         self.window_list = []  # 所有游戏窗口
         self.hover_window = None
 
-    def append(self, win):
-        self.window_list.append(win)
-
-    @property
-    def window_list_r(self):
-        """
-        window_list反序
-        :return:
-        """
-        _list = self.window_list.copy()
-        _list.reverse()
-        return _list
+    # @property
+    # def window_list_r(self):
+    #     """
+    #     window_list反序
+    #     :return:
+    #     """
+    #     _list = self.window_list.copy()
+    #     _list.reverse()
+    #     return _list
 
     @property
     def active_window(self):
         """
-        最上层的窗口, 活跃窗口
+        最上层的窗口名称, 活跃窗口
         :return:
         """
         # 返回列表末尾窗口(显示时在最上方)
-        if len(self.window_list) > 0 and self.window_list[-1].visible:
-            return self.window_list[-1]
+        if self.get_children_count() > 0:
+            return self.get_children().keys()[-1]
         return None
 
-    def window_switch(self, win, visible=None):
+    def set_active_window(self, name: str):
+        print('set active:', name)
+        for win_name, win in self.get_children().copy().items():
+            if name == win_name:
+                tmp_name, tmp_win = win_name, win
+                self.remove_child(win_name)
+                self.add_child(tmp_name, tmp_win)
+                return
+
+    def switch_window(self, win, visible=None):
         """
         切换窗口可视状态
         :param win: 窗口类
         :param visible: 可视状态, True/False
         :return:
         """
-        win.switch(visible)
+        # visible为None时切换可视状态, 指定visible可以指定可视状态
+        if visible is None:
+            win.visible = not win.visible
+        else:
+            win.visible = visible
 
         # 若窗口变为可视则加入队列, 且提升到最高层级
-        if win.is_visible:
-            if win in self.window_list:
-                self.window_list.remove(win)
-            self.append(win)
+        if win.visible:
+            self.set_active_window(win)
 
-    def update(self):
+    def check_event(self):
+        pass
+
+    def update2(self):
         m_pos = pygame.mouse.get_pos()
         if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
             if self.active_window is not None:

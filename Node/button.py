@@ -1,6 +1,7 @@
 import pygame.mouse
 from Node.node import Node
 from Common.constants import *
+from Game.res_manager import fill_button
 
 
 class Button(Node):
@@ -28,6 +29,13 @@ class Button(Node):
         self._event = None
         return _tmp
 
+    def auto_sizing(self):
+        from Common.common import auto_sizing
+        self.img_normal = auto_sizing(self.img_normal, self.width, self.height)
+        self.img_pressed = auto_sizing(self.img_pressed, self.width, self.height)
+        self.img_hover = auto_sizing(self.img_hover, self.width, self.height)
+        self.img_disable = auto_sizing(self.img_disable, self.width, self.height)
+
     def update(self):
         # 判断hover
         if self.rect.collidepoint(pygame.mouse.get_pos()):
@@ -46,7 +54,9 @@ class Button(Node):
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
                 self.is_pressed = True
             if self.is_pressed and self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
+                print('press released')
                 self.is_pressed = False
+                self._event = True
         else:
             self.is_pressed = False
             self.cur_img = self.img_normal
@@ -67,3 +77,37 @@ class Button(Node):
             else:
                 self.director.screen.blit(self.cur_img, (self.x, self.y))
         # pygame.draw.rect(self.director.screen, (255, 255, 255), self.rect, 1)
+
+
+class ButtonClassicClose(Button):
+    """
+    传统样式关闭按钮
+    """
+    def __init__(self):
+        super(ButtonClassicClose, self).__init__()
+        fill_button(self, 'wzife.rsp', 0xF11233BB)
+
+    def check_event(self):
+        if self.event and self.get_parent():
+            print('close event')
+            self.get_parent().visible = False
+
+
+class ButtonClassicRed(Button):
+    """
+    传统样式红色按钮
+    """
+    def __init__(self, text, width):
+        super(ButtonClassicRed, self).__init__()
+        fill_button(self, 'wzife4.rsp', 0x0267FB16)
+        self.text = text
+        self.width = width
+        self.setup()
+
+    def setup(self):
+        self.auto_sizing()
+        from Node.label import Label
+        label = Label(self.text, size=14)
+        label.center_x = self.center_x
+        label.center_y = self.center_y
+        self.add_child('label', label)
