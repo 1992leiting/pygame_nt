@@ -75,16 +75,17 @@ class Window(Node):
     def check_event(self):
         # 左键点击激活
         if self.is_hover:
-            if self.director.match_mouse_event(PASS, MOUSE_LEFT_DOWN):
-                self.win_manager.set_active_window(self.window_name)
+            if self.window_name != self.win_manager.active_window:
+                if self.director.match_mouse_event(PASS, MOUSE_LEFT_DOWN):
+                    self.win_manager.set_active_window(self.window_name)
         # 判断是否按住
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
                 self.is_pressed = True
                 self.press_x, self.press_y = pygame.mouse.get_pos()
-            if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
-                self.is_pressed = False
-                self.ori_x, self.ori_y = self.x, self.y
+        if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+            self.is_pressed = False
+            self.ori_x, self.ori_y = self.x, self.y
         # 按住拖动
         if self.is_pressed:
             mpos = pygame.mouse.get_pos()
@@ -125,7 +126,7 @@ class WindowLayer(Node):
         """
         # 返回列表末尾窗口(显示时在最上方)
         if self.get_children_count() > 0:
-            return self.get_children().keys()[-1]
+            return list(self.get_children().keys())[-1]
         return None
 
     def set_active_window(self, name: str):
