@@ -253,6 +253,7 @@ class RichText(Node):
         self.director.screen.blit(self.surface, (self.x, self.y))
 
     def check_event(self):
+        super(RichText, self).check_event()
         pos = self.director.get_mouse_pos(self.mouse_filter)
         self.is_hover = self.rect.collidepoint(pos)
 

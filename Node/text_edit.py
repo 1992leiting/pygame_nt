@@ -146,6 +146,7 @@ class LineEdit(Node):
                 self.tk_timer = time.time()
 
     def check_event(self):
+        super(LineEdit, self).check_event()
         if not self.is_active:
             return
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_BACKSPACE]):
@@ -158,7 +159,7 @@ class LineEdit(Node):
 
 
 class TextEdit(LineEdit):
-    def __init__(self, text='', width=200, height=200, font_size=14, font_name=DEFAULT_FONT):
+    def __init__(self, text='', width=200, height=200, font_size=14, font_name=DEFAULT_FONT, text_color='白'):
         super(TextEdit, self).__init__()
         self.text = text
         self.width, self.height = width, height
@@ -172,7 +173,7 @@ class TextEdit(LineEdit):
         self.dx, self.dy = 0, 0  # 文本基于surface左上角偏移的坐标(用于边角留白)
         self.shift_x, self.shift_y = 0, 0  # 文字的偏移量(溢出时起作用)
         self.word_list = []
-        self.text_color = get_color('白')
+        self.text_color = get_color(text_color)
         self.italic = False
         self.shadow = False
         self.password_mode = False  # 密码模式
@@ -180,9 +181,9 @@ class TextEdit(LineEdit):
         self.cursor_pos = 0  # 光标的位置(第几个字符的右边)
         self.cursor_x, self.cursor_y = 0, 0  # 光标坐标
         self.is_hover = False
-        if self.director.TE_MGR is None:
-            self.director.TE_MGR = TextEditManager()
-        self.director.TE_MGR.append(self)
+        if self.director.te_manager is None:
+            self.director.te_manager = TextEditManager()
+        self.director.te_manager.append(self)
         self._parse()
 
     def _parse(self):
@@ -211,23 +212,25 @@ class TextEdit(LineEdit):
                 cur_width = cur_width + char_width + self.word_space
             word.render_to(self.surface, word.x, word.y)
 
-    def update(self):
+    def check_event(self):
+        super(TextEdit, self).check_event()
         self.is_hover = self.rect.collidepoint(pygame.mouse.get_pos())
         # 鼠标指向时指针变化
-        if self.is_hover:
-            if self.director.TE_HOVER != self:
-                self.director.TE_HOVER = self
+        if self.is_hover and self.is_active:
+            if self.director.te_hover != self:
+                self.director.te_hover = self
                 self.director.child('mouse').change_state('输入')
         else:
-            if self.director.TE_HOVER == self:
-                self.director.TE_HOVER = None
+            if self.director.te_hover == self:
+                self.director.te_hover = None
                 self.director.child('mouse').set_last_state()
 
         # 点击激活
         if self.is_hover:
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
-                self.director.TE_MGR.activate(self)
+                self.director.te_manager.activate(self)
 
+    def update(self):
         # 光标坐标
         self.cursor_x = 0
         for i in range(self.cursor_pos):

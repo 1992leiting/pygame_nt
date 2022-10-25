@@ -35,6 +35,16 @@ class ImageRect(Node):
     def crop(self, x, y, width, height):
         from Common.common import crop_image
         self.disp_image = crop_image(self.image, x, y, width, height)
+        self.width, self.height = width, height
+
+    def auto_sizing(self, w=0, h=0):
+        if w == 0:
+            w = self.width
+        if h == 0:
+            h = self.height
+        from Common.common import auto_sizing
+        self.image = auto_sizing(self.image, w, h)
+        self.width, self.height = w, h
 
     def draw(self):
         if not self.disp_image:

@@ -37,6 +37,7 @@ class Button(Node):
         self.img_disable = auto_sizing(self.img_disable, self.width, self.height)
 
     def check_event(self):
+        # super(Button, self).check_event()
         # 判断hover
         if self.rect.collidepoint(pygame.mouse.get_pos()):
             pos = pygame.mouse.get_pos()
@@ -52,7 +53,6 @@ class Button(Node):
         # 判断按住
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
-                print('btn pressed')
                 self.is_pressed = True
             if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
                 self.is_pressed = False

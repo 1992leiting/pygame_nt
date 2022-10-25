@@ -22,6 +22,7 @@ class Emoji(Animation):
         # pygame.draw.circle(self.surface, (255, 0, 0), (self.x, self.y), 4)
 
     def check_event(self):
+        super(Emoji, self).check_event()
         if self.rect.collidepoint(pygame.mouse.get_pos()):
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
                 print('emoji:', self.id)

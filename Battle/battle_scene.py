@@ -154,6 +154,7 @@ class BattleScene(Node):
             self.child('units').add_child('enemy_' + str(num), bu)
 
     def check_event(self):
+        super(BattleScene, self).check_event()
         # test
         values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_1]):

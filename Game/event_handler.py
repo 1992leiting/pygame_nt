@@ -81,21 +81,21 @@ class EventHandler:
             if mouse[0]:  # 鼠标左键按下
                 self.director.mouse_event = MOUSE_LEFT_DOWN
                 self.director.mouse_left_down_time = time.time()
-                self.director.is_mouse_left_released = True
+                self.director.is_mouse_left_released = False
 
             if mouse[2]:  # 鼠标右键按下
                 self.director.mouse_event = MOUSE_RIGHT_DOWN
-                self.director.is_mouse_right_released = True
+                self.director.is_mouse_right_released = False
 
         if event.type == pygame.MOUSEBUTTONUP:  # 鼠标弹起
             if event.button == 1:  # 鼠标左键弹起
                 self.director.mouse_event = MOUSE_LEFT_RELEASE
                 self.director.mouse_left_down_time = 9999999999
-                self.director.is_mouse_left_released = False
+                self.director.is_mouse_left_released = True
 
             elif event.button == 3:  # 鼠标右键弹起
                 self.director.mouse_event = MOUSE_RIGHT_RELEASE
-                self.director.is_mouse_right_released = False
+                self.director.is_mouse_right_released = True
 
     def check_text_input_event(self, event):
         if event.type == pygame.TEXTINPUT:  # text输入

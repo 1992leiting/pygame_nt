@@ -92,6 +92,7 @@ class MessageArea(Node):
         # self.add_child('消息输入框2', 消息输入2)
 
     def check_event(self):
+        super(MessageArea, self).check_event()
         if self.child('表情开关').rect.collidepoint(pygame.mouse.get_pos()):
             self.child('表情开关').is_playing = True
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):

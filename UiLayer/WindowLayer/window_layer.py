@@ -4,6 +4,7 @@ from Common.constants import *
 from Node.image_rect import ImageRect
 from Common.common import *
 from Node.button import ButtonClassicClose, Button
+from Node.text_edit import TextEdit
 
 
 class Window(Node):
@@ -33,6 +34,10 @@ class Window(Node):
     @property
     def is_hover(self):
         return self.rect.collidepoint(pygame.mouse.get_pos())
+
+    @property
+    def is_active(self):
+        return self.win_manager.active_window == self.window_name
 
     def setup(self):
         # 背景裁切
@@ -73,17 +78,26 @@ class Window(Node):
         self.ori_x, self.ori_y = self.x, self.y
 
     def check_event(self):
+        super(Window, self).check_event()
         # 左键点击激活
         if self.is_hover:
-            if self.window_name != self.win_manager.active_window:
+            if self.is_active:
                 if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
                     self.win_manager.set_active_window(self.window_name)
+                    self.is_pressed = True
+                    self.press_x, self.press_y = pygame.mouse.get_pos()
         # 判断是否按住
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
                 self.is_pressed = True
                 self.press_x, self.press_y = pygame.mouse.get_pos()
-        if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+            elif self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+                self.is_pressed = False
+                self.ori_x, self.ori_y = self.x, self.y
+        else:  # 鼠标不在rect内则重置按下状态
+            self.is_pressed = False
+            self.ori_x, self.ori_y = self.x, self.y
+        if self.director.is_mouse_left_released:  # 双重保障, 全局鼠标左键弹起标志位为true则说明鼠标没有按下
             self.is_pressed = False
             self.ori_x, self.ori_y = self.x, self.y
         # 按住拖动
@@ -97,6 +111,15 @@ class Window(Node):
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
                 self.visible = False
+
+        for child in self.get_children().values():
+            # 点击子节点也激活自身
+            if hasattr(child, 'is_pressed') and child.is_pressed:
+                self.win_manager.set_active_window(self.window_name)
+
+            # 如果自身非激活, 则所有输入框也取消激活
+            if not self.is_active and type(child) == TextEdit:
+                child.is_active = False
 
 
 class WindowLayer(Node):
@@ -130,6 +153,8 @@ class WindowLayer(Node):
         return None
 
     def set_active_window(self, name: str):
+        if name == self.active_window:
+            return
         print('set active:', name)
         for win_name, win in self.get_children().copy().items():
             if name == win_name:
@@ -156,6 +181,7 @@ class WindowLayer(Node):
             self.set_active_window(win)
 
     def check_event(self):
+        super(WindowLayer, self).check_event()
         # print('active win:', self.active_window)
         pass
 

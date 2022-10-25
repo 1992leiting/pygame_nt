@@ -17,7 +17,7 @@ class Director(Node):
     """
     def __init__(self):
         super(Director, self).__init__(director=True)
-        self.game_fps = 30
+        self.game_fps = 60
         self.window_w = 800
         self.window_h = 600
         self.screen = pygame.display.set_mode(self.window_size, 0, 32)
@@ -34,7 +34,7 @@ class Director(Node):
         self.te_hover = None  # 鼠标指向的输入框
         self.mouse_scroll_y = 0  # 鼠标滚轮滚动的数量
         self.mouse_pos = None  # 鼠标坐标的暂存变量
-        self.mouse_left_down_time = 9999999999  # 鼠标左键按下的时长
+        self.mouse_left_down_time = 0  # 鼠标左键按下的时长
         self.event_handler = EventHandler(self)
         self.char_hover = None
         self.astar = Astar(self)

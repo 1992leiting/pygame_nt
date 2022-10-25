@@ -233,6 +233,7 @@ class BasicCharacter(Node):
                     self.director.child('mouse').set_last_state()
 
     def check_event(self):
+        super(BasicCharacter, self).check_event()
         if self.is_hover:
             # 左键按下事件要吸收掉
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):

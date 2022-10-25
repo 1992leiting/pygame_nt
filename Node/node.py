@@ -29,6 +29,7 @@ class Node:
         self.ysort = False  # 按y坐标进行排序
         self.mouse_filter = STOP
         self.timer = 0
+        self.is_pressed = False  # 鼠标按下
 
     # @property
     # def director(self):
@@ -353,7 +354,13 @@ class Node:
         如果想要捕获全局事件, 在这个方法里实现
         :return:
         """
-        pass
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+            if self.director.match_mouse_event(PASS, MOUSE_LEFT_DOWN):
+                self.is_pressed = True
+            if self.director.match_mouse_event(PASS, MOUSE_LEFT_RELEASE):
+                self.is_pressed = False
+        if self.director.is_mouse_left_released:
+            self.is_pressed = False
 
     def update(self):
         """

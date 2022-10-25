@@ -164,6 +164,7 @@ class World(Node):
             play_scene_bgm(self.map_id)
 
     def check_event(self):
+        super(World, self).check_event()
         if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
             hero = self.director.get_node('scene/world_scene/hero')
             camera = self.director.get_node('scene/world_scene/camera')
