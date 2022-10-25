@@ -76,7 +76,7 @@ class Window(Node):
         # 左键点击激活
         if self.is_hover:
             if self.window_name != self.win_manager.active_window:
-                if self.director.match_mouse_event(PASS, MOUSE_LEFT_DOWN):
+                if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
                     self.win_manager.set_active_window(self.window_name)
         # 判断是否按住
         if self.is_hover:
@@ -156,6 +156,7 @@ class WindowLayer(Node):
             self.set_active_window(win)
 
     def check_event(self):
+        # print('active win:', self.active_window)
         pass
 
     def update2(self):

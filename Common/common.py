@@ -137,11 +137,12 @@ def traverse_node_reverse(node):
         values = list(children.values())
         values.reverse()
         for child in values:
+            traverse_node_reverse(child)
             if child.enable and child.visible:
                 child.check_event()
             else:
                 continue
-            traverse_node_reverse(child)
+            # traverse_node_reverse(child)
 
 
 def print_node(node):

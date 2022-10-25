@@ -36,7 +36,7 @@ class Button(Node):
         self.img_hover = auto_sizing(self.img_hover, self.width, self.height)
         self.img_disable = auto_sizing(self.img_disable, self.width, self.height)
 
-    def update(self):
+    def check_event(self):
         # 判断hover
         if self.rect.collidepoint(pygame.mouse.get_pos()):
             pos = pygame.mouse.get_pos()
@@ -51,16 +51,17 @@ class Button(Node):
 
         # 判断按住
         if self.is_hover:
-            if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
+            if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
+                print('btn pressed')
                 self.is_pressed = True
-            if self.is_pressed and self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
-                print('press released')
+            if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
                 self.is_pressed = False
                 self._event = True
         else:
             self.is_pressed = False
             self.cur_img = self.img_normal
 
+    def update(self):
         self.cur_img = self.img_normal
         if self.is_hover:
             self.cur_img = self.img_hover
@@ -88,6 +89,7 @@ class ButtonClassicClose(Button):
         fill_button(self, 'wzife.rsp', 0xF11233BB)
 
     def check_event(self):
+        super(ButtonClassicClose, self).check_event()
         if self.event and self.get_parent():
             print('close event')
             self.get_parent().visible = False
