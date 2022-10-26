@@ -45,10 +45,8 @@ class Node:
             child.is_hover_enabled = v
 
     def check_hover(self):
-        if self.director.node_hover is not None:
-            print(self.director.node_hover.node_name)
-        #     self.is_hover = False
-        #     return
+        # if self.director.node_hover is not None:
+        #     print('hover node:', self.director.node_hover.node_name)
 
         mpos = pygame.mouse.get_pos()
         if self.director.node_hover is None and self.rect.collidepoint(mpos):
