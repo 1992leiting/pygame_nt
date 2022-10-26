@@ -27,10 +27,10 @@ hero.x, hero.y = 300, 300
 
 fl = FunctionLayer()
 director.add_child('function_layer', fl)
-fl.setup()
 
 wl = WindowLayer()
 director.add_child('window_layer', wl)
+wl.is_hover_enabled = False
 
 win = Window()
 win.window_title = '确定要退出游戏吗?'

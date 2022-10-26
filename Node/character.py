@@ -30,13 +30,26 @@ class BasicCharacter(Node):
         self.cur_char_animation = None
         self.cur_weapon_animation = None
         self.mask_rect = pygame.Rect(0, 0, 0, 0)
-        self.is_hover = False
         self.mouse_filter = STOP
         self.setup_from_config('basic_character.conf')
 
     @property
     def speed(self):
         return MOVING_SPEED * (60 // self.director.game_fps)  # 保证速度不会因为fps变化而变化
+
+    def check_hover(self):
+        # if self.director.node_hover is not None:
+        #     self.is_hover = False
+        #     return
+        pos = pygame.mouse.get_pos()
+        rect_pos = (pos[0] - self.mask_rect.x, pos[1] - self.mask_rect.y)
+        if self.director.node_hover is None and self.mask_rect.collidepoint(pos):
+            color = self.cur_char_animation.cur_frame.get_at(rect_pos)
+            if color != (0, 0, 0, 0):
+                self.is_hover = True
+                self.director.node_hover = self
+        else:
+            self.is_hover = False
 
     # def setup_ui(self):
     #     # UI层
@@ -206,14 +219,6 @@ class BasicCharacter(Node):
             self.mask_rect = mask.get_rect()
             self.mask_rect.x = self.x - self.cur_char_animation.kx
             self.mask_rect.y = self.y - self.cur_char_animation.ky
-
-            pos = pygame.mouse.get_pos()
-            rect_pos = (pos[0] - self.mask_rect.x, pos[1] - self.mask_rect.y)
-            if self.mask_rect.collidepoint(pos):
-                color = self.cur_char_animation.cur_frame.get_at(rect_pos)
-                self.is_hover = (color != (0, 0, 0, 0))
-            else:
-                self.is_hover = False
 
         if self.cur_char_animation:
             self.cur_char_animation.highlight = self.is_hover
@@ -498,14 +503,6 @@ class BattleUnit(BasicCharacter):
             self.mask_rect = mask.get_rect()
             self.mask_rect.x = self.x - self.cur_char_animation.kx
             self.mask_rect.y = self.y - self.cur_char_animation.ky
-
-            pos = pygame.mouse.get_pos()
-            rect_pos = (pos[0] - self.mask_rect.x, pos[1] - self.mask_rect.y)
-            if self.mask_rect.collidepoint(pos):
-                color = self.cur_char_animation.cur_frame.get_at(rect_pos)
-                self.is_hover = (color != (0, 0, 0, 0))
-            else:
-                self.is_hover = False
 
         if self.cur_char_animation:
             self.cur_char_animation.highlight = self.is_hover

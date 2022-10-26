@@ -10,6 +10,7 @@ class MapMask(Node):
         self.width, self.height = 0, 0
         self.id = 0
         self.img = None
+        self.is_hover_enabled = False
 
     @property
     def z(self):

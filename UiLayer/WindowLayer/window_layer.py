@@ -32,10 +32,6 @@ class Window(Node):
         return self.get_parent()
 
     @property
-    def is_hover(self):
-        return self.rect.collidepoint(pygame.mouse.get_pos())
-
-    @property
     def is_active(self):
         return self.win_manager.active_window == self.window_name
 
@@ -182,46 +178,3 @@ class WindowLayer(Node):
 
     def check_event(self):
         super(WindowLayer, self).check_event()
-        # print('active win:', self.active_window)
-        pass
-
-    def update2(self):
-        m_pos = pygame.mouse.get_pos()
-        if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
-            if self.active_window is not None:
-                self.active_window.is_pressed = False
-        for win in self.window_list_r:
-            if win == self.active_window:
-                win.process_event()
-            if win.is_visible and win.rect.collidepoint(m_pos):
-                self.hover_window = win
-                self.director.HERO_MOVE_FLAG = False  # 屏蔽主角行走
-                # 右键关闭窗口
-                if self.director.match_mouse_event(self.mouse_filter, MOUSE_RIGHT_RELEASE) and self.director.GRABBED_ITEM is None:
-                    self.window_switch(win, False)
-                    _ = self.director.mouse_event  # 清空鼠标事件, 避免右键关闭多个窗口
-
-            # 非活跃窗口一律重置pressed状态
-            if win != self.active_window:
-                win.is_pressed = False
-            # 非活跃窗口点击则置活跃状态
-            if win.is_visible and win != self.active_window and win.rect.collidepoint(m_pos):
-                if self.active_window is not None and self.active_window.rect.collidepoint(m_pos):
-                    pass
-                else:
-                    if self.director.mouse_event == MOUSE_LEFT_DOWN:
-                        self.window_switch(win, True)
-
-        # 按照优先级显示窗口
-        for win in self.window_list:
-            if win.is_visible:
-                win.update()
-
-        if self.active_window is not None:
-            # 活跃窗口被点击时置pressed状态
-            if self.active_window.rect.collidepoint(m_pos) and self.director.mouse_event == MOUSE_LEFT_DOWN:
-                self.active_window.is_pressed = True
-                self.active_window.px, self.active_window.py = m_pos[0] - self.active_window.sx, m_pos[1] - self.active_window.sy
-            # 活跃窗口鼠标拖动
-            if self.active_window.is_pressed and self.director.IS_MOUSE_LEFT_PRESSED and self.active_window.window_name != '对话栏':
-                self.active_window.sx, self.active_window.sy = m_pos[0] - self.active_window.px, m_pos[1] - self.active_window.py

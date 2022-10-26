@@ -29,6 +29,9 @@ class Animation(Node):
     def frame_num(self):
         return len(self.frames)
 
+    def check_hover(self):
+        pass
+
     def update(self):
         if self.is_playing:
             # 利用pygame FPS

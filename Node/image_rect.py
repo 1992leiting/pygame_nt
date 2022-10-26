@@ -10,6 +10,7 @@ class ImageRect(Node):
         self.width, self.height = 0, 0
         self.disp_image = None  # 当前显示的image
         self.mask_outline = {'outline': [], 'color': (255, 255, 255), 'width': 1}
+        self.is_hover_enabled = False
 
     def setup_outline(self, color=(255, 255, 255), width=1, threshold=10):
         mask = pygame.mask.from_surface(self.image, threshold=10)

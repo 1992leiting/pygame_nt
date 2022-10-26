@@ -12,7 +12,6 @@ class Button(Node):
         self.img_pressed = None
         self.img_disable = None
         self.cur_img = None  # 当前正在显示的image
-        self.is_hover = False
         self.is_pressed = False
         self.is_locked = False
         self._event = None
@@ -29,6 +28,24 @@ class Button(Node):
         self._event = None
         return _tmp
 
+    def check_hover(self):
+        # 判断hover
+        # if self.director.node_hover is not None:
+        #     self.is_hover = False
+        #     return
+        if self.director.node_hover is None and self.rect.collidepoint(pygame.mouse.get_pos()):
+            pos = pygame.mouse.get_pos()
+            rect_pos = (pos[0] - self.rect.x, pos[1] - self.rect.y)
+            if self.rect.collidepoint(pos):
+                color = self.cur_img.get_at(rect_pos)
+                if color != (0, 0, 0, 0):
+                    self.director.node_hover = self
+                    self.is_hover = True
+            else:
+                self.is_hover = False
+        else:
+            self.is_hover = False
+
     def auto_sizing(self):
         from Common.common import auto_sizing
         self.img_normal = auto_sizing(self.img_normal, self.width, self.height)
@@ -38,17 +55,6 @@ class Button(Node):
 
     def check_event(self):
         # super(Button, self).check_event()
-        # 判断hover
-        if self.rect.collidepoint(pygame.mouse.get_pos()):
-            pos = pygame.mouse.get_pos()
-            rect_pos = (pos[0] - self.rect.x, pos[1] - self.rect.y)
-            if self.rect.collidepoint(pos):
-                color = self.cur_img.get_at(rect_pos)
-                self.is_hover = (color != (0, 0, 0, 0))
-            else:
-                self.is_hover = False
-        else:
-            self.is_hover = False
 
         # 判断按住
         if self.is_hover:
@@ -113,3 +119,4 @@ class ButtonClassicRed(Button):
         label.center_x = self.center_x
         label.center_y = self.center_y
         self.add_child('label', label)
+        label.is_hover_enabled = False

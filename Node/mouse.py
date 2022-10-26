@@ -26,12 +26,13 @@ class Mouse(Node):
         self.last_state = self.state
 
         a8d = Animation8D()
-        self.add_child('animation', a8d)
+        self.add_child('mouse_ani', a8d)
         self.setup()
 
     def setup(self):
         from Game.res_manager import fill_animation8d
-        fill_animation8d(self.child('animation'), self.res[self.state][0], self.res[self.state][1])
+        fill_animation8d(self.child('mouse_ani'), self.res[self.state][0], self.res[self.state][1])
+        self.is_hover_enabled = False
 
     def set_last_state(self):
         self.change_state(self.last_state)
@@ -44,4 +45,4 @@ class Mouse(Node):
             self.setup()
 
     def update(self):
-        self.child('animation').x, self.child('animation').y = pygame.mouse.get_pos()
+        self.child('mouse_ani').x, self.child('mouse_ani').y = pygame.mouse.get_pos()

@@ -53,7 +53,6 @@ class LineEdit(Node):
         self.tk_timer = 0  # 闪烁计时器
         self.cursor_pos = 0  # 光标的位置(第几个字符的右边)
         self.cursor_x, self.cursor_y = 0, 0  # 光标坐标
-        self.is_hover = False
 
     def setup(self):
         if self.director.te_manager is None:
@@ -104,7 +103,6 @@ class LineEdit(Node):
             cur_width = cur_width + char_width + self.word_space
 
     def update(self):
-        self.is_hover = self.rect.collidepoint(pygame.mouse.get_pos())
         # 鼠标指向时指针变化
         if self.is_hover:
             if self.director.te_hover != self:
@@ -114,11 +112,6 @@ class LineEdit(Node):
             if self.director.te_hover == self:
                 self.director.te_hover = None
                 self.director.child('mouse').set_last_state()
-
-        # 点击激活
-        if self.is_hover:
-            if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
-                self.director.te_manager.activate(self)
 
         # 光标坐标
         self.cursor_x = 0
@@ -147,15 +140,20 @@ class LineEdit(Node):
 
     def check_event(self):
         super(LineEdit, self).check_event()
-        if not self.is_active:
-            return
-        if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_BACKSPACE]):
-            self.delete_text()
-        self.insert_text(self.director.get_kb_text())
-        if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_LEFT]):
-            self.cursor_pos = max(0, self.cursor_pos - 1)
-        if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_RIGHT]):
-            self.cursor_pos = min(len(self.text), self.cursor_pos + 1)
+
+        # 点击激活
+        if self.is_hover:
+            if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
+                self.director.te_manager.activate(self)
+
+        if self.is_active:
+            if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_BACKSPACE]):
+                self.delete_text()
+            self.insert_text(self.director.get_kb_text())
+            if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_LEFT]):
+                self.cursor_pos = max(0, self.cursor_pos - 1)
+            if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_RIGHT]):
+                self.cursor_pos = min(len(self.text), self.cursor_pos + 1)
 
 
 class TextEdit(LineEdit):
@@ -180,7 +178,6 @@ class TextEdit(LineEdit):
         self.tk_timer = 0  # 闪烁计时器
         self.cursor_pos = 0  # 光标的位置(第几个字符的右边)
         self.cursor_x, self.cursor_y = 0, 0  # 光标坐标
-        self.is_hover = False
         if self.director.te_manager is None:
             self.director.te_manager = TextEditManager()
         self.director.te_manager.append(self)
@@ -214,9 +211,8 @@ class TextEdit(LineEdit):
 
     def check_event(self):
         super(TextEdit, self).check_event()
-        self.is_hover = self.rect.collidepoint(pygame.mouse.get_pos())
         # 鼠标指向时指针变化
-        if self.is_hover and self.is_active:
+        if self.is_hover:
             if self.director.te_hover != self:
                 self.director.te_hover = self
                 self.director.child('mouse').change_state('输入')

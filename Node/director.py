@@ -37,6 +37,7 @@ class Director(Node):
         self.mouse_left_down_time = 0  # 鼠标左键按下的时长
         self.event_handler = EventHandler(self)
         self.char_hover = None
+        self.node_hover = None  # 当前处于hover状态的节点, 只允许有一个
         self.astar = Astar(self)
         self.is_hero_in_portal = False
 
@@ -98,7 +99,7 @@ class Director(Node):
 
     def get_mouse_pos(self, mode):
         """
-        获取鼠标坐标(坐标再每个游戏帧开始时获取), 模式为STOP时, 会清空坐标值
+        获取鼠标坐标(坐标再每个游戏帧开始时获取), 模式为STOP时, 会清空坐标值(屏幕外的坐标)
         效果类似鼠标点击获取, 避免UI重叠式重复获取到鼠标坐标, 影响hover判断
         :param mode:
         :return:
@@ -124,6 +125,7 @@ class Director(Node):
             print('连接游戏服务器成功!')
     
     def update(self):
+        self.node_hover = None
         self.mouse_pos = pygame.mouse.get_pos()
         # 移动镜头, 远快近慢优化镜头视觉效果
         hero = self.get_node('scene/world_scene/hero')

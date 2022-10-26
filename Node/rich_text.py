@@ -62,7 +62,6 @@ class RichText(Node):
         self.static_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示静态元素的surface，如文字
         self.dynamic_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示动态元素的surface，如emoji
         self._cnt = 0
-        self.is_hover = False
         self.scroll = 0  # 纵向滚动的像素数量
         self._parse()
         
@@ -254,8 +253,6 @@ class RichText(Node):
 
     def check_event(self):
         super(RichText, self).check_event()
-        pos = self.director.get_mouse_pos(self.mouse_filter)
-        self.is_hover = self.rect.collidepoint(pos)
 
         if self.is_hover:
             s = self.director.get_mouse_scroll(self.mouse_filter) * 8  # 鼠标滚动转换为滚动像素数量

@@ -139,6 +139,8 @@ def traverse_node_reverse(node):
         for child in values:
             traverse_node_reverse(child)
             if child.enable and child.visible:
+                if child.is_hover_enabled:
+                    child.check_hover()
                 child.check_event()
             else:
                 continue

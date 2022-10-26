@@ -30,14 +30,32 @@ class Node:
         self.mouse_filter = STOP
         self.timer = 0
         self.is_pressed = False  # 鼠标按下
+        self.is_hover = False  # 是否hover
+        self._hover_enabled = True  # 是否检测hover
 
-    # @property
-    # def director(self):
-    #     from Node.director import Director
-    #     if not self._parent and type(self) == Director:
-    #         return self
-    #     else:
-    #         return self._parent.director
+    @property
+    def is_hover_enabled(self):
+        return self._hover_enabled
+
+    @is_hover_enabled.setter
+    def is_hover_enabled(self, v):
+        self._hover_enabled = v
+        # 所有子类设置相同的值
+        for child in self.get_children().copy().values():
+            child.is_hover_enabled = v
+
+    def check_hover(self):
+        if self.director.node_hover is not None:
+            print(self.director.node_hover.node_name)
+        #     self.is_hover = False
+        #     return
+
+        mpos = pygame.mouse.get_pos()
+        if self.director.node_hover is None and self.rect.collidepoint(mpos):
+            self.director.node_hover = self
+            self.is_hover = True
+        else:
+            self.is_hover = False
 
     @property
     def surface(self):
