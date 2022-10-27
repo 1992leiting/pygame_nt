@@ -7,6 +7,7 @@ from Node.button import ButtonClassicRed
 from Node.image_rect import ImageRect
 from Node.text_edit import TextEdit
 from Game.res_manager import fill_res
+from UiLayer.WindowLayer.hero_attr import HeroAttr
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -32,26 +33,29 @@ wl = WindowLayer()
 director.add_child('window_layer', wl)
 wl.is_hover_enabled = False
 
-win = Window()
-win.window_title = '确定要退出游戏吗?'
-win.setup()
-btn = ButtonClassicRed('测试按钮', 100)
-btn.x, btn.y = 100, 100
-win.add_child('btn', btn)
-wl.add_child('win', win)
-bg = ImageRect()
-fill_res(bg, 'wzife4.rsp', 0xB74E6CA1)
-bg.auto_sizing(w=150)
-bg.x, bg.y = 100, 130
-win.add_child('bg', bg)
-edit = TextEdit(width=150, height=25, text_color='黑')
-edit.x, edit.y = 103, 133
-win.add_child('edit', edit)
+win = HeroAttr()
+wl.add_child('人物属性', win)
 
-win2 = Window()
-win2.window_title = '符石合成'
-win2.setup()
-wl.add_child('win2', win2)
+# win = Window()
+# win.window_title = '确定要退出游戏吗?'
+# win.setup()
+# btn = ButtonClassicRed('测试按钮', 100)
+# btn.x, btn.y = 100, 100
+# win.add_child('btn', btn)
+# wl.add_child('win', win)
+# bg = ImageRect()
+# fill_res(bg, 'wzife4.rsp', 0xB74E6CA1)
+# bg.auto_sizing(w=150)
+# bg.x, bg.y = 100, 130
+# win.add_child('bg', bg)
+# edit = TextEdit(width=150, height=25, text_color='黑')
+# edit.x, edit.y = 103, 133
+# win.add_child('edit', edit)
+#
+# win2 = Window()
+# win2.window_title = '符石合成'
+# win2.setup()
+# wl.add_child('win2', win2)
 
 while True:
     director.event_handler.update()

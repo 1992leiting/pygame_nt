@@ -105,7 +105,7 @@ class ButtonClassicRed(Button):
     """
     传统样式红色按钮
     """
-    def __init__(self, text, width):
+    def __init__(self, text='按钮', width=60):
         super(ButtonClassicRed, self).__init__()
         fill_button(self, 'wzife4.rsp', 0x0267FB16)
         self.text = text
@@ -116,7 +116,8 @@ class ButtonClassicRed(Button):
         self.auto_sizing()
         from Node.label import Label
         label = Label(self.text, size=14)
-        label.center_x = self.center_x
-        label.center_y = self.center_y
+        label.center_x = self.width/2
+        label.center_y = self.height/2
+        print('label center:', self.x, self.y, self.width, self.height, label.center_x, label.center_y)
         self.add_child('label', label)
         label.is_hover_enabled = False

@@ -18,6 +18,7 @@ class Window(Node):
         self.is_pressed = False  # 鼠标按住
         self.press_x, self.press_y = 0, 0
         self.ori_x, self.ori_y = 0, 0
+        self.config_file = ''
 
     @property
     def window_name(self):
@@ -34,6 +35,29 @@ class Window(Node):
     @property
     def is_active(self):
         return self.win_manager.active_window == self.window_name
+
+    def setup_win_config(self):
+        if not self.config_file:
+            return
+        nodes = read_csv(self.config_file)
+        for node_info in nodes:
+            tp = node_info['\ufefftype']
+            name = node_info['name']
+            node = new_node(tp)
+            node.x, node.y = int(node_info['x']), int(node_info['y'])
+            w, h = node_info['width'], node_info['height']
+            if w != '':
+                node.width = int(w)
+            if h != '':
+                node.height = int(h)
+            other_attrs = node_info['other'].split(';')
+            for attr in other_attrs:
+                attr_name, attr_value = attr.split(':')
+                if attr_value.isdigit():
+                    attr_value = int(attr_value)
+                setattr(node, attr_name, attr_value)
+            node.setup()
+            self.add_child(name, node)
 
     def setup(self):
         # 背景裁切
@@ -127,16 +151,6 @@ class WindowLayer(Node):
         self.window_list = []  # 所有游戏窗口
         self.hover_window = None
 
-    # @property
-    # def window_list_r(self):
-    #     """
-    #     window_list反序
-    #     :return:
-    #     """
-    #     _list = self.window_list.copy()
-    #     _list.reverse()
-    #     return _list
-
     @property
     def active_window(self):
         """
@@ -174,7 +188,14 @@ class WindowLayer(Node):
 
         # 若窗口变为可视则加入队列, 且提升到最高层级
         if win.visible:
+            win.clear_children()
+            win.setup()
+            win.setup_win_config()
             self.set_active_window(win)
 
     def check_event(self):
         super(WindowLayer, self).check_event()
+
+        # 组合键
+        if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_w):
+            self.switch_window(self.child('人物属性'))

@@ -36,6 +36,7 @@ font_dir = res_dir + 'font/'
 pic_dir = res_dir + 'pic/'
 music_dir = res_dir + 'audio/'
 sound_dir = res_dir + 'sound/'
+winconfig_dir = data_dir + 'WinConfig/'
 
 shapes = csv2dict(data_dir + 'normal_shapes.csv')
 bshapes = csv2dict(data_dir + 'battle_shapes.csv')

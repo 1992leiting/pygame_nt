@@ -7,6 +7,17 @@ import time
 import pygame
 from Node.node import Node
 from Nt.nt_item import ConfigItem
+import csv
+
+
+def read_csv(file):
+    result = []
+    with open(file, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            result.append(row)
+
+    return result
 
 
 def new_node(node_type, *args):
@@ -82,6 +93,9 @@ def new_node(node_type, *args):
     elif node_type == 'Mouse':
         from Node.mouse import Mouse
         return Mouse()
+    elif node_type == 'ButtonClassicRed':
+        from Node.button import ButtonClassicRed
+        return ButtonClassicRed()
     else:
         raise KeyError('未知节点类型:{}'.format(node_type))
 

@@ -35,27 +35,7 @@ class EventHandler:
                 self.director.ctrl_down = True
 
             else:
-                # 测试
-                if key == pygame.K_F1:
-                    common.play_skill_effect_sound('地狱烈火')
-                if key == pygame.K_F2:
-                    common.play_skill_effect_sound('龙卷雨击')
-                if key == pygame.K_F3:
-                    common.play_char_sound('龙太子', '施法')
-                if key == pygame.K_F4:
-                    common.play_char_sound('龙太子', '倒地')
-                if key == pygame.K_F5:
-                    self.director.is_in_battle = True
-                    self.director.child('world').change_state(True)
-                if key == pygame.K_F6:
-                    self.director.is_in_battle = False
-                    self.director.child('world').change_state(False)
-                if key == pygame.K_UP:
-                    v = pygame.mixer.music.get_volume()
-                    common.set_bgm_volume(v + 0.1)
-                if key == pygame.K_DOWN:
-                    v = pygame.mixer.music.get_volume()
-                    common.set_bgm_volume(v - 0.1)
+                pass
             self.director.kb_event = [event.type, key]
 
         if event.type == pygame.KEYUP:  # 键盘按键弹起
@@ -65,7 +45,7 @@ class EventHandler:
 
             elif key == pygame.K_RCTRL or key == pygame.K_LCTRL:
                 self.director.ctrl_down = False
-            self.director.kb_event = [event.type, key]
+            self.director.kb_event = key
 
     def check_mouse_event(self, event):
         if self.director.mouse_event in [MOUSE_LEFT_RELEASE, MOUSE_RIGHT_RELEASE]:
