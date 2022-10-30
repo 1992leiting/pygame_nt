@@ -22,7 +22,7 @@ class Node:
         self._parent = None
         self.enable = True
         self._children = {}
-        self. _x, self._y = 0, 0  # 相对于父节点的坐标
+        self.ori_x, self.ori_y = 0, 0  # 原始坐标, 相对于父节点的坐标
         self.kx, self.ky = 0, 0
         self.width, self.height = 0, 0
         self._surface = None
@@ -73,51 +73,51 @@ class Node:
     @property
     def x(self):
         if self._parent:
-            return self._x + self._parent.x
+            return self.ori_x + self._parent.x
         else:
-            return self._x
+            return self.ori_x
 
     @property
     def y(self):
         if self._parent:
-            return self._y + self._parent.y
+            return self.ori_y + self._parent.y
         else:
-            return self._y
+            return self.ori_y
 
     @x.setter
     def x(self, xx):
         if self._parent:
-            self._x = xx - self._parent.x
+            self.ori_x = xx - self._parent.x
         else:
-            self._x = xx
+            self.ori_x = xx
 
     @y.setter
     def y(self, yy):
         if self._parent:
-            self._y = yy - self._parent.y
+            self.ori_y = yy - self._parent.y
         else:
-            self._y = yy
+            self.ori_y = yy
 
     """
     在地图中的坐标, 可能需要根据继承关系改写
-    character直接作为world子节点时, 则为self._x/self._y
+    character直接作为world子节点时, 则为self.ori_x/self.ori_y
     """
 
     @property
     def map_x(self):
-        return self._x
+        return self.ori_x
 
     @property
     def map_y(self):
-        return self._y
+        return self.ori_y
 
     @map_x.setter
     def map_x(self, xx):
-        self._x = xx
+        self.ori_x = xx
 
     @map_y.setter
     def map_y(self, yy):
-        self._y = yy
+        self.ori_y = yy
 
     """
     游戏坐标, 梦幻的坐标是真实坐标/20
@@ -125,19 +125,19 @@ class Node:
 
     @property
     def game_x(self):
-        return self._x // 20
+        return self.ori_x // 20
 
     @game_x.setter
     def game_x(self, xx):
-        self._x = xx * 20
+        self.ori_x = xx * 20
 
     @property
     def game_y(self):
-        return self._y // 20
+        return self.ori_y // 20
 
     @game_y.setter
     def game_y(self, yy):
-        self._y = yy * 20
+        self.ori_y = yy * 20
 
     @property
     def center_x(self):

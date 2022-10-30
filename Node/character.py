@@ -151,15 +151,15 @@ class BasicCharacter(Node):
 
     def move(self):
         target = self.path[0]
-        self.direction = calc_direction((self._x, self._y), target)
+        self.direction = calc_direction((self.ori_x, self.ori_y), target)
         vector = pygame.Vector2()
-        vector.x, vector.y = int(target[0]) - self._x, int(target[1]) - self._y
+        vector.x, vector.y = int(target[0]) - self.ori_x, int(target[1]) - self.ori_y
         if vector.length() == 0:
             return
         vector.normalize_ip()
         vector.scale_to_length(self.speed)
-        self._x += vector.x
-        self._y += vector.y
+        self.ori_x += vector.x
+        self.ori_y += vector.y
 
     def update(self):
         self.update_basic()
@@ -174,7 +174,7 @@ class BasicCharacter(Node):
                 self.is_moving = True
                 _target = self.path[0]
                 th = self.speed // 2 + 1
-                if abs(self._x - int(_target[0])) <= th and abs(self._y - int(_target[1])) <= th:
+                if abs(self.ori_x - int(_target[0])) <= th and abs(self.ori_y - int(_target[1])) <= th:
                     self.path.pop(0)
                 else:
                     self.move()
@@ -606,7 +606,7 @@ class BattleUnit(BasicCharacter):
 
     def move(self):
         target = self.path[0]
-        # self.direction = calc_direction((self._x, self._y), target)
+        # self.direction = calc_direction((self.ori_x, self.ori_y), target)
         vector = pygame.Vector2()
         vector.x, vector.y = int(target[0]) - self.x, int(target[1]) - self.y
         if vector.length() == 0:

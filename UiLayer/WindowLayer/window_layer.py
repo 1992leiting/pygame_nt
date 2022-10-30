@@ -109,7 +109,7 @@ class Window(Node):
         self.add_child('标题背景', Node())  # 先占位, 后添加实际的标题背景节点
 
         from Node.label import Label
-        标题 = Label(text=self.window_title, shadow=True)
+        标题 = Label(text=self.window_title, outline=True)
         标题.x = self.width // 2 - 标题.width // 2
         标题.y += 2
         self.add_child('标题', 标题)

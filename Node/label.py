@@ -4,7 +4,7 @@ from Common.constants import *
 
 
 class Label(Node):
-    def __init__(self, text='', color=(255, 255, 255), size=14, italic=False, shadow=False, anti_aliased=False, underline=False, bold=False, twinkle=False, font_name=DEFAULT_FONT):
+    def __init__(self, text='', color=(255, 255, 255), size=14, italic=False, shadow=False, anti_aliased=False, underline=False, bold=False, twinkle=False, font_name=DEFAULT_FONT, outline=False):
         super(Label, self).__init__()
         self.font_name = font_name
         self.font = None
@@ -13,6 +13,7 @@ class Label(Node):
         self.shadow = shadow  # 阴影
         self.anti_aliased = anti_aliased  # 抗锯齿
         self.underline = underline  # 下划线
+        self.outline = outline  # 轮廓
         if bold:
             print('Label暂时不能设置为True...')
         self.bold = False  # 加粗
@@ -24,6 +25,10 @@ class Label(Node):
         self.setup()
 
     def setup(self):
+        self.clear_children()
+        # outline和shadow不共存
+        if self.outline:
+            self.shadow = False
         self.font = pygame.freetype.Font(font_dir + self.font_name, size=self.size)
         self.font.strong = self.bold
         self.font.underline = self.underline
@@ -34,13 +39,42 @@ class Label(Node):
         self.font_surface, (_, _, self.width, self.height) = self.font.render(self.text, fgcolor=self.color, size=self.size)
         # 阴影效果其实是绘制两层文字, 底层会黑色且有一定位置偏移
         if self.shadow:
-            shadow_label = Label(self.text, self.color, self.size, self.italic, self.anti_aliased, False, self.underline, self.bold, False, self.font_name)
-            shadow_label.x = -1
-            shadow_label.y = -1
+            # 自身作为底层阴影
+            self.font_surface, (_, _, self.width, self.height) = self.font.render(self.text, fgcolor=(0, 0, 0), size=self.size)
             self.x += 1
             self.y += 1
+            # 添加一个子label作为上层显示的label
+            front_label = Label(self.text, self.color, self.size, self.italic, self.anti_aliased, False, self.underline, self.bold, False, self.font_name)
+            front_label.ori_x = -1
+            front_label.ori_y = -1
+            self.add_child('front', front_label)
+        # outline则是添加4层文字
+        if self.outline:
+            # 自身作为底层阴影
             self.font_surface, (_, _, self.width, self.height) = self.font.render(self.text, fgcolor=(0, 0, 0), size=self.size)
-            self.add_child('shadow', shadow_label)
+            self.x += 1
+            self.y += 1
+            # 再添加3层阴影
+            behind_label1 = Label(self.text, (0, 0, 0), self.size, self.italic, self.anti_aliased, False, self.underline,
+                                  self.bold, False, self.font_name)
+            behind_label1.ori_x = -1
+            behind_label1.ori_y = -1
+            self.add_child('behind1', behind_label1)
+            behind_label2 = Label(self.text, (0, 0, 0), self.size, self.italic, self.anti_aliased, False,
+                                  self.underline, self.bold, False, self.font_name)
+            behind_label2.ori_x = -1
+            behind_label2.ori_y = 1
+            self.add_child('behind2', behind_label2)
+            behind_label3 = Label(self.text, (0, 0, 0), self.size, self.italic, self.anti_aliased, False,
+                                  self.underline, self.bold, False, self.font_name)
+            behind_label3.ori_x = 1
+            behind_label3.ori_y = -1
+            self.add_child('behind3', behind_label3)
+            # 添加前景label
+            front_label = Label(self.text, self.color, self.size, self.italic, self.anti_aliased, False, self.underline,
+                                self.bold, False, self.font_name)
+            self.add_child('front', front_label)
+
         self.width = self.rect[2]
         self.height = self.rect[3]
 
