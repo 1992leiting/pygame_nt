@@ -96,6 +96,9 @@ def new_node(node_type, *args):
     elif node_type == 'ButtonClassicRed':
         from Node.button import ButtonClassicRed
         return ButtonClassicRed()
+    elif node_type == 'LineEditWithBg':
+        from Node.text_edit import LineEditWithBg
+        return LineEditWithBg()
     else:
         raise KeyError('未知节点类型:{}'.format(node_type))
 
@@ -295,8 +298,14 @@ def crop_image(image: pygame.image, x, y, w, h):
 
 def auto_sizing(image: pygame.image, width, height, margin=0):
     w, h = image.get_size()  # 原始尺寸
-    if width > w or height > h:
-        return image
+    # if width > w or height > h:
+    #     return image
+    width = min(width, w)
+    height = min(height, h)
+    if width % 2:  # 目前宽高是奇数时,凑成偶数
+        width += 1
+    if height % 2:
+        height += 1
     surf = pygame.Surface((width, height), flags=pygame.SRCALPHA)
     # 左上角
     x, y, ww, hh = 0, 0, width/2, height/2

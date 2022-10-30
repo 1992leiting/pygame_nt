@@ -26,6 +26,7 @@ class Word:
         self.width_offset = 0
         self.x, self.y = 0, 0  # 要显示的位置
 
+        # print('word:size:', self.size, self.char)
         self.font = pygame.freetype.Font(font_dir + self.font_name, size=self.size)
         self.font.strong = self.bold
         self.font.underline = self.underline
@@ -33,6 +34,8 @@ class Word:
         # 抗锯齿效果有3种状态: 不设置, 设置False, 设置True, 部分字体不设置效果最好
         if self.font_name == DEFAULT_FONT:
             self.font.antialiased = self.anti_aliased
+            if self.char in ['/', '\\', '#', '^']:
+                self.font.antialiased = True
         # 直接render单个文字其宽度高度会是实际字形的宽高, 所以render时加一个空格, 计算宽度时补偿一下空格的宽度
         _, (_, _, self.width_offset, _) = self.font.render(' ', fgcolor=self.color, size=self.size)
         self.font_surface, (_, _, self.width, self.height) = self.font.render(' ' + self.char, fgcolor=self.color, size=self.size)

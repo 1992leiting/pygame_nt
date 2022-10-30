@@ -171,10 +171,10 @@ class World(Node):
             if hero.visible:
                 mouse_x, mouse_y = int(pygame.mouse.get_pos()[0] + camera.x), int(pygame.mouse.get_pos()[1] + camera.y)
                 hero_x, hero_y = int(hero.map_x), int(hero.map_y)
-                print('鼠标点击:', (hero_x, hero_y), (mouse_x, mouse_y))
+                # print('鼠标点击:', (hero_x, hero_y), (mouse_x, mouse_y))
                 path = self.director.astar.find_path((hero_x, hero_y), (mouse_x, mouse_y))
                 hero.path = path
-                print('path:', path)
+                # print('path:', path)
 
     def update(self):
         if self.director.is_in_battle:

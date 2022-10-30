@@ -13,7 +13,9 @@ class Label(Node):
         self.shadow = shadow  # 阴影
         self.anti_aliased = anti_aliased  # 抗锯齿
         self.underline = underline  # 下划线
-        self.bold = bold  # 加粗
+        if bold:
+            print('Label暂时不能设置为True...')
+        self.bold = False  # 加粗
         self.italic = italic  # 斜体
         self.twinkle = twinkle  # 闪烁
         self.font_surface = None
@@ -32,11 +34,15 @@ class Label(Node):
         self.font_surface, (_, _, self.width, self.height) = self.font.render(self.text, fgcolor=self.color, size=self.size)
         # 阴影效果其实是绘制两层文字, 底层会黑色且有一定位置偏移
         if self.shadow:
-            self.shadow_surface, (_, _, self.width, self.height) = self.font.render(self.text, fgcolor=(0, 0, 0), size=self.size)
+            shadow_label = Label(self.text, self.color, self.size, self.italic, self.anti_aliased, False, self.underline, self.bold, False, self.font_name)
+            shadow_label.x = -1
+            shadow_label.y = -1
+            self.x += 1
+            self.y += 1
+            self.font_surface, (_, _, self.width, self.height) = self.font.render(self.text, fgcolor=(0, 0, 0), size=self.size)
+            self.add_child('shadow', shadow_label)
         self.width = self.rect[2]
         self.height = self.rect[3]
 
     def draw(self):
-        if self.shadow:
-            self.director.screen.blit(self.shadow_surface, (self.x + 1, self.y + 1))
         self.director.screen.blit(self.font_surface, (self.x, self.y))

@@ -5,6 +5,8 @@ from Node.node import Node
 from Common.constants import *
 from Node.rich_text import Word
 from Common.common import get_color
+from Node.image_rect import ImageRect
+from Game.res_manager import fill_image_rect
 
 
 class TextEditManager:
@@ -32,7 +34,7 @@ class TextEditManager:
 
 
 class LineEdit(Node):
-    def __init__(self, text='', width=200, font_size=14, font_name=DEFAULT_FONT):
+    def __init__(self, text='', width=800, font_size=14, font_name=DEFAULT_FONT, font_color='白'):
         super(LineEdit, self).__init__()
         self.text = text
         self.width, self.height = width, font_size
@@ -40,13 +42,14 @@ class LineEdit(Node):
         self.font_name = font_name
         self.surface = pygame.Surface((self.width, self.height))
         self.is_active = False
+        self.is_readonly = False  # 只读
         self.lines = 1  # 设定的行数
         self.word_space = 1  # 字间距
         self.line_space = 1  # 行间距
         self.dx, self.dy = 0, 0  # 文本基于surface左上角偏移的坐标(用于边角留白)
         self.shift_x, self.shift_y = 0, 0  # 文字的偏移量(溢出时起作用)
         self.word_list = []
-        self.text_color = get_color('白')
+        self.text_color = get_color(font_color)
         self.italic = False
         self.shadow = False
         self.password_mode = False  # 密码模式
@@ -55,6 +58,7 @@ class LineEdit(Node):
         self.cursor_x, self.cursor_y = 0, 0  # 光标坐标
 
     def setup(self):
+        self.height = self.font_size
         if self.director.te_manager is None:
             self.director.te_manager = TextEditManager()
         self.director.te_manager.append(self)
@@ -83,6 +87,7 @@ class LineEdit(Node):
         self._parse()
 
     def _parse(self):
+        self.text = str(self.text)
         self.word_list = []
         self.surface = pygame.Surface((self.width, self.height), flags=pygame.SRCALPHA)
         self.surface.fill((0, 0, 0, 0))
@@ -92,7 +97,7 @@ class LineEdit(Node):
             ch = char_list[i]
             if self.password_mode:
                 ch = '*'
-            self.word_list.append(Word(ch, color=self.text_color))
+            self.word_list.append(Word(ch, size=self.font_size, color=self.text_color))
         _sx, _sy = 0, 0  # 当前字符显示坐标(基于self.surface左上角)
         # 解析每一个字符
         for i, word in enumerate(self.word_list):
@@ -103,15 +108,18 @@ class LineEdit(Node):
             cur_width = cur_width + char_width + self.word_space
 
     def update(self):
+        if self.is_readonly:
+            self.is_active = False
         # 鼠标指向时指针变化
-        if self.is_hover:
-            if self.director.te_hover != self:
-                self.director.te_hover = self
-                self.director.child('mouse').change_state('输入')
         else:
-            if self.director.te_hover == self:
-                self.director.te_hover = None
-                self.director.child('mouse').set_last_state()
+            if self.is_hover:
+                if self.director.te_hover != self:
+                    self.director.te_hover = self
+                    self.director.child('mouse').change_state('输入')
+            else:
+                if self.director.te_hover == self:
+                    self.director.te_hover = None
+                    self.director.child('mouse').set_last_state()
 
         # 光标坐标
         self.cursor_x = 0
@@ -142,18 +150,19 @@ class LineEdit(Node):
         super(LineEdit, self).check_event()
 
         # 点击激活
-        if self.is_hover:
-            if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
-                self.director.te_manager.activate(self)
+        if not self.is_readonly:
+            if self.is_hover:
+                if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
+                    self.director.te_manager.activate(self)
 
-        if self.is_active:
-            if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_BACKSPACE]):
-                self.delete_text()
-            self.insert_text(self.director.get_kb_text())
-            if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_LEFT]):
-                self.cursor_pos = max(0, self.cursor_pos - 1)
-            if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_RIGHT]):
-                self.cursor_pos = min(len(self.text), self.cursor_pos + 1)
+            if self.is_active:
+                if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_BACKSPACE]):
+                    self.delete_text()
+                self.insert_text(self.director.get_kb_text())
+                if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_LEFT]):
+                    self.cursor_pos = max(0, self.cursor_pos - 1)
+                if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_RIGHT]):
+                    self.cursor_pos = min(len(self.text), self.cursor_pos + 1)
 
 
 class TextEdit(LineEdit):
@@ -244,3 +253,26 @@ class TextEdit(LineEdit):
         #     if self.shift_x != 0:
         #         self.shift_x = 0
         #         self._parse()
+
+
+class LineEditWithBg(ImageRect):
+    def __init__(self, width=800, text=''):
+        super(LineEditWithBg, self).__init__()
+        fill_image_rect(self, 'wzife4.rsp', 0xB74E6CA1)  # 圆角输入背景
+        self.width = width
+        self.text = str(text)
+        self.font_size = 15
+        self.line_edit = LineEdit(font_color='黑')
+        self.line_edit.is_readonly = True
+        self.setup()
+
+    def setup(self):
+        self.auto_sizing(w=self.width)
+        self.line_edit.text = self.text
+        self.line_edit.font_size = self.font_size
+        self.line_edit.width = self.width - 14
+        self.line_edit.x = self.x + 8
+        self.y -= 4
+        self.line_edit.y = self.y + 2
+        self.line_edit.setup()
+        self.add_child('edit', self.line_edit)

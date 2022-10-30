@@ -8,6 +8,7 @@ from Node.image_rect import ImageRect
 from Node.text_edit import TextEdit
 from Game.res_manager import fill_res
 from UiLayer.WindowLayer.hero_attr import HeroAttr
+from UiLayer.WindowLayer.hero_skill import HeroSkill
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -35,6 +36,9 @@ wl.is_hover_enabled = False
 
 win = HeroAttr()
 wl.add_child('人物属性', win)
+
+win2 = HeroSkill()
+wl.add_child('人物技能', win2)
 
 # win = Window()
 # win.window_title = '确定要退出游戏吗?'

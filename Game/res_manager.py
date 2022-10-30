@@ -123,7 +123,22 @@ def fill_image_rect(img, rsp_file, hash_id):
     res = read_rsp(rsp_file, hash_id)
     img.image = res.frames[0][0]
     img.kx, img.ky = res.kx, res.ky
-    img.width, img.height = res.width, res.height
+    # 没有指定宽高则取素材宽高, 否则进行裁切
+    crop = False
+    if img.width == 0:
+        img.width = res.width
+        w = 0
+    else:
+        crop = True
+        w = img.width
+    if img.height == 0:
+        img.height = res.height
+        h = 0
+    else:
+        crop = True
+        h = img.height
+    if crop:
+        img.auto_sizing(w, h)
 
 
 def fill_magic_effect(eff, name):
@@ -165,7 +180,7 @@ def read_rsp(rsp_file, hash_id):
         hash_id = hash_id.replace('0X', '0x')
         if '0x' not in hash_id:
             hash_id = '0x' + hash_id
-        hash_id = hex(hash_id)
+        hash_id = int(hash_id, 16)
     hash_id = int(hash_id)
     if hash_id not in hash_list[rsp_file]:
         print('hash不存在: ', rsp_file, hash_id)

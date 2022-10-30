@@ -14,9 +14,14 @@ class Button(Node):
         self.cur_img = None  # 当前正在显示的image
         self.is_pressed = False
         self.is_locked = False
+        self.toggle_mode = False  # 按下锁定模式
+        self.is_toggled = False
+        self.toggle_button_group = None  # toggle按钮组
         self._event = None
         self.mouse_filter = STOP
         self.is_single_frame = False  # 是否是单帧素材按钮
+        self.rsp_file = ''
+        self.hash_id = 0
 
     @property
     def event(self):
@@ -28,11 +33,11 @@ class Button(Node):
         self._event = None
         return _tmp
 
+    def setup(self):
+        if self.rsp_file and self.hash_id:
+            fill_button(self, self.rsp_file, self.hash_id)
+
     def check_hover(self):
-        # 判断hover
-        # if self.director.node_hover is not None:
-        #     self.is_hover = False
-        #     return
         if self.director.node_hover is None and self.rect.collidepoint(pygame.mouse.get_pos()):
             pos = pygame.mouse.get_pos()
             rect_pos = (pos[0] - self.rect.x, pos[1] - self.rect.y)
@@ -54,24 +59,36 @@ class Button(Node):
         self.img_disable = auto_sizing(self.img_disable, self.width, self.height)
 
     def check_event(self):
-        # super(Button, self).check_event()
-
         # 判断按住
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
                 self.is_pressed = True
+                if self.toggle_mode:
+                    self.is_toggled = True
+                    self._event = True
+                # 按钮组相关操作
+                if self.toggle_button_group:
+                    # 一个按钮按下时, 按钮组其他按钮弹起
+                    self.toggle_button_group.set_toggled_button(self)
+                    # for btn in self.toggle_button_group.buttons:
+                    #     if btn != self:
+                    #         btn.is_toggled = False
             if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
                 self.is_pressed = False
-                self._event = True
+                if not self.is_toggled:
+                    self._event = True
         else:
             self.is_pressed = False
-            self.cur_img = self.img_normal
+            if not self.is_toggled:
+                self.cur_img = self.img_normal
 
     def update(self):
         self.cur_img = self.img_normal
         if self.is_hover:
             self.cur_img = self.img_hover
         if self.is_pressed:
+            self.cur_img = self.img_pressed
+        if self.is_toggled:
             self.cur_img = self.img_pressed
         if not self.enable:
             self.cur_img = self.img_disable
@@ -105,7 +122,7 @@ class ButtonClassicRed(Button):
     """
     传统样式红色按钮
     """
-    def __init__(self, text='按钮', width=60):
+    def __init__(self, text='按钮', width=800):
         super(ButtonClassicRed, self).__init__()
         fill_button(self, 'wzife4.rsp', 0x0267FB16)
         self.text = text
@@ -115,9 +132,39 @@ class ButtonClassicRed(Button):
     def setup(self):
         self.auto_sizing()
         from Node.label import Label
+        self.x -= 5
+        self.y -= 5
         label = Label(self.text, size=14)
         label.center_x = self.width/2
         label.center_y = self.height/2
-        print('label center:', self.x, self.y, self.width, self.height, label.center_x, label.center_y)
         self.add_child('label', label)
         label.is_hover_enabled = False
+
+
+class ToggleButtonGroup(Node):
+    """
+    锁定按钮组, 只允许有一个按钮处于锁定状态
+    """
+    def __init__(self):
+        super(ToggleButtonGroup, self).__init__()
+        self.buttons = []
+        self.toggled_button = None  # 当前锁定的按钮序号
+
+    def append(self, btn):
+        self.buttons.append(btn)
+        btn.toggle_button_group = self
+
+    def set_toggled_button(self, btn):
+        for i, button in enumerate(self.buttons):
+            if button == btn:
+                self.toggled_button = i
+            else:
+                button.is_toggled = False
+
+    def update(self):
+        # 默认第一个按钮锁定
+        if self.buttons and self.toggled_button is None:
+            print('默认0')
+            self.toggled_button = 0
+        if self.buttons:
+            self.buttons[self.toggled_button].is_toggled = True

@@ -11,6 +11,13 @@ class ImageRect(Node):
         self.disp_image = None  # 当前显示的image
         self.mask_outline = {'outline': [], 'color': (255, 255, 255), 'width': 1}
         self.is_hover_enabled = False
+        self.rsp_file = ''
+        self.hash_id = 0
+
+    def setup(self):
+        if self.rsp_file and self.hash_id:
+            from Game.res_manager import fill_image_rect
+            fill_image_rect(self, self.rsp_file, self.hash_id)
 
     def setup_outline(self, color=(255, 255, 255), width=1, threshold=10):
         mask = pygame.mask.from_surface(self.image, threshold=10)
@@ -38,13 +45,14 @@ class ImageRect(Node):
         self.disp_image = crop_image(self.image, x, y, width, height)
         self.width, self.height = width, height
 
-    def auto_sizing(self, w=0, h=0):
+    def auto_sizing(self, w=0, h=0, margin=0):
         if w == 0:
             w = self.width
         if h == 0:
             h = self.height
+        # print('image auto size:', w, h)
         from Common.common import auto_sizing
-        self.image = auto_sizing(self.image, w, h)
+        self.image = auto_sizing(self.image, w, h, margin)
         self.width, self.height = w, h
 
     def draw(self):
