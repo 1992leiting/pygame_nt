@@ -1,6 +1,10 @@
+import random
+
 from Node.button import Button
 from Node.image_rect import ImageRect
 from Node.node import Node
+from Common.constants import *
+import pygame
 
 
 class ButtonArea(Node):
@@ -79,3 +83,7 @@ class ButtonArea(Node):
                                                'y': self.director.window_h - 36})
         self.add_child('btn_系统', self.btn_系统)
 
+    def check_event(self):
+        if self.child('btn_攻击').event or (self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_a)):
+            self.director.gp_manager.append('此功能尚未实现, 敬请期待#' + str(random.randrange(10, 20))
+)

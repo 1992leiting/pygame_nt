@@ -9,6 +9,7 @@ from Node.text_edit import TextEdit
 from Game.res_manager import fill_res
 from UiLayer.WindowLayer.hero_attr import HeroAttr
 from UiLayer.WindowLayer.hero_skill import HeroSkill
+from Node.prompt import GamePrompt, GamePromptManager
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -17,6 +18,7 @@ pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 director = game_director
 director.setup_from_config('game_ui.conf')
+director.add_child('gp_manager', GamePromptManager())
 print_node(director)
 
 world = director.get_node('scene/world_scene')
@@ -35,31 +37,17 @@ director.add_child('window_layer', wl)
 wl.is_hover_enabled = False
 
 win = HeroAttr()
+win.visible = False
 wl.add_child('人物属性', win)
 
 win2 = HeroSkill()
+win2.visible = False
 wl.add_child('人物技能', win2)
 
-# win = Window()
-# win.window_title = '确定要退出游戏吗?'
-# win.setup()
-# btn = ButtonClassicRed('测试按钮', 100)
-# btn.x, btn.y = 100, 100
-# win.add_child('btn', btn)
-# wl.add_child('win', win)
-# bg = ImageRect()
-# fill_res(bg, 'wzife4.rsp', 0xB74E6CA1)
-# bg.auto_sizing(w=150)
-# bg.x, bg.y = 100, 130
-# win.add_child('bg', bg)
-# edit = TextEdit(width=150, height=25, text_color='黑')
-# edit.x, edit.y = 103, 133
-# win.add_child('edit', edit)
-#
-# win2 = Window()
-# win2.window_title = '符石合成'
-# win2.setup()
-# wl.add_child('win2', win2)
+# pt = GamePrompt('#24一锄头下去竟挖塌了妖怪的巢穴, 无数妖怪宝宝正在#R北俱芦洲#Y捣乱, 快去收服他们吧!')
+# pt.setup()
+# wl.add_child('pt', pt)
+
 
 while True:
     director.event_handler.update()

@@ -239,6 +239,7 @@ class RichText(Node):
             self.static_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)
             self.dynamic_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)
             self.compose()
+        self.height = self.max_height
 
     def draw(self):
         self.surface.fill((0, 0, 0, 0))

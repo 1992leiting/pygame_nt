@@ -2,6 +2,7 @@ import pygame
 from numpy import rec
 from Common.constants import *
 import pickle
+from uuid import uuid4
 
 
 class Node:
@@ -17,7 +18,7 @@ class Node:
             self.director = self
         self.node_name = ''
         self.level = 0  # 节点层级, 根节点为0级, 其子节点为1级, 类推
-        self.uuid = 0  # 唯一标识符
+        self.uuid = str(uuid4())  # 唯一标识符
         self._visible = True
         self._parent = None
         self.enable = True

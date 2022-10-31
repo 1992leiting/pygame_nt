@@ -5,6 +5,7 @@ from Node.node import Node
 class ImageRect(Node):
     def __init__(self):
         super(ImageRect, self).__init__()
+        self.ori_image = None  # 原始的素材image, 未裁切
         self.image = None  # pygame.image
         self.kx, self.ky = 0, 0
         self.width, self.height = 0, 0
@@ -21,6 +22,8 @@ class ImageRect(Node):
 
     def setup_outline(self, color=(255, 255, 255), width=1, threshold=10):
         mask = pygame.mask.from_surface(self.image, threshold=10)
+        self.mask_outline['color'] = color
+        self.mask_outline['width'] = width
         self.mask_outline['outline'] = mask.outline()
         for i, point in enumerate(self.mask_outline['outline']):
             self.mask_outline['outline'][i] = (point[0] + self.x, point[1] + self.y)

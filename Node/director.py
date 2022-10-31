@@ -4,6 +4,7 @@ from Common.constants import *
 from Game.event_handler import EventHandler
 from Game.astar import Astar
 import socket
+from Node.prompt import GamePromptManager
 
 
 pygame.init()
@@ -43,6 +44,10 @@ class Director(Node):
 
         self.socket = socket.socket()
         self.connect_server()
+
+    @property
+    def gp_manager(self):
+        return self.child('gp_manager')
 
     @property
     def window_size(self):

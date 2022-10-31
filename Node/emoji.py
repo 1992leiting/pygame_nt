@@ -17,7 +17,7 @@ class Emoji(Animation):
     def draw(self):
         if self.cur_frame:
             _frame = self.cur_frame.copy()
-            self.surface.blit(_frame, (self.x, self._y - self.ky))
+            self.surface.blit(_frame, (self.x, self.ori_y - self.ky))
         # pygame.draw.rect(self.surface, (255, 255, 255), self.rect, 1)
         # pygame.draw.circle(self.surface, (255, 0, 0), (self.x, self.y), 4)
 
