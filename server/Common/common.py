@@ -1,5 +1,5 @@
-from Script.common import constants as GL
-from Script.common.socket_id import *
+from Common import constants as GL
+from Common.socket_id import *
 import numpy as np
 import datetime
 import socket
