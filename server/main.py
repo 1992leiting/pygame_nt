@@ -1,9 +1,14 @@
 from Common.constants import *
 import socketserver
 import threading
-# from Network.tcp_handler import TCPHandler
-from Login.login import process_login
-from multiprocessing import Process, Pipe
+from Network.tcp_handler import TCPHandler
+from Login.login import ProcessLogin
+from Game.game import ProcessGame
+from Map.map import ProcessMap
+from Chat.chat import ProcessChat
+from Battle.battle import ProcessBattle
+from multiprocessing import Lock
+from Common.common import *
 
 
 def start_tcp_server():
@@ -12,25 +17,23 @@ def start_tcp_server():
     :return:
     """
     server.daemon_threads = True
-    threading.Thread(target=server.serve_forever, name='server', daemon=True).start()
+    threading.Thread(target=server.serve_forever, name='GATEWAY', daemon=True).start()
 
 
 if __name__ == '__main__':
     ip, port = '0.0.0.0', 9093
-    # server = socketserver.ThreadingTCPServer((ip, port), TCPHandler)
-    # start_tcp_server()
+    server = socketserver.ThreadingTCPServer((ip, port), TCPHandler)
+    start_tcp_server()
 
-    conn_login, conn = Pipe()
-    p_login = Process(target=process_login, args=(conn,))
-    p_login.start()
-
-    print('服务端启动...')
-    while True:
-        cmd = input('\n>>>')
-        if cmd.strip() == 'quit!':
-            server.shutdown()
-            server.server_close()
-            break
-        elif 'login:' in cmd.strip():
-            print('send to login:', cmd.strip('login:'))
-            conn_login.send(cmd.strip('login:'))
+    # p_lock = Lock()
+    #
+    # p_login = ProcessLogin(p_lock)
+    # p_login.start()
+    # p_game = ProcessGame(p_lock)
+    # p_game.start()
+    # p_map = ProcessMap(p_lock)
+    # p_map.start()
+    # p_chat = ProcessChat(p_lock)
+    # p_chat.start()
+    # p_battle = ProcessBattle(p_lock)
+    # p_battle.start()

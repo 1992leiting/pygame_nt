@@ -1,11 +1,13 @@
 from Node.node import Node
 import pygame
+from Common.common import *
 from Common.constants import *
 from Game.event_handler import EventHandler
 from Game.astar import Astar
 import socket
 from Node.prompt import GamePromptManager
 from Network.my_socket import SocketClient
+from Common.socket_id import *
 
 
 pygame.init()
@@ -42,10 +44,18 @@ class Director(Node):
         self.node_hover = None  # 当前处于hover状态的节点, 只允许有一个
         self.astar = Astar(self)
         self.is_hero_in_portal = False
+        self.char_data = None
+        self.item_data = None
+        self.item_warehouse_data = None
+        self.pet_data = None
+        self.pet_warehouse_data = None
 
         self.socket = socket.socket()
         self.connect_server()
-        self.client = SocketClient(self.socket)
+        self.client = SocketClient(self.socket, self.director)
+        self.client.start()
+
+        self.setup_ui()
 
     @property
     def gp_manager(self):
@@ -59,6 +69,13 @@ class Director(Node):
     def window_size(self, arg):
         self.window_w, self.window_h = arg
         self.screen = pygame.display.set_mode(self.window_size, 0, 32)
+
+    def setup_ui(self):
+        self.add_child('scene', Node(director=True))
+        self.add_child('function_layer', Node(director=True))
+        self.add_child('window_layer', Node(director=True))
+        self.add_child('floating_layer', Node(director=True))
+        self.add_child('mouse', new_node('Mouse'))
 
     def match_mouse_event(self, mode, event):
         """
@@ -137,7 +154,7 @@ class Director(Node):
         # 移动镜头, 远快近慢优化镜头视觉效果
         hero = self.get_node('scene/world_scene/hero')
         camera = self.director.get_node('scene/world_scene/camera')
-        if hero.visible:
+        if hero and camera and hero.visible:
             cdx, cdy = 0, 0
             if hero.map_x - camera.center_x > 100:
                 cdx = MOVING_SPEED * (hero.map_x - camera.center_x - 100) // 10

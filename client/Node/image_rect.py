@@ -61,7 +61,7 @@ class ImageRect(Node):
     def draw(self):
         if not self.disp_image:
             self.disp_image = self.image
-        if self.disp_image:
+        if self.disp_image and not self.disp_image.get_locked():
             self.director.screen.blit(self.disp_image, (self.x - self.kx, self.y - self.ky))
 
             if len(self.mask_outline['outline']) > 2:

@@ -1,7 +1,7 @@
 
 from Script.scene.scene_handler import NPC, scene_transfer
-from Script.common.constants import GL
-from Script.common.common import *
+from Common.constants import GL
+from Common.common import *
 import random
 
 class NPCX(NPC):

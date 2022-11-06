@@ -1,8 +1,14 @@
-from multiprocessing import connection
+from Common.common import BaseServerProcess
 
 
-def process_login(pipe: connection):
-    while True:
-        msg = pipe.recv()
-        if msg:
-            print('msg from gateway:', msg)
+class ProcessLogin(BaseServerProcess):
+    def __init__(self, lock):
+        super(ProcessLogin, self).__init__('LOGIN')
+        self.lock = lock
+
+    def run(self):
+        self.lock.acquire()
+        super(ProcessLogin, self).run()
+        self.lock.release()
+        while True:
+            pass

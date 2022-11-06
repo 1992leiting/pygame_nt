@@ -35,7 +35,6 @@ class GamePromptManager(ImageRect):
         _x, _y = GP_START_X, GP_START_Y
         for i in range(0, len(pt_list)):
             pt = pt_list[i]
-            print('pt:', pt.uuid)
             # _x = GP_START_X
             _y = _y - GP_SPACE - pt.height
             pt.x, pt.y = _x, _y

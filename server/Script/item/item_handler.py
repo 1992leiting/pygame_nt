@@ -1,5 +1,5 @@
-from Script.common import constants as GL
-from Script.common.common import *
+from Common import constants as GL
+from Common.common import *
 
 
 def send_all_items(pid):

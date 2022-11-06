@@ -1,13 +1,14 @@
 import json
 import threading
 import time
-from Node.node import Node
+from Common.socket_id import *
 from Common.common import show_error
 
 
 class SocketClient:
-    def __init__(self, socket):
+    def __init__(self, socket, director):
         super(SocketClient, self).__init__()
+        self.director = director
         self.socket = socket
         self.tmp_str = ''
         self.enable = False
@@ -35,19 +36,17 @@ class SocketClient:
                 self.recv_handler(msg)
             except BaseException as e:
                 show_error('接收服务器数据异常, 请尝试重新登陆', '网络错误')
-                # print('recv data error:', str(e))
+                print('recv data error:', str(e))
 
     def recv_handler(self, recv_bytes):
         data = json.loads(recv_bytes)
         # print('socket收到:', data)
-        cmd = data['_cmd']
+        cmd = data['cmd']
         if cmd == '登陆成功':
             self.send('获取全部角色数据', {})
-        elif cmd == '角色数据':
-            print('角色数据:', time.time())
-            # self.director.HERO_DATA = data
-            for k, v in data.items():
-                self.director.HERO_DATA[k] = v
+        elif cmd == S_角色数据:
+            self.director.char_data = data
+            print('角色数据:', self.director.char_data)
         elif cmd == '添加NPC':
             # while not self.director.STARTED:
             #     pass
@@ -61,6 +60,10 @@ class SocketClient:
             hero.game_x, hero.game_y = int(data['x']), int(data['y'])
             world = self.director.child('world')
             world.change_map(int(data['mapid']))
+        elif cmd == S_系统提示:
+            print('系统提示:', data)
+            text = data['内容']
+            self.director.gp_manager.append(text)
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd
@@ -72,20 +75,3 @@ class SocketClient:
             self.socket.sendall(send_bytes)
         except:
             show_error('发送网络数据失败, 请尝试重新登陆', '网络错误')
-
-    def send_ori(self, cmd: str, send_data: dict):
-        """
-        socket发送消息
-        :param cmd: 命令名称
-        :param send_data: 字典, 消息内容
-        :return:
-        """
-        from Common.common import exit_game, show_error
-        print('send:', cmd, send_data)
-        send_data['cmd'] = cmd
-        try:
-            self.socket.sendall((json.dumps(send_data) + json_tail).encode(encoding="utf-8"))
-        except BaseException as e:
-            show_error('服务器断开连接, 请尝试重新登陆', '网络错误')
-            print('网络错误0:', str(e))
-            exit_game()

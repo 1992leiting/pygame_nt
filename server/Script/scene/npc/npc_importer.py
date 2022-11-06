@@ -1,4 +1,4 @@
-from Script.common import constants as GL
+from Common import constants as GL
 from Script.scene.npc.npc_100104_神兽使者_1001_长安城 import npc
 GL.NPCS.append(npc)
 from Script.scene.npc.npc_100201_疥癞和尚_1002_化生寺 import npc

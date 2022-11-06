@@ -3,6 +3,7 @@ from numpy import rec
 from Common.constants import *
 import pickle
 from uuid import uuid4
+from Common.constants import game
 
 
 class Node:
@@ -11,11 +12,11 @@ class Node:
     Node提供各种基础属性和方法
     """
     def __init__(self, director=False):
-        if not director:
-            from Node.director import game_director
-            self.director = game_director
-        else:
-            self.director = self
+        # if not director:
+        #     from Node.director import game_director
+        #     self.director = game_director
+        # else:
+        #     self.director = self
         self.node_name = ''
         self.level = 0  # 节点层级, 根节点为0级, 其子节点为1级, 类推
         self.uuid = str(uuid4())  # 唯一标识符
@@ -36,6 +37,10 @@ class Node:
         self.is_pressed = False  # 鼠标按下
         self.is_hover = False  # 是否hover
         self._hover_enabled = True  # 是否检测hover
+
+    @property
+    def director(self):
+        return game.director
 
     @property
     def is_hover_enabled(self):
@@ -365,8 +370,11 @@ class Node:
         """
         nodes = path.strip('/').split('/')
         target = self
-        for node in nodes:
-            target = target.child(node)
+        try:
+            for node in nodes:
+                target = target.child(node)
+        except:
+            return None
         return target
 
     def check_event(self):

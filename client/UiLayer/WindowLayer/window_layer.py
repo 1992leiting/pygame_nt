@@ -7,7 +7,7 @@ from Node.image_rect import ImageRect
 from Common.common import *
 from Node.button import ButtonClassicClose, Button
 from Node.text_edit import TextEdit
-from Common.net_number import *
+from Common.socket_id import *
 
 
 class Window(Node):

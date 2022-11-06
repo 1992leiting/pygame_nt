@@ -1,6 +1,15 @@
 import os
 
 
+class Game:
+    def __init__(self):
+        self.director = None
+
+
+game = Game()
+director = game.director
+
+
 def csv2dict(file_path):
     if not os.path.exists(file_path):
         raise KeyError('CSV file not exist:' + file_path)

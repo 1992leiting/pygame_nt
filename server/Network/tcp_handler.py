@@ -16,6 +16,11 @@ class TCPHandler(socketserver.BaseRequestHandler):
     account = None
     hid = 0
     tmp_str = ''
+    p_login = None
+    p_game = None
+    p_map = None
+    p_battle = None
+    p_chat = None
 
     def setup(self):
         """
@@ -33,11 +38,27 @@ class TCPHandler(socketserver.BaseRequestHandler):
         while not self.event.is_set():
             data = self.request.recv(2)
             data_len = int.from_bytes(data, byteorder='big')
-            print('data len:', data_len)
+            # print('data len:', data_len)
             data = self.request.recv(data_len)
             msg = json.loads(data)
-            print('msg:', msg)
+            # print('msg:', msg)
             tp = msg['cmd']
+
+            if tp == 'LOGIN':
+                self.p_login = self.request
+                sprint('LOGIN进程已注册√')
+            elif tp == 'MAP':
+                self.p_map = self.request
+                sprint('MAP进程已注册√')
+            elif tp == 'BATTLE':
+                self.p_battle = self.request
+                sprint('BATTLE进程已注册√')
+            elif tp == 'CHAT':
+                self.p_chat = self.request
+                sprint('CHAT进程已注册√')
+            elif tp == 'GAME':
+                self.p_game = self.request
+                sprint('GAME进程已注册√')
 
             if tp == C_登陆:
                 """
