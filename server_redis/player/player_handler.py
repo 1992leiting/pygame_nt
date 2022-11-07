@@ -135,11 +135,16 @@ def create_player(account, name, model):
 
 
 def player_login(account, passwd, pid):
+    print('玩家登陆请求:', account, passwd, pid)
     # 验证密码
+    account_path = os.path.join(DATA_PATH, account)
+    if not os.path.exists(account_path):
+        send(gateway_socket.cur_socket, S_系统提示, dict(内容='账号不存在!'))
+        return
     account_config_file = os.path.join(DATA_PATH, account, 'account_config.json')
     account_config_data = file2dict(account_config_file)
     if not str(passwd) == str(account_config_data['password']):
-        send(gateway_socket.cur_socket, S_系统提示, dict(内容='账号/密码错误'))
+        send(gateway_socket.cur_socket, S_系统提示, dict(内容='账号/密码错误!'))
         return
     else:
         send(gateway_socket.cur_socket, S_系统提示, dict(内容='正在登陆...'))

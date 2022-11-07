@@ -260,11 +260,26 @@ class LineEditWithBg(ImageRect):
         super(LineEditWithBg, self).__init__()
         fill_image_rect(self, 'wzife4.rsp', 0xB74E6CA1)  # 圆角输入背景
         self.width = width
-        self.text = str(text)
         self.font_size = 15
         self.line_edit = LineEdit(font_color='黑')
         self.line_edit.is_readonly = True
         self.setup()
+
+    @property
+    def text(self):
+        return self.line_edit.text
+
+    @text.setter
+    def text(self, txt):
+        self.line_edit.text = txt
+
+    @property
+    def is_readonly(self):
+        return self.line_edit.is_readonly
+
+    @is_readonly.setter
+    def is_readonly(self, v):
+        self.line_edit.is_readonly = v
 
     def setup(self):
         self.auto_sizing(w=self.width)

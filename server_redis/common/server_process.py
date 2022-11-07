@@ -15,8 +15,8 @@ class GatewayServer(socketserver.BaseRequestHandler):
     lock = threading.Lock()
     event = None
     clients = {}  # 所有连接socket的客户端
-    game_servers = {}  # 所有的游戏服务器链接
-    players = {}  # 所有的玩家链接
+    game_servers = {}  # 所有的游戏服务器链接, key: socket
+    players = {}  # 所有的玩家链接 key: pid
 
     def setup(self) -> None:
         super(GatewayServer, self).setup()
@@ -48,6 +48,7 @@ class GatewayServer(socketserver.BaseRequestHandler):
                         'client_num': 0,  # 玩家数量
                     }
                     sprint('Game Server接入:{}'.format(self.client_address))
+                    print(self.game_servers)
             elif tp == C_创建账号:
                 account = msg['账号']
                 passwd = msg['密码']
