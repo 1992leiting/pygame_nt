@@ -24,10 +24,12 @@ if __name__ == '__main__':
     # 连接redis并清除数据
     redis_client.conn.flushall()
 
-    os.popen('start python redis_server.py')
-    os.popen('start python game_server.py')
-    os.popen('start python game_server.py')
-    os.popen('start python game_server.py')
+    sprint('启动子进程...')
+    # os.system('start python')
+    os.system('start python redis_server.py')
+    os.system('start python game_server.py')
+    os.system('start python game_server.py')
+    os.system('start python game_server.py')
 
     while True:
         try:
