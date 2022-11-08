@@ -12,6 +12,7 @@ from Node.image_rect import ImageRect
 from Node.animation import Animation8D
 from Common.constants import *
 from Common.common import *
+from Node.camera import Camera
 
 from Game.res_manager import read_mapx, fill_res
 # ca_mapx = read_mapx(1001)
@@ -23,6 +24,12 @@ class World(Node):
         super(World, self).__init__()
         self.xy_timer = 0
         self.map_id = 0
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.add_child('map_jpg', Node())
+        self.add_child('hero', Node())
+        self.add_child('camera', Camera())
 
     def update_hero_xy(self):
         hero = self.director.child('world').child('hero')
@@ -61,8 +68,8 @@ class World(Node):
         # else:
         self.director.mapx = read_mapx(map_id)
         # 镜头(先移动镜头, 避免先加载资源之后跳转地图瞬间快速闪动)
-        hero = self.director.get_node('scene/world_scene/hero')
-        camera = self.director.get_node('scene/world_scene/camera')
+        hero = game.hero
+        camera = game.camera
         camera.limit = [0, 0, self.director.mapx.width - self.director.window_w, self.director.mapx.height - self.director.window_h]
         camera.move_to(hero.map_x, hero.map_y)
         # 底图

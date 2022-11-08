@@ -35,7 +35,7 @@ class SimpleLogin(Window):
         _input.line_edit.is_readonly = False
         _input.x, _input.y = 100, 150
         _input.width = 150
-        _input.text = '1234567'
+        _input.text = '123456'
         _input.setup()
         self.add_child('密码输入', _input)
 

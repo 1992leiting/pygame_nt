@@ -272,6 +272,7 @@ class LineEditWithBg(ImageRect):
     @text.setter
     def text(self, txt):
         self.line_edit.text = txt
+        self.line_edit.setup()
 
     @property
     def is_readonly(self):

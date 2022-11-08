@@ -45,6 +45,10 @@ class SocketClient:
         cmd = data['cmd']
         if cmd == '登陆成功':
             self.send('获取全部角色数据', {})
+        elif cmd == S_登陆成功:
+            print('登陆成功')
+            game.director.char_data = data
+            game.director.enter_world()
         elif cmd == S_角色数据:
             game.director.char_data = data
             print('角色数据:', game.director.char_data)

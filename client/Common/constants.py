@@ -2,12 +2,26 @@ import os
 
 
 class Game:
+    """
+    空类, 存放各种全局变量
+    """
     def __init__(self):
         self.director = None
 
+    @property
+    def world(self):
+        return self.director.get_node('scene/world_scene')
+
+    @property
+    def hero(self):
+        return self.director.get_node('scene/world_scene/hero')
+
+    @property
+    def camera(self):
+        return self.director.get_node('scene/world_scene/camera')
+
 
 game = Game()
-director = game.director
 
 
 def csv2dict(file_path):

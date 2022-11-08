@@ -8,6 +8,8 @@ import socket
 from Node.prompt import GamePromptManager
 from Network.my_socket import SocketClient
 from Common.socket_id import *
+from Node.world import World
+from Node.character import Character
 
 
 pygame.init()
@@ -20,7 +22,7 @@ class Director(Node):
     导演类, 游戏UI的根节点, 控制整个游戏的UI运行/切换/控制等
     """
     def __init__(self):
-        super(Director, self).__init__(director=True)
+        super(Director, self).__init__()
         self.game_fps = 60
         self.window_w = 800
         self.window_h = 600
@@ -71,11 +73,21 @@ class Director(Node):
         self.screen = pygame.display.set_mode(self.window_size, 0, 32)
 
     def setup_ui(self):
-        self.add_child('scene', Node(director=True))
-        self.add_child('function_layer', Node(director=True))
-        self.add_child('window_layer', Node(director=True))
-        self.add_child('floating_layer', Node(director=True))
+        game.director = self
+        self.add_child('scene', Node())
+        self.add_child('function_layer', Node())
+        self.add_child('window_layer', Node())
+        self.add_child('floating_layer', Node())
         self.add_child('mouse', new_node('Mouse'))
+
+    def enter_world(self):
+        print('enter world...')
+        hero = Character()
+        hero.set_data(self.char_data)
+        world = World()
+        world.add_child('hero', hero)
+        self.child('scene').add_child('world_scene', world)
+        world.change_map(int(self.char_data['地图']))
 
     def match_mouse_event(self, mode, event):
         """
@@ -152,8 +164,8 @@ class Director(Node):
         self.node_hover = None
         self.mouse_pos = pygame.mouse.get_pos()
         # 移动镜头, 远快近慢优化镜头视觉效果
-        hero = self.get_node('scene/world_scene/hero')
-        camera = self.director.get_node('scene/world_scene/camera')
+        hero = game.hero
+        camera = game.camera
         if hero and camera and hero.visible:
             cdx, cdy = 0, 0
             if hero.map_x - camera.center_x > 100:
@@ -172,6 +184,7 @@ class Director(Node):
                 cdy = -MOVING_SPEED * (camera.center_y - hero.map_y - 100) // 10
             elif camera.center_y - hero.map_y > 1:
                 cdy = -1
+            print('camera:', hero.map_x, hero.map_y, camera.center_x, camera.center_y, cdx, cdy)
             camera.move(cdx, cdy)
 
 

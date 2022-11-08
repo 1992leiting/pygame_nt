@@ -1,7 +1,7 @@
 from common.common import *
 from common.constants import *
 from common.socket_id import *
-from common.server_process import redis_client, redis_server
+from common.server_process import server
 import os
 
 
@@ -70,7 +70,7 @@ def create_player(account, name, model):
     """
     # 通过遍历account summary确认pid
     pid = 0
-    acc_sm = redis_get_data(redis_client.conn, 'account_summary')
+    acc_sm = redis_get_data(server.redis_conn, 'account_summary')
     for i in range(10001, 99999):
         if str(i) not in acc_sm:
             pid = i
@@ -104,32 +104,32 @@ def create_player(account, name, model):
     data['可加入门派'] = initial_model_attr[model]['门派']
     data['账号'] = account
     dict2file(data, file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'char', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'char', data)
     # 物品数据
     file = os.path.join(pid_path, 'item.json')
     data = initial_item_data.copy()
     dict2file(data, file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'item', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'item', data)
     # 物品仓库数据
     file = os.path.join(pid_path, 'item_warehouse.json')
     data = initial_itemwarehouse_data.copy()
     dict2file(data, file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'itemwarehouse', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'itemwarehouse', data)
     # 召唤兽数据
     file = os.path.join(pid_path, 'pet.json')
     data = initial_pet_data.copy()
     dict2file(data, file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'pet', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'pet', data)
     # 召唤兽仓库数据
     file = os.path.join(pid_path, 'pet_warehouse.json')
     data = initial_petwarehouse_data.copy()
     dict2file(data, file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'petwarehouse', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'petwarehouse', data)
 
     # account summary添加这个id
     acc_sm[pid] = name
-    redis_set_data(redis_client.conn, 'account_summary', acc_sm)
-    redis_server.save('account_summary')
+    redis_set_data(server.redis_conn, 'account_summary', acc_sm)
+    server.redis_server.save('account_summary')
 
     sprint('角色已创建:{} {} {} {}'.format(account, pid, name, model))
 
@@ -153,21 +153,21 @@ def player_login(account, passwd, pid):
     # 角色数据
     file = os.path.join(pid_path, 'char.json')
     data = file2dict(file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'char', data)
-    send(gateway_socket.cur_socket, S_角色数据, data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'char', data)
+    send(gateway_socket.cur_socket, S_登陆成功, data)
     # 物品数据
     file = os.path.join(pid_path, 'item.json')
     data = file2dict(file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'item', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'item', data)
     # 物品仓库数据
     file = os.path.join(pid_path, 'item_warehouse.json')
     data = file2dict(file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'item_warehouse', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'item_warehouse', data)
     # 宠物数据
     file = os.path.join(pid_path, 'pet.json')
     data = file2dict(file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'pet', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'pet', data)
     # 宠物仓库数据
     file = os.path.join(pid_path, 'pet_warehouse.json')
     data = file2dict(file)
-    redis_set_hash_data(redis_client.conn, str(pid), 'pet_warehouse', data)
+    redis_set_hash_data(server.redis_conn, str(pid), 'pet_warehouse', data)

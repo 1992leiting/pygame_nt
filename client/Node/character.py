@@ -88,6 +88,14 @@ class BasicCharacter(Node):
             if '.' in data['y']:
                 data['y'] = data['y'].split('.')[0]
             self.game_y = int(data['y'])
+        if 'mx' in data:
+            # if '.' in data['mx']:
+            #     data['mx'] = data['mx'].split('.')[0]
+            self.game_x = int(data['mx'])
+        if 'my' in data:
+            # if '.' in data['my']:
+            #     data['my'] = data['my'].split('.')[0]
+            self.game_y = int(data['my'])
         if '方向' in data:
             self.direction = int(data['方向'])
         if 'id' in data:
