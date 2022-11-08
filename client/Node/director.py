@@ -86,8 +86,10 @@ class Director(Node):
         hero.set_data(self.char_data)
         world = World()
         world.add_child('hero', hero)
+        world.child('hero').visible = False
         self.child('scene').add_child('world_scene', world)
         world.change_map(int(self.char_data['地图']))
+        world.child('hero').visible = True
 
     def match_mouse_event(self, mode, event):
         """
@@ -184,8 +186,9 @@ class Director(Node):
                 cdy = -MOVING_SPEED * (camera.center_y - hero.map_y - 100) // 10
             elif camera.center_y - hero.map_y > 1:
                 cdy = -1
-            print('camera:', hero.map_x, hero.map_y, camera.center_x, camera.center_y, cdx, cdy)
-            camera.move(cdx, cdy)
+            # print('camera:', hero.map_x, hero.map_y, camera.center_x, camera.center_y, cdx, cdy)
+            if cdx != 0 or cdy != 0:
+                camera.move(cdx, cdy)
 
 
 game_director = Director()

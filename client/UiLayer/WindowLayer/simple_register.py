@@ -5,12 +5,13 @@ from Node.label import Label
 from Common.socket_id import *
 
 
-class SimpleLogin(Window):
+class SimpleRegister(Window):
     def __init__(self):
-        super(SimpleLogin, self).__init__()
+        super(SimpleRegister, self).__init__()
         self.visible = False
-        self.window_title = '简易登陆'
+        self.window_title = '简易注册'
         self.width, self.height = 300, 300
+        self.x = 50
         self.setup()
         self.setup_win_config()
 
@@ -37,20 +38,16 @@ class SimpleLogin(Window):
         _input.setup()
         self.add_child('密码输入', _input)
 
-        _btn = ButtonClassicRed('登陆', 60)
-        _btn.x, _btn.y = 190, 200
-        self.add_child('登陆', _btn)
         _btn = ButtonClassicRed('注册', 60)
-        _btn.x, _btn.y = 100, 200
+        _btn.x, _btn.y = 190, 200
         self.add_child('注册', _btn)
+        _btn = ButtonClassicRed('退出', 60)
+        _btn.x, _btn.y = 100, 200
+        self.add_child('退出', _btn)
 
     def check_event(self):
-        super(SimpleLogin, self).check_event()
-        if self.child('登陆').event:
+        super(SimpleRegister, self).check_event()
+        if self.child('注册').event:
             acc = self.child('账号输入').text
             pwd = self.child('密码输入').text
-            print('登陆请求:', acc, pwd)
-            self.director.client.send(C_登陆, dict(账号=acc, 密码=pwd, pid=10001))
-        if self.child('注册').event:
-            win_register = self.director.get_node('window_layer/简易注册')
-            win_register.switch(True)
+            self.director.client.send(C_创建账号, dict(账号=acc, 密码=pwd))

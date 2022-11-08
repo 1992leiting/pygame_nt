@@ -49,7 +49,7 @@ class Window(Node):
         :return:
         """
         print('switch:', self.window_name, visible)
-        self.visible = visible
+        self._parent.switch_window(self, visible)
 
     def setup_win_config(self, file=None, given_node=None):
         """
@@ -216,11 +216,11 @@ class WindowLayer(Node):
         # visible为None时切换可视状态, 指定visible可以指定可视状态
         if visible is None:
             visible = not win.visible
-        win.switch(visible)
+        win.visible = visible
 
         # 若窗口变为可视则加入队列, 且提升到最高层级
         if win.visible:
-            self.set_active_window(win)
+            self.set_active_window(win.window_name)
 
     def check_event(self):
         super(WindowLayer, self).check_event()

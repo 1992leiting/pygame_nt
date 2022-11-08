@@ -53,7 +53,9 @@ class GatewayServer(socketserver.BaseRequestHandler):
                 account = msg['账号']
                 passwd = msg['密码']
                 from system.system_handler import create_account
+                from player.player_handler import create_player
                 create_account(account, passwd)
+                create_player(account, '飞龙在天', '龙太子')
             elif tp == C_创建角色:
                 account = msg['账号']
                 name = msg['名称']

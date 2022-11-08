@@ -12,6 +12,8 @@ from UiLayer.WindowLayer.hero_skill import HeroSkill
 from UiLayer.WindowLayer.simple_login import SimpleLogin
 from Node.prompt import GamePrompt, GamePromptManager
 from Common.constants import game
+from UiLayer.WindowLayer.simple_register import SimpleRegister
+from UiLayer.WindowLayer.simple_hero_select import SimpleHeroSelect
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -41,12 +43,22 @@ win = SimpleLogin()
 wl.add_child('简易登陆', win)
 win.visible = True
 
+win = SimpleRegister()
+wl.add_child('简易注册', win)
+win.visible = False
+
+win = SimpleHeroSelect()
+wl.add_child('简易选择角色', win)
+win.visible = False
+
 #
-# win = HeroAttr()
-# wl.add_child('人物属性', win)
-#
-# win2 = HeroSkill()
-# wl.add_child('人物技能', win2)
+win = HeroAttr()
+win.visible = False
+wl.add_child('人物属性', win)
+
+win2 = HeroSkill()
+win2.visible = False
+wl.add_child('人物技能', win2)
 
 
 while True:

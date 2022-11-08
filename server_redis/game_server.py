@@ -54,7 +54,8 @@ class GameServer(threading.Thread):
                 self.recv_handler(msg)
             except BaseException as e:
                 sprint('接收服务器数据异常, 请尝试重新登陆:' + str(e))
-                _ = input('Press any key to exit...')
+                # _ = input('Press any key to exit...')
+                exit()
 
     def recv_handler(self, recv_bytes):
         data = orjson.loads(recv_bytes)

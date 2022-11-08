@@ -61,7 +61,7 @@ def dict2file(data: dict, file: str):
         f.write(data_str)
 
 
-def file2dict(file):
+def file2dict(file) -> dict:
     with open(file, 'r', encoding='utf-8') as f:
         data = json.load(f)
         return data

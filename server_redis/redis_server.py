@@ -19,9 +19,6 @@ class RedisServer(threading.Thread):
         if not os.path.exists(account_summary_file):
             data = {}
             dict2file(data, account_summary_file)
-        # 读取account summary
-        data = file2dict(account_summary_file)
-        redis_set_data(self.conn, 'account_summary', data)
 
     def run(self):
         from common.common import sprint

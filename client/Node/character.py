@@ -17,7 +17,7 @@ class BasicCharacter(Node):
         super(BasicCharacter, self).__init__()
         self.shapes = shapes  # shapes:普通模型, bshapes:战斗模型
         self.model = "龙太子"
-        self.weapon = "刑天之逆"
+        self.weapon = ""
         self.name = '小菜菜'
         self.title = '江湖小虾'
         self.suit = ''

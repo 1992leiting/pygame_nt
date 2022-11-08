@@ -51,6 +51,7 @@ class World(Node):
         npc.visible = not self.director.IN_BATTLE
 
     def change_map(self, map_id):
+        print('change map:', map_id)
         self.map_id = map_id
         map_file = map_dir + str(map_id) + '.mapx'
         if not os.path.exists(map_file):
@@ -138,7 +139,7 @@ class World(Node):
             self.remove_child('units')
 
         if state:
-            camera = self.director.child('camera')
+            camera = game.camera
             # 纯色背景(战斗)
             node = ImageRect().from_color((15, 25, 60, 190))
             node.x, node.y = camera.x, camera.y
@@ -173,8 +174,8 @@ class World(Node):
     def check_event(self):
         super(World, self).check_event()
         if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
-            hero = self.director.get_node('scene/world_scene/hero')
-            camera = self.director.get_node('scene/world_scene/camera')
+            hero = game.hero
+            camera = game.camera
             if hero.visible:
                 mouse_x, mouse_y = int(pygame.mouse.get_pos()[0] + camera.x), int(pygame.mouse.get_pos()[1] + camera.y)
                 hero_x, hero_y = int(hero.map_x), int(hero.map_y)
@@ -195,6 +196,8 @@ class World(Node):
         for child_name in self.get_children().copy().keys():
             child = self.child(child_name)
             if type(child) == NPC or type(child) == Character or type(child) == MapMask:
+                if child == game.hero:
+                    break
                 dis = math.dist((child.map_x, child.map_y), (hero.map_x, hero.map_y))
                 if dis < 600:
                     child.visible = True

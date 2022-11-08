@@ -270,7 +270,6 @@ def game_start(gl):
     GL.root.add_child('world', world)
     world.add_child('hero', char)
     GL.root.child('world').change_map(int(GL.HERO_DATA['地图数据']['编号']))
-    camera.binding_node = world
 
     # FunctionLayer
     function_layer = FunctionLayer()

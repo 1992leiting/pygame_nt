@@ -27,7 +27,7 @@ initial_model_attr = dict(
 )
 
 initial_player_data = dict(节日礼物=0, id=0, 连接ip=0, 等级=0, 名称="", 性别=0, 模型="", 种族="", 称谓={}, 当前称谓="", 帮派="无帮派",
-                           门派="无门派",
+                           门派="无门派", 武器=None,
                            人气=600, 门贡=0, 帮贡=0, 气血=0, 魔法=0, 愤怒=0, 活力=0, 体力=0, 命中=0, 伤害=0, 防御=0, 速度=0, 躲避=0, 灵力=0, 法伤属性=0,
                            法防属性=0, 体质=0, 魔力=0, 力量=0, 耐力=0, 敏捷=0, 总财富=0, 潜力=5, 地图=1501, mx=20, my=20,
                            修炼={'攻击修炼': [0, 0, 9], '法术修炼': [0, 0, 9], '防御修炼': [0, 0, 9], '抗法修炼': [0, 0, 9],
@@ -60,6 +60,24 @@ initial_pet_data = dict()
 initial_petwarehouse_data = dict(主仓库={}, 房屋仓库={})
 
 
+def get_new_pid(name):
+    """
+    创建角色时根据account summary获取新的pid
+    :return:
+    """
+    pid = None
+    as_data = file2dict(ACCOUNT_SUMMARY_PATH)
+    if name in as_data.values():
+        return None
+    for i in range(10001, 99999):
+        if str(i) not in as_data:
+            pid = i
+            break
+    as_data[pid] = name  # 记录新的pid
+    dict2file(as_data, ACCOUNT_SUMMARY_PATH)
+    return pid
+
+
 def create_player(account, name, model):
     """
     创建角色先创建文件再读入redis
@@ -69,16 +87,8 @@ def create_player(account, name, model):
     :return:
     """
     # 通过遍历account summary确认pid
-    pid = 0
-    acc_sm = redis_get_data(server.redis_conn, 'account_summary')
-    for i in range(10001, 99999):
-        if str(i) not in acc_sm:
-            pid = i
-            break
+    pid = get_new_pid(name)
     if not pid:
-        sprint('创建角色时生成pid错误:{} {} {} {}'.format(account, pid, name, model), 'error')
-        return
-    if name in acc_sm.values():
         send(gateway_socket.cur_socket, S_系统提示, dict(内容='角色名称已存在'))
         sprint('角色名称已存在:{} {} {} {}'.format(account, pid, name, model))
         return
@@ -125,11 +135,6 @@ def create_player(account, name, model):
     data = initial_petwarehouse_data.copy()
     dict2file(data, file)
     redis_set_hash_data(server.redis_conn, str(pid), 'petwarehouse', data)
-
-    # account summary添加这个id
-    acc_sm[pid] = name
-    redis_set_data(server.redis_conn, 'account_summary', acc_sm)
-    server.redis_server.save('account_summary')
 
     sprint('角色已创建:{} {} {} {}'.format(account, pid, name, model))
 
