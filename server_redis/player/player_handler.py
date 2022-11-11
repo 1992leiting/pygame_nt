@@ -139,18 +139,25 @@ def create_player(account, name, model):
     sprint('角色已创建:{} {} {} {}'.format(account, pid, name, model))
 
 
-def player_login(account, passwd, pid):
+def player_login(account, passwd, pid) -> bool:
+    """
+    玩家登陆, 返回是否成功
+    :param account:
+    :param passwd:
+    :param pid:
+    :return: True/False
+    """
     print('玩家登陆请求:', account, passwd, pid)
     # 验证密码
     account_path = os.path.join(DATA_PATH, account)
     if not os.path.exists(account_path):
         send(gateway_socket.cur_socket, S_系统提示, dict(内容='账号不存在!'))
-        return
+        return False
     account_config_file = os.path.join(DATA_PATH, account, 'account_config.json')
     account_config_data = file2dict(account_config_file)
     if not str(passwd) == str(account_config_data['password']):
         send(gateway_socket.cur_socket, S_系统提示, dict(内容='账号/密码错误!'))
-        return
+        return False
     else:
         send(gateway_socket.cur_socket, S_系统提示, dict(内容='正在登陆...'))
 
@@ -176,3 +183,4 @@ def player_login(account, passwd, pid):
     file = os.path.join(pid_path, 'pet_warehouse.json')
     data = file2dict(file)
     redis_set_hash_data(server.redis_conn, str(pid), 'pet_warehouse', data)
+    return True

@@ -13,6 +13,7 @@ from Node.animation import Animation8D
 from Common.constants import *
 from Common.common import *
 from Node.camera import Camera
+from Common.socket_id import *
 
 from Game.res_manager import read_mapx, fill_res
 # ca_mapx = read_mapx(1001)
@@ -32,13 +33,13 @@ class World(Node):
         self.add_child('camera', Camera())
 
     def update_hero_xy(self):
-        hero = self.director.child('world').child('hero')
+        hero = game.hero
         send_data = {
             'x': hero.game_x,
             'y': hero.game_y,
-            'mapid': self.director.mapx.map_id
+            'mapid': self.map_id
         }
-        self.director.client.send('更新主角坐标', send_data)
+        self.director.client.send(C_更新坐标, send_data)
 
     def add_npc(self, data: dict):
         if 'msg' in data:
@@ -188,9 +189,9 @@ class World(Node):
         if self.director.is_in_battle:
             return
         # 更新主角坐标
-        # if time.time() - self.xy_timer > 1:
-        #     self.update_hero_xy()
-        #     self.xy_timer = time.time()
+        if time.time() - self.xy_timer > 1:
+            self.update_hero_xy()
+            self.xy_timer = time.time()
         # 距离主角一定范围内才显示
         hero = self.director.get_node('scene/world_scene/hero')
         for child_name in self.get_children().copy().keys():
