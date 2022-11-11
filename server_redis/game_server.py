@@ -61,6 +61,7 @@ class GameServer(threading.Thread):
         data = orjson.loads(recv_bytes)
         pid = data['pid']  # 玩家id
         cmd = data['cmd']
+        print('game server recv:', data)
 
 
 def start_game_server():
