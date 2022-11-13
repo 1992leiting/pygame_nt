@@ -20,8 +20,6 @@ class Window(Node):
         self.window_title = '游戏窗口'
         self.is_pressed = False  # 鼠标按住
         self.press_x, self.press_y = 0, 0
-        self.x = self.director.window_w // 2 - self.width // 2
-        self.y = self.director.window_h // 2 - self.height // 2
         self.last_x, self.last_y = self.x, self.y  # 拖拽时使用, 上一次的xy坐标
         self.config_file = ''
         self.is_draggable = True
@@ -127,6 +125,10 @@ class Window(Node):
         关闭按钮.y += 4
         self.add_child('关闭按钮', 关闭按钮)
 
+        # 窗口默认居中显示
+        self.x = self.director.window_w // 2 - self.width // 2
+        self.y = self.director.window_h // 2 - self.height // 2
+
     def check_event(self):
         # super(Window, self).check_event()
         # 左键点击激活
@@ -228,6 +230,3 @@ class WindowLayer(Node):
         # alt W
         if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_w):
             self.switch_window(self.child('人物属性'))
-        # alt Q
-        if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_q):
-            self.director.client.send(C_登陆, {'账号': 'admin1', '密码': 123456, '登陆id': 1001})

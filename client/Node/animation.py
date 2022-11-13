@@ -62,6 +62,7 @@ class Animation8D(Node):
         super().__init__()
         self.direction = 0
         self.is_playing = True
+        self.is_hover_enabled = False
         self.add_child('0', Animation())
 
     @property

@@ -13,7 +13,7 @@ class RedisServer(threading.Thread):
         self.timer = time.time() + REDIS_AUTO_SAVE_INTERVAL
 
     def setup(self):
-        from common.common import dict2file, file2dict, redis_set_data
+        from common.common import dict2file, file2dict
         # 没有account summary file则创建
         account_summary_file = os.path.join(DATA_PATH, 'account_summary.json')
         if not os.path.exists(account_summary_file):
@@ -28,33 +28,40 @@ class RedisServer(threading.Thread):
                 self.timer = time.time() + REDIS_AUTO_SAVE_INTERVAL
                 self.save()
 
-    def redis_save(self, key):
-        from common.common import redis_get_data, dict2file, redis_get_hash_data
-        if key == 'account_summary':
-            data = redis_get_data(self.conn, key)
-            dict2file(data, ACCOUNT_SUMMARY_PATH)
-        else:  # 玩家数据数据
-            pid = key
+    def redis_save(self, pid: int):
+        """
+        单独存储某一个key的数据(实际上是某一个玩家的数据)
+        :param pid: 玩家id
+        :return:
+        """
+        from common.common import dict2file, redis_get_hash_data, sprint
+        try:
+            key = str(pid)
             # 角色数据
             data = redis_get_hash_data(self.conn, key, 'char')
-            file = os.path.join(DATA_PATH, data['账号'], pid, 'char.json')
+            account = data['账号']
+            file = os.path.join(DATA_PATH, account, key, 'char.json')
             dict2file(data, file)
             # 物品数据
             data = redis_get_hash_data(self.conn, key, 'item')
-            file = os.path.join(DATA_PATH, data['账号'], pid, 'item.json')
+            file = os.path.join(DATA_PATH, account, key, 'item.json')
             dict2file(data, file)
             # 物品仓库数据
             data = redis_get_hash_data(self.conn, key, 'item_warehouse')
-            file = os.path.join(DATA_PATH, data['账号'], pid, 'item_warehouse.json')
+            file = os.path.join(DATA_PATH, account, key, 'item_warehouse.json')
             dict2file(data, file)
             # 宠物数据
             data = redis_get_hash_data(self.conn, key, 'pet')
-            file = os.path.join(DATA_PATH, data['账号'], pid, 'pet.json')
+            file = os.path.join(DATA_PATH, account, key, 'pet.json')
             dict2file(data, file)
             # 宠物仓库数据
             data = redis_get_hash_data(self.conn, key, 'pet_warehouse')
-            file = os.path.join(DATA_PATH, data['账号'], pid, 'pet_warehouse.json')
+            file = os.path.join(DATA_PATH, account, key, 'pet_warehouse.json')
             dict2file(data, file)
+
+            print('{} 数据已保存'.format(pid))
+        except BaseException as e:
+            sprint('保存redis数据出错: {} {}'.format(pid, str(e)), 'error')
 
     def save(self, key=None):
         """

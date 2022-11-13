@@ -7,6 +7,7 @@ from Database.map_name import get_map_name
 from Node.label import Label
 from Node.animation import Animation8D
 import datetime
+from Common.constants import *
 
 
 class TimeArea(Node):
@@ -122,20 +123,22 @@ class TimeArea(Node):
         self.child('label_hms').center_y = 10
 
         # 地图名称文本
-        map_id = self.director.mapx.map_id
-        map_name = get_map_name(int(map_id))
-        if self.child('label_map_name').text != map_name:
-            self.child('label_map_name').text = map_name
-            self.child('label_map_name').setup()
-        self.child('label_map_name').center_x = 59
-        self.child('label_map_name').center_y = 23
+        if game.world:
+            map_id = game.world.map_id
+            map_name = get_map_name(int(map_id))
+            if self.child('label_map_name').text != map_name:
+                self.child('label_map_name').text = map_name
+                self.child('label_map_name').setup()
+            self.child('label_map_name').center_x = 59
+            self.child('label_map_name').center_y = 23
 
         # 坐标文本
-        hero = self.director.get_node('scene/world_scene/hero')
-        text_xy = 'X:{} Y:{}'.format(str(int(hero.game_x)), str(int(hero.game_y)))
-        if self.child('label_xy').text != text_xy:
-            self.child('label_xy').text = text_xy
-            self.child('label_xy').setup()
-        self.child('label_xy').x = 24
-        self.child('label_xy').center_y = 72
+        hero = game.hero
+        if hero:
+            text_xy = 'X:{} Y:{}'.format(str(int(hero.game_x)), str(int(hero.game_y)))
+            if self.child('label_xy').text != text_xy:
+                self.child('label_xy').text = text_xy
+                self.child('label_xy').setup()
+            self.child('label_xy').x = 24
+            self.child('label_xy').center_y = 72
 

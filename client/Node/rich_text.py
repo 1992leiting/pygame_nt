@@ -239,7 +239,6 @@ class RichText(Node):
             self.static_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)
             self.dynamic_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)
             self.compose()
-        self.height = self.max_height
 
     def draw(self):
         self.surface.fill((0, 0, 0, 0))
@@ -260,7 +259,7 @@ class RichText(Node):
 
         if self.is_hover:
             s = self.director.get_mouse_scroll(self.mouse_filter) * 8  # 鼠标滚动转换为滚动像素数量
-            if s != 0:
+            if s:
                 self.scroll += s
                 # 设置滚动像素的上下限
                 if self.scroll > 0:

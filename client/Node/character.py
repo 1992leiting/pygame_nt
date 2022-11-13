@@ -38,16 +38,17 @@ class BasicCharacter(Node):
         return MOVING_SPEED * (60 // self.director.game_fps)  # 保证速度不会因为fps变化而变化
 
     def check_hover(self):
-        # if self.director.node_hover is not None:
-        #     self.is_hover = False
-        #     return
         pos = pygame.mouse.get_pos()
         rect_pos = (pos[0] - self.mask_rect.x, pos[1] - self.mask_rect.y)
+        if self.director.node_hover == self:
+            self.director.node_hover = None
         if self.director.node_hover is None and self.mask_rect.collidepoint(pos):
             color = self.cur_char_animation.cur_frame.get_at(rect_pos)
             if color != (0, 0, 0, 0):
                 self.is_hover = True
                 self.director.node_hover = self
+            else:
+                self.is_hover = False
         else:
             self.is_hover = False
 
@@ -227,6 +228,8 @@ class BasicCharacter(Node):
             self.mask_rect = mask.get_rect()
             self.mask_rect.x = self.x - self.cur_char_animation.kx
             self.mask_rect.y = self.y - self.cur_char_animation.ky
+            # if self.name == '大鹌鹑二号':
+            #     print('maskrect:', mask, self.mask_rect)
 
         if self.cur_char_animation:
             self.cur_char_animation.highlight = self.is_hover
@@ -309,6 +312,7 @@ class NPC(BasicCharacter):
     def __init__(self):
         super(NPC, self).__init__()
         self.type = 'npc'
+        self.shapes = shapes
 
     def setup_hero(self):
         name = Label()

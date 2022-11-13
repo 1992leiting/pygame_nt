@@ -1,10 +1,7 @@
 import socketserver
 import threading
-import orjson
-from common.common import send
 from common.constants import *
 from common.socket_id import *
-from common.constants import gateway_socket
 import socket
 import redis
 import time
@@ -17,9 +14,14 @@ class Server:
     """
     def __init__(self):
         self.game_server = None  # game server进程
-        self.redis_server = None  # redis监控进程,独立运行,自动保存redis数据
+        self.redis_server = None  # redis监控线程,独立运行,自动保存redis数据
         self.redis_conn = None  # 每个进程各自的redis连接
         self.gateway = None  # 网关进程
+
+        self.tmp_client_socket = {}  # 非服务器/非玩家的临时socket
+        self.logged_socket = []  # 已经登陆的socket连接
+
+        self.npcs = []  # 所有的npc
 
 
 server = Server()

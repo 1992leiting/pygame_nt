@@ -50,7 +50,7 @@ class SimpleLogin(Window):
             acc = self.child('账号输入').text
             pwd = self.child('密码输入').text
             print('登陆请求:', acc, pwd)
-            self.director.client.send(C_登陆, dict(账号=acc, 密码=pwd, pid=10001))
+            self.director.client.send(C_账号登陆, dict(账号=acc, 密码=pwd))
         if self.child('注册').event:
             win_register = self.director.get_node('window_layer/简易注册')
             win_register.switch(True)

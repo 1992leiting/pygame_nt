@@ -10,6 +10,7 @@ from Network.my_socket import SocketClient
 from Common.socket_id import *
 from Node.world import World
 from Node.character import Character
+from UiLayer.FunctionLayer.function_layer import FunctionLayer
 
 
 pygame.init()
@@ -46,7 +47,7 @@ class Director(Node):
         self.node_hover = None  # 当前处于hover状态的节点, 只允许有一个
         self.astar = Astar(self)
         self.is_hero_in_portal = False
-        self.char_data = None
+        self.hero_data = None
         self.item_data = None
         self.item_warehouse_data = None
         self.pet_data = None
@@ -80,16 +81,25 @@ class Director(Node):
         self.add_child('floating_layer', Node())
         self.add_child('mouse', new_node('Mouse'))
 
-    def enter_world(self):
-        print('enter world...')
+    def start_game(self):
+        # 关闭一些窗口
+        game.window_layer.child('简易登陆').switch(False)
+        game.window_layer.child('简易注册').switch(False)
+        game.window_layer.child('简易选择角色').switch(False)
+        game.window_layer.child('简易创建角色').switch(False)
+        # 初始化function layer
+        fl = FunctionLayer()
+        self.add_child('function_layer', fl)
+        # 初始化英雄和world
         hero = Character()
-        hero.set_data(self.char_data)
+        hero.set_data(self.hero_data)
         world = World()
         world.add_child('hero', hero)
         world.child('hero').visible = False
         self.child('scene').add_child('world_scene', world)
-        world.change_map(int(self.char_data['地图']))
+        world.change_map(int(self.hero_data['地图']))
         world.child('hero').visible = True
+        self.director.client.send(C_进入场景, dict(map_id=game.world.map_id))
 
     def match_mouse_event(self, mode, event):
         """
@@ -163,6 +173,7 @@ class Director(Node):
             print('连接游戏服务器成功!')
     
     def update(self):
+        # print('--------')
         self.node_hover = None
         self.mouse_pos = pygame.mouse.get_pos()
         # 移动镜头, 远快近慢优化镜头视觉效果

@@ -3,6 +3,8 @@ from Node.button import Button
 from Node.image_rect import ImageRect
 from Node.progressbar import ProgressBar
 from Common.common import *
+from Game.res_manager import fill_res
+from Common.constants import *
 
 
 class StatusbarArea(Node):
@@ -65,6 +67,9 @@ class StatusbarArea(Node):
                                                  'hash_id': 3615876352,
                                                  'x': self.director.window_w - 114,
                                                  'y': 3})
+        hero_model = game.director.hero_data['模型']
+        has, rsp = head_image[hero_model]['小头像'], head_image[hero_model]['大头像文件']
+        fill_res(self.人物头像, rsp, has)
         self.add_child('人物头像', self.人物头像)
         self.宠物气血空槽 = set_node_attr(ImageRect(), {'rsp_file': 'wzife.rsp',
                                                       'hash_id': 780622062,

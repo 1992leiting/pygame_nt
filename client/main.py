@@ -14,6 +14,7 @@ from Node.prompt import GamePrompt, GamePromptManager
 from Common.constants import game
 from UiLayer.WindowLayer.simple_register import SimpleRegister
 from UiLayer.WindowLayer.simple_hero_select import SimpleHeroSelect
+from UiLayer.WindowLayer.simple_create_player import SimpleCreatePlayer
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -38,6 +39,7 @@ print_node(game.director)
 #
 wl = WindowLayer()
 game.director.add_child('window_layer', wl)
+game.window_layer = wl
 
 win = SimpleLogin()
 wl.add_child('简易登陆', win)
@@ -49,6 +51,10 @@ win.visible = False
 
 win = SimpleHeroSelect()
 wl.add_child('简易选择角色', win)
+win.visible = False
+
+win = SimpleCreatePlayer()
+wl.add_child('简易创建角色', win)
 win.visible = False
 
 #

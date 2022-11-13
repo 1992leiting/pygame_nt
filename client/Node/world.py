@@ -48,8 +48,8 @@ class World(Node):
         npc.type = 'npc'
         npc.set_data(data)
         self.add_child('npc_' + str(npc.id), npc)
-        # print('add npc:', npc.name)
-        npc.visible = not self.director.IN_BATTLE
+        print('add npc:', npc.name)
+        npc.visible = not self.director.is_in_battle
 
     def change_map(self, map_id):
         print('change map:', map_id)
