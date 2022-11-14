@@ -89,6 +89,7 @@ class HeroSkill(Window):
         self.add_child('btn_经脉技能', btn)
 
         self.add_child('info_area', Node())  # 该区域会随着按钮点击变化内容
+        self.child('btn_经脉技能').is_active = False
 
     def check_event(self):
         super(HeroSkill, self).check_event()

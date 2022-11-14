@@ -172,7 +172,7 @@ def read_rsp(rsp_file, hash_id):
     hash_id = int(hash_id)
     if hash_id not in hash_list[rsp_file]:
         print('hash不存在: ', rsp_file, hash_id)
-        return res
+        return read_rsp('wzife.rsp', 0x20F3E242)  # 问号
     # 检查资源池是否已经缓存
     key = str(rsp_file + str(hash_id))
     if key in rsp_cache:

@@ -26,13 +26,9 @@ class SocketClient:
             try:
                 _bytes = self.socket.recv(2)  # 阻塞获取2字节, 如果有则是消息长度
                 msg_len = int.from_bytes(_bytes, byteorder='big')  # 消息长度, 2字节
-                recv_len = 0
                 msg = b''
-                while recv_len < msg_len:
-                    msg += self.socket.recv(msg_len - recv_len)  # 获取消息内容
-                    recv_len += len(msg)
-                # print('***msg_len', _bytes, msg_len, len(msg))
-                # print('***msg', msg)
+                while len(msg) < msg_len:
+                    msg += self.socket.recv(99999)  # 获取消息内容
                 self.recv_handler(msg)
             except BaseException as e:
                 raise e
@@ -40,34 +36,36 @@ class SocketClient:
                 # print('recv data error:', str(e))
 
     def recv_handler(self, recv_bytes):
-        data = json.loads(recv_bytes)
-        # print('socket收到:', data)
-        cmd = data['cmd']
+        # print('recv bytes:', recv_bytes)
+        msg = json.loads(recv_bytes)
+        cmd = msg['cmd']
         if cmd == '登陆成功':
             self.send('获取全部角色数据', {})
         elif cmd == S_登陆成功:
             print('登陆成功')
-            game.director.char_data = data
-            game.director.enter_world()
+            game.director.hero_data = msg
+            game.director.start_game()
         elif cmd == S_角色数据:
-            game.director.char_data = data
-            print('角色数据:', game.director.char_data)
-        elif cmd == '添加NPC':
-            # while not game.director.STARTED:
-            #     pass
-            world = game.director.child('world')
-            world.add_npc(data)
+            game.director.hero_data = msg
+            print('角色数据:', game.director.hero_data)
+        elif cmd == S_账号所有人物:
+            win = game.director.get_node('window_layer/简易选择角色')
+            win.switch(True)
+            win.load_hero_data(msg['内容'])
+            game.account = msg['账号']
+        elif cmd == S_NPC数据:
+            game.world.add_npc(msg)
         elif cmd == '跳转地图':
             game.director.HERO_IN_PORTAL = 0
             hero = game.director.child('world').child('hero')
             hero.path = []
             hero.is_moving = False
-            hero.game_x, hero.game_y = int(data['x']), int(data['y'])
+            hero.game_x, hero.game_y = int(msg['x']), int(msg['y'])
             world = game.director.child('world')
-            world.change_map(int(data['mapid']))
+            world.change_map(int(msg['mapid']))
         elif cmd == S_系统提示:
-            print('系统提示:', data)
-            text = data['内容']
+            print('系统提示:', msg)
+            text = msg['内容']
             game.director.gp_manager.append(text)
 
     def send(self, cmd: str, send_data: dict):

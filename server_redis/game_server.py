@@ -1,10 +1,13 @@
-from common.server_process import server
+from common.server_process import server, RedisClient
 from common.common import *
 from common.constants import *
 import threading
 import socket
-import orjson
 from uuid import uuid4
+from common.socket_id import *
+import sys
+import logging
+import traceback
 
 
 uuidChars = ("a", "b", "c", "d", "e", "f",
@@ -51,26 +54,45 @@ class GameServer(threading.Thread):
                 while recv_len < msg_len:
                     msg += self.socket.recv(msg_len - recv_len)  # 获取消息内容
                     recv_len += len(msg)
-                self.recv_handler(msg)
-            except BaseException as e:
+                    # try:
+                    self.recv_handler(msg)
+                    # except Exception as e:
+                    #     sprint('Game Server处理业务时发生错误:' + str(e))
+            except ConnectionResetError as e:
                 sprint('接收服务器数据异常, 请尝试重新登陆:' + str(e))
-                # _ = input('Press any key to exit...')
                 exit()
+            except BaseException as e:
+                print(e)
+                print(traceback.print_exc())
+                # raise e
 
     def recv_handler(self, recv_bytes):
-        data = orjson.loads(recv_bytes)
-        pid = data['pid']  # 玩家id
-        cmd = data['cmd']
-        print('game server recv:', data)
+        msg = json.loads(recv_bytes)
+        pid = msg['pid']  # 玩家id
+        cmd = msg['cmd']
+        # print('game server recv:', msg)
+
+        if cmd == C_更新坐标:
+            x, y = msg['x'], msg['y']
+            rset(pid, CHAR, x, 'mx')
+            rset(pid, CHAR, y, 'my')
+        elif cmd == C_进入场景:
+            from scene.scene_handler import player_enter_scene
+            map_id = msg['map_id']
+            player_enter_scene(pid, map_id)
 
 
 def start_game_server():
+    redis_client = RedisClient()
+    server.redis_conn = redis_client.conn
+
     game_server = GameServer()
     server.game_server = game_server
     game_server.connect()
     game_server.start()
 
-    send(server.game_server.socket, GAME_SERVER_REGISTER_CMD, dict(uuid=game_server.uuid))
+    send2gw(GAME_SERVER_REGISTER_CMD, dict(uuid=game_server.uuid))
+    # import_npcs()
 
 
 start_game_server()

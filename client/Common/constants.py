@@ -7,6 +7,8 @@ class Game:
     """
     def __init__(self):
         self.director = None
+        self.account = ''  # 当前游戏处理的账号
+        self.window_layer = None
 
     @property
     def world(self):
@@ -66,6 +68,7 @@ bshapes = csv2dict(data_dir + 'battle_shapes.csv')
 portals = csv2dict(data_dir + 'XA_portals.csv')
 colors = csv2dict(data_dir + 'color.csv')
 effects = csv2dict(data_dir + 'XA_effects.csv')
+head_image = csv2dict(data_dir + 'head_image.csv')
 # ashapes = pd.read_csv(data_dir + 'ashapes.csv', index_col='名称').T.to_dict()
 
 # 血量类型

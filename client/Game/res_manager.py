@@ -177,14 +177,17 @@ def read_rsp(rsp_file, hash_id):
         print('资源文件不存在: ', rsp_file)
         return res
     if type(hash_id) == str:
-        hash_id = hash_id.replace('0X', '0x')
-        if '0x' not in hash_id:
-            hash_id = '0x' + hash_id
-        hash_id = int(hash_id, 16)
+        if hash_id.isdigit():
+            hash_id = int(hash_id)
+        else:
+            hash_id = hash_id.replace('0X', '0x')
+            if '0x' not in hash_id:
+                hash_id = '0x' + hash_id
+            hash_id = int(hash_id, 16)
     hash_id = int(hash_id)
     if hash_id not in hash_list[rsp_file]:
         print('hash不存在: ', rsp_file, hash_id)
-        return res
+        return read_rsp('wzife.rsp', 0x20F3E242)  # 问号
     # 检查资源池是否已经缓存
     key = str(rsp_file + str(hash_id))
     if key in rsp_cache:

@@ -13,6 +13,7 @@ class HeroAttr(Window):
         self.config_file = winconfig_dir + 'HeroAttr.csv'
         self.setup()
         self.setup_win_config()
+        self.top_right_x = game.director.window_w - 1
 
     def check_event(self):
         super(HeroAttr, self).check_event()

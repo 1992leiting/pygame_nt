@@ -3,6 +3,11 @@ from Node.text_edit import LineEditWithBg
 from Node.button import ButtonClassicRed
 from Node.label import Label
 from Common.socket_id import *
+from Node.character import Character
+from Common.constants import *
+
+
+pos = [(100, 160), (250, 160), (400, 160), (100, 350), (250, 350), (400, 350)]
 
 
 class SimpleHeroSelect(Window):
@@ -11,42 +16,40 @@ class SimpleHeroSelect(Window):
         self.visible = False
         self.window_title = '简易角色选择'
         self.width, self.height = 600, 400
+        self.hero_data = []  # 角色数据
         self.setup()
         self.setup_win_config()
 
     def setup_win_config(self, file=None, given_node=None):
-        _text = Label(text='账号')
-        _text.x, _text.y = 50, 100
-        self.add_child('txt_账号', _text)
-        _text = Label(text='密码')
-        _text.x, _text.y = 50, 150
-        self.add_child('txt_密码', _text)
+        for i in range(6):
+            btn = ButtonClassicRed('进入', 60)
+            btn.is_active = False
+            btn.center_x = pos[i][0]
+            btn.center_y = pos[i][1] + 20
+            self.add_child('进入' + str(i), btn)
 
-        _input = LineEditWithBg()
-        _input.line_edit.is_readonly = False
-        _input.x, _input.y = 100, 100
-        _input.width = 150
-        _input.text = 'admin1'
-        _input.setup()
-        self.add_child('账号输入', _input)
-        _input = LineEditWithBg()
-        _input.line_edit.is_readonly = False
-        _input.x, _input.y = 100, 150
-        _input.width = 150
-        _input.text = '123456'
-        _input.setup()
-        self.add_child('密码输入', _input)
+        btn = ButtonClassicRed('创建角色', 100)
+        btn.center_x, btn.center_y = 520, 350 + 20
+        self.add_child('创建角色', btn)
 
-        _btn = ButtonClassicRed('注册', 60)
-        _btn.x, _btn.y = 190, 200
-        self.add_child('注册', _btn)
-        _btn = ButtonClassicRed('退出', 60)
-        _btn.x, _btn.y = 100, 200
-        self.add_child('退出', _btn)
+    def load_hero_data(self, hero_data):
+        print('load hero:', hero_data)
+        self.hero_data = hero_data
+        for i, data in enumerate(hero_data):
+            ch = Character()
+            ch.set_data(data)
+            ch.x = pos[i][0]
+            ch.y = pos[i][1] - 40
+            self.add_child('hero' + str(i), ch)
+            # 按钮激活
+            self.child('进入' + str(i)).is_active = True
 
     def check_event(self):
         super(SimpleHeroSelect, self).check_event()
-        if self.child('注册').event:
-            acc = self.child('账号输入').text
-            pwd = self.child('密码输入').text
-            self.director.client.send(C_创建账号, dict(账号=acc, 密码=pwd))
+        if self.child('创建角色').event:
+            win = self.director.get_node('window_layer/简易创建角色')
+            win.switch(True)
+
+        for i in range(6):
+            if self.child('进入' + str(i)).event:
+                self.director.client.send(C_角色进入, dict(账号=game.account, pid=self.hero_data[i]['id']))

@@ -7,6 +7,7 @@ from Game.res_manager import fill_button
 class Button(Node):
     def __init__(self):
         super(Button, self).__init__()
+        self.is_active = True  # 是否使能状态
         self.img_normal = None
         self.img_hover = None
         self.img_pressed = None
@@ -59,6 +60,8 @@ class Button(Node):
         self.img_disable = auto_sizing(self.img_disable, self.width, self.height)
 
     def check_event(self):
+        if not self.is_active:
+            return
         # 判断按住
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
@@ -90,7 +93,7 @@ class Button(Node):
             self.cur_img = self.img_pressed
         if self.is_toggled:
             self.cur_img = self.img_pressed
-        if not self.enable:
+        if not self.is_active:
             self.cur_img = self.img_disable
 
     def draw(self):

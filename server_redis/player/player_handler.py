@@ -89,7 +89,7 @@ def create_player(account, name, model):
     # 通过遍历account summary确认pid
     pid = get_new_pid(name)
     if not pid:
-        send(gateway_socket.cur_socket, S_系统提示, dict(内容='角色名称已存在'))
+        send(server.tmp_client_socket[account], S_系统提示, dict(内容='角色名称已存在'))
         sprint('角色名称已存在:{} {} {} {}'.format(account, pid, name, model))
         return
 
@@ -136,37 +136,27 @@ def create_player(account, name, model):
     dict2file(data, file)
     redis_set_hash_data(server.redis_conn, str(pid), 'petwarehouse', data)
 
-    sprint('角色已创建:{} {} {} {}'.format(account, pid, name, model))
-
-
-def player_login(account, passwd, pid) -> bool:
-    """
-    玩家登陆, 返回是否成功
-    :param account:
-    :param passwd:
-    :param pid:
-    :return: True/False
-    """
-    print('玩家登陆请求:', account, passwd, pid)
-    # 验证密码
-    account_path = os.path.join(DATA_PATH, account)
-    if not os.path.exists(account_path):
-        send(gateway_socket.cur_socket, S_系统提示, dict(内容='账号不存在!'))
-        return False
-    account_config_file = os.path.join(DATA_PATH, account, 'account_config.json')
+    # account config增加pid
+    account_path = DATA_PATH + str(account)
+    account_config_file = account_path + '/account_config.json'
     account_config_data = file2dict(account_config_file)
-    if not str(passwd) == str(account_config_data['password']):
-        send(gateway_socket.cur_socket, S_系统提示, dict(内容='账号/密码错误!'))
-        return False
-    else:
-        send(gateway_socket.cur_socket, S_系统提示, dict(内容='正在登陆...'))
+    account_config_data['pid'].append(pid)
+    dict2file(account_config_data, account_config_file)
 
+    sprint('角色已创建:{} {} {} {}'.format(account, pid, name, model))
+    send(server.tmp_client_socket[account], S_系统提示, dict(内容='创建角色成功'))
+    from system.system_handler import send_hero_data_by_account
+    send_hero_data_by_account(account)
+
+
+def player_login(account, pid) -> bool:
+    send(server.tmp_client_socket[account], S_系统提示, dict(内容='正在登陆...'))
     pid_path = os.path.join(DATA_PATH, account, str(pid))
     # 角色数据
     file = os.path.join(pid_path, 'char.json')
     data = file2dict(file)
     redis_set_hash_data(server.redis_conn, str(pid), 'char', data)
-    send(gateway_socket.cur_socket, S_登陆成功, data)
+    send(server.tmp_client_socket[account], S_登陆成功, data)
     # 物品数据
     file = os.path.join(pid_path, 'item.json')
     data = file2dict(file)

@@ -77,7 +77,7 @@ class GamePrompt(ImageRect):
         # 配置富文本
         self.rich_text.set_text('#Y' + self.text)
         self.width = self.rich_text.width + GP_MARGIN_X * 2
-        self.height = self.rich_text.height + GP_MARGIN_Y * 2
+        self.height = self.rich_text.max_height + GP_MARGIN_Y * 2
         self.width = max(self.width, 300)
         self.auto_sizing()
         self.setup_outline((255, 255, 255))  # 添加outline

@@ -87,8 +87,4 @@ class ButtonArea(Node):
     def check_event(self):
         if self.child('btn_攻击').event or (self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_a)):
             self.director.gp_manager.append('此功能尚未实现, 敬请期待#' + str(random.randrange(10, 20)))
-        if self.child('btn_物品').event or (self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_e)):
-            # self.director.client.send(C_创建账号, dict(账号='admin1', 密码=123456))
-            # self.director.client.send(C_创建角色, dict(账号='admin1', 名称='我要变强2', 模型='龙太子'))
-            self.director.client.send(C_登陆, dict(账号='admin1', 密码='123456', pid='10001'))
 
