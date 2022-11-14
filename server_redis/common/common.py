@@ -21,7 +21,7 @@ def send(sk, cmd: str, send_data: dict):
     try:
         sk.sendall(send_bytes)
     except BaseException as e:
-        sprint('发送网络数据失败:' + str(e))
+        print('发送网络数据失败:', str(e), cmd, send_data)
 
 
 def send2gw(cmd: str, send_data: dict):
@@ -138,6 +138,8 @@ def release_redis_lock(redis_client: Redis, lock_value: str):
 
 def rget(pid, db, *args):
     from common.server_process import server
+    if not db:
+        return server.redis_conn.hgetall(pid)
     data = redis_get_hash_data(server.redis_conn, pid, db)
     if data:
         _path = ''  # 数据路径
@@ -191,7 +193,11 @@ def get_filenames_in_path(path):
 
 
 # 获取所有NPC
-def import_npcs_backup():
+def import_npcs():
+    """
+    根据NPC脚本加载NPC
+    :return:
+    """
     files = get_filenames_in_path('scene/npc')
     # npc_importer.py是每次动态生成的
     with open('scene/npc/npc_importer.py', 'w', encoding='utf-8') as f:
@@ -201,3 +207,9 @@ def import_npcs_backup():
                 f.write('from scene.npc.{} import npc\n'.format(file.rstrip('.py')))
                 f.write('server.npcs.append(npc)\n')
     import scene.npc.npc_importer
+
+
+def get_all_players() -> list:
+    from common.server_process import server
+    print('all players:', server.redis_conn.keys())
+    return server.redis_conn.keys()

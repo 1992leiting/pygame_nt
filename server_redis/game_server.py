@@ -80,6 +80,11 @@ class GameServer(threading.Thread):
             from scene.scene_handler import player_enter_scene
             map_id = msg['map_id']
             player_enter_scene(pid, map_id)
+        elif cmd == C_发送路径:
+            from scene.scene_handler import player_set_path_request
+            path = msg['路径']
+            print('发送路径,', pid, path)
+            player_set_path_request(pid, path)
 
 
 def start_game_server():

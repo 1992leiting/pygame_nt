@@ -42,14 +42,26 @@ class World(Node):
         self.director.client.send(C_更新坐标, send_data)
 
     def add_npc(self, data: dict):
-        if 'msg' in data:
-            data = data['msg']
         npc = NPC()
         npc.type = 'npc'
         npc.set_data(data)
         self.add_child('npc_' + str(npc.id), npc)
-        print('add npc:', npc.name)
+        # print('add npc:', npc.name)
         npc.visible = not self.director.is_in_battle
+
+    def add_player(self, data: dict):
+        player = Character()
+        player.type = 'player'
+        player.set_data(data)
+        self.add_child('player_' + str(player.id), player)
+        print('add player:', data)
+        player.visible = not self.director.is_in_battle
+
+    def player_set_path(self, pid, path):
+        for name, child in self.get_children().items():
+            if name == 'player_' + str(pid):
+                if child.id == pid:
+                    child.set_path(path)
 
     def change_map(self, map_id):
         print('change map:', map_id)
@@ -182,8 +194,8 @@ class World(Node):
                 hero_x, hero_y = int(hero.map_x), int(hero.map_y)
                 # print('鼠标点击:', (hero_x, hero_y), (mouse_x, mouse_y))
                 path = self.director.astar.find_path((hero_x, hero_y), (mouse_x, mouse_y))
-                hero.path = path
-                # print('path:', path)
+                print('发送路径:', path)
+                self.director.client.send(C_发送路径, dict(路径=path))
 
     def update(self):
         if self.director.is_in_battle:

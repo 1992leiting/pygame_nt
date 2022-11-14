@@ -76,6 +76,9 @@ class RedisServer(threading.Thread):
                 self.redis_save(key)
         sprint('redis数据已保存')
 
+    def remove(self, key):
+        self.conn.delete(key)
+
 
 if __name__ == '__main__':
     redis_sever = RedisServer()

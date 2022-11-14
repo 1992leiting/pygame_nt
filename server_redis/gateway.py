@@ -88,11 +88,13 @@ class GatewayServer(socketserver.BaseRequestHandler):
             # msg来自game_server, 转发给对应的player socket
             elif self.request in self.game_servers:
                 # print('来自game server:', msg)
-                player_socket = self.get_pid_socket(msg['pid'])
+                player_socket = self.get_pid_socket(int(msg['pid']))
+                if not player_socket:
+                    print('player socket未找到:', msg['pid'])
                 send(player_socket, msg['cmd'], msg)
             # 来player socket,直接转发给对应的game server
             elif self.request in self.players:
-                msg['pid'] = self.players[self.request].pid
+                msg['pid'] = int(self.players[self.request].pid)
                 msg['account'] = self.players[self.request].account
                 send(self.players[self.request].game_server, tp, msg)
             # 其他为注册的socket
@@ -158,6 +160,8 @@ class GatewayServer(socketserver.BaseRequestHandler):
             del self.players[socket]
             # 保存玩家数据
             server.redis_server.redis_save(player.pid)
+            # 从redis中删除这个玩家
+            server.redis_server.remove(player.pid)
             # Test: 打印所有game server的pid
             for s in self.game_servers.values():
                 print('Game server:', s.uid, s.players)
