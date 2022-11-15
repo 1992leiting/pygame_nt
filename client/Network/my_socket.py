@@ -1,9 +1,22 @@
 import json
+import numpy
 import threading
 import time
 from Common.socket_id import *
 from Common.common import show_error
 from Common.constants import game
+
+
+class MyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.integer):
+            return int(obj)
+        elif isinstance(obj, numpy.floating):
+            return float(obj)
+        elif isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        else:
+            return super(MyEncoder, self).default(obj)
 
 
 class SocketClient:
@@ -37,11 +50,13 @@ class SocketClient:
 
     def recv_handler(self, recv_bytes):
         # print('recv bytes:', recv_bytes)
-        msg = json.loads(recv_bytes)
+        try:
+            msg = json.loads(recv_bytes)
+        except BaseException as e:
+            print('socket接收数据解析错误:', recv_bytes)
+            return
         cmd = msg['cmd']
-        if cmd == '登陆成功':
-            self.send('获取全部角色数据', {})
-        elif cmd == S_登陆成功:
+        if cmd == S_登陆成功:
             print('登陆成功')
             game.director.hero_data = msg
             game.director.start_game()
@@ -55,6 +70,8 @@ class SocketClient:
             game.account = msg['账号']
         elif cmd == S_NPC数据:
             game.world.add_npc(msg)
+        elif cmd == S_玩家数据:
+            game.world.add_player(msg)
         elif cmd == '跳转地图':
             game.director.HERO_IN_PORTAL = 0
             hero = game.director.child('world').child('hero')
@@ -67,10 +84,21 @@ class SocketClient:
             print('系统提示:', msg)
             text = msg['内容']
             game.director.gp_manager.append(text)
+        elif cmd == S_发送路径:
+            path = msg['路径']
+            game.hero.set_path(path)
+        elif cmd == S_玩家寻路:
+            pid = msg['玩家']
+            path = msg['路径']
+            game.world.player_set_path(pid, path)
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd
-        json_str = json.dumps(send_data)
+        try:
+            json_str = json.dumps(send_data, cls=MyEncoder)
+        except BaseException as e:
+            print('发送数据解析错误:', send_data, str(e))
+            return
         json_str_len = len(json_str)
         len_bytes = json_str_len.to_bytes(2, byteorder='big')
         send_bytes = len_bytes + json_str.encode(encoding='utf-8')
@@ -78,3 +106,4 @@ class SocketClient:
             self.socket.sendall(send_bytes)
         except:
             show_error('发送网络数据失败, 请尝试重新登陆', '网络错误')
+            exit()

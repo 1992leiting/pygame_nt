@@ -114,6 +114,14 @@ class BasicCharacter(Node):
             if type(chd) == Animation8D:
                 chd.set_fps(v)
 
+    def set_path(self, p: list):
+        """
+        设置人物路径
+        """
+        if p:
+            self.path = p
+            # self.x, self.y = p[0]  # 直接移动到第一个路径坐标
+
     def setup_basic(self):
         from Game.res_manager import fill_animation8d, fill_image_rect
         self.clear_children()

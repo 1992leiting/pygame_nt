@@ -25,8 +25,12 @@ class NPC:
         send2pid(pid, S_发送NPC对话, send_data)
 
 
-def player_enter_scene(pid, map_id):
-    # 发送所有npc
+def get_npc_in_scene(pid, map_id=0):
+    if not map_id:
+        map_id = rget(pid, CHAR, '地图')
+    npcs = []
+
+    # 脚本方式
     # for npc in NPCS:
     #     if npc.map_id == map_id:
     #         npc_data = {
@@ -40,6 +44,8 @@ def player_enter_scene(pid, map_id):
     #             '地图': npc.map_id,
     #             'NPC类型': npc.npc_id
     #         }
+
+    # csv方式
     i = 0
     for npc in NPCS.values():
         if int(npc['地图']) == map_id:
@@ -55,7 +61,50 @@ def player_enter_scene(pid, map_id):
                 '地图': npc['地图'],
                 'NPC类型': npc['类型']
             }
-            send2pid(pid, S_NPC数据, npc_data)
+            npcs.append(npc_data)
+    return npcs
+
+
+def get_players_in_scene(pid, map_id):
+    if not map_id:
+        map_id = rget(pid, CHAR, '地图')
+    players = []
+    for _pid in get_all_players():
+        if int(_pid) != int(pid) and rget(_pid, CHAR, '地图') == map_id:
+            players.append(_pid)
+    return players
+
+
+def player_enter_scene(pid, map_id):
+    if not map_id:
+        map_id = rget(pid, CHAR, '地图')
+    # 发送所有npc
+    for npc_data in get_npc_in_scene(pid, map_id):
+        send2pid(pid, S_NPC数据, npc_data)
+    # 取其他玩家数据
+    for _pid in get_players_in_scene(pid, map_id):
+        player_data = rget(_pid, CHAR)
+        send2pid(pid, S_玩家数据, player_data)
+    # 通知其他玩家
+    my_data = rget(pid, CHAR)
+    for _pid in get_players_in_scene(pid, map_id):
+        send2pid(_pid, S_玩家数据, my_data)
+
+
+def player_set_path_request(pid, path: list):
+    """
+    玩家有移动路径时, 判断是否能移动
+    :param pid:
+    :param path:
+    :return:
+    """
+    print('player set path:', pid, path)
+    # TODO
+    send2pid(pid, S_发送路径, dict(路径=path))
+    # 如果移动(path非空), 则广播给同场景玩家
+    if path:
+        for _pid in get_players_in_scene(pid, None):
+            send2pid(_pid, S_玩家寻路, dict(玩家=pid, 路径=path))
 
 
 def scene_transfer():
