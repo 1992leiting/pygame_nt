@@ -1,0 +1,16 @@
+/client/Common/__pycache__/*.pyc
+/client/Database/__pycache__/*.pyc
+/client/Game/__pycache__/*.pyc
+/client/Network/__pycache__/*.pyc
+/client/Node/__pycache__/*.pyc
+/client/Nt/__pycache__/*.pyc
+/client/QtUi/__pycache__/*.pyc
+/client/UiLayer/FunctionLayer/__pycache__/*.pyc
+/client/UiLayer/WindowLayer/__pycache__/*.pyc
+/client/__pycache__/*.pyc
+/server/Common/__pycache__/*.pyc
+/server/Script/item/__pycache__/*.pyc
+/server/Script/player/__pycache__/*.pyc
+/server/Script/scene/__pycache__/*.pyc
+/server/Script/scene/npc/__pycache__/*.pyc
+/server/Script/sys/__pycache__/*.pyc
