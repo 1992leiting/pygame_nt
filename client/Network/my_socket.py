@@ -53,7 +53,7 @@ class SocketClient:
         try:
             msg = json.loads(recv_bytes)
         except BaseException as e:
-            print('socket接收数据解析错误:', recv_bytes)
+            print('socket接收数据解析错误:', str(e), recv_bytes)
             return
         cmd = msg['cmd']
         if cmd == S_登陆成功:
