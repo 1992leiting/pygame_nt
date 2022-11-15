@@ -8,6 +8,11 @@ import pygame
 from Node.node import Node
 from Nt.nt_item import ConfigItem
 import csv
+from Common.constants import game
+
+
+def send(cmd: str, msg: dict):
+    game.director.client.send(cmd, msg)
 
 
 def read_csv(file):

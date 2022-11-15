@@ -33,7 +33,7 @@ class SimpleHeroSelect(Window):
         self.add_child('创建角色', btn)
 
     def load_hero_data(self, hero_data):
-        print('load hero:', hero_data)
+        # print('load hero:', hero_data)
         self.hero_data = hero_data
         for i, data in enumerate(hero_data):
             ch = Character()

@@ -65,13 +65,23 @@ def get_npc_in_scene(pid, map_id=0):
     return npcs
 
 
-def get_players_in_scene(pid, map_id):
+def get_players_in_scene(pid, map_id, include_self=False):
+    """
+    获取同地图的所有玩家pid
+    :param pid:
+    :param map_id:
+    :param include_self: 是否包含自己
+    :return:
+    """
     if not map_id:
         map_id = rget(pid, CHAR, '地图')
     players = []
     for _pid in get_all_players():
         if int(_pid) != int(pid) and rget(_pid, CHAR, '地图') == map_id:
             players.append(_pid)
+    if include_self:
+        players.append(pid)
+
     return players
 
 
@@ -105,6 +115,14 @@ def player_set_path_request(pid, path: list):
     if path:
         for _pid in get_players_in_scene(pid, None):
             send2pid(_pid, S_玩家寻路, dict(玩家=pid, 路径=path))
+
+
+def player_speak(pid, ch, text):
+    map_id = rget(pid, CHAR, '地图')
+    if ch == '当前':
+        print('发言给:', get_players_in_scene(pid, map_id, True))
+        for _pid in get_players_in_scene(pid, map_id, True):
+            send2pid(_pid, S_频道发言, dict(频道=ch, 内容=text, 名称=rget(pid, CHAR, '名称')))
 
 
 def scene_transfer():

@@ -6,6 +6,7 @@ from Node.rich_text import RichText
 from Node.text_edit import *
 from Common.common import *
 from Common.constants import *
+from Common.socket_id import *
 
 
 class MessageArea(Node):
@@ -72,15 +73,15 @@ class MessageArea(Node):
         # text = '#xt#R红色字体#Y黄色字体#24瞪眼瞪眼\n#P换行之后显示一行废话,废话废话废话废话废话...\n再换行之后#G绿色试试看?#12凑字数凑字数凑字数凑字数凑字数凑字数凑字数凑字数凑字数凑字数凑字数凑字数凑字数凑字数凑字数一二三四五六七八abcdefgABCDEFG'
         text = '#xt#W欢迎来到梦幻西游'
         信息流文本 = RichText(text, 400, 120)
-        信息流文本.append_text('#dq#W[狂啸一二三] #G嘛呢兄弟?#24#P闹呢?抽你大嘴巴子信不信?再瞅一眼试试#120')
-        信息流文本.append_text('#dq#W[狂啸一二三] #Y26W无限收C66,有的++++++++++++#43')
-        信息流文本.append_text('#dq#W[狂啸一二三] 梦幻西游,人人都玩,不玩才怪!!!')
-        信息流文本.append_text('#dq#W[狂啸一二三] #108#R谁给我一点钱,快穷死啦#108')
-        信息流文本.append_text('#dq#W[狂啸一二三] #G今天副本不会又要空车吧...淦#60')
+        # 信息流文本.append_text('#dq#W[狂啸一二三] #G嘛呢兄弟?#24#P闹呢?抽你大嘴巴子信不信?再瞅一眼试试#120')
+        # 信息流文本.append_text('#dq#W[狂啸一二三] #Y26W无限收C66,有的++++++++++++#43')
+        # 信息流文本.append_text('#dq#W[狂啸一二三] 梦幻西游,人人都玩,不玩才怪!!!')
+        # 信息流文本.append_text('#dq#W[狂啸一二三] #108#R谁给我一点钱,快穷死啦#108')
+        # 信息流文本.append_text('#dq#W[狂啸一二三] #G今天副本不会又要空车吧...淦#60')
         信息流文本.x, 信息流文本.y = 8, 8
         self.child('聊天区背景').add_child('信息流文本', 信息流文本)
 
-        消息输入 = LineEdit('', 326, font_size=16)
+        消息输入 = LineEdit('', 326, font_size=15)
         消息输入.is_active = False
         消息输入.x, 消息输入.y = 87, self.director.window_h - 21
         self.add_child('消息输入框', 消息输入)
@@ -101,6 +102,13 @@ class MessageArea(Node):
         else:
             self.child('表情开关').is_playing = False
             self.child('表情开关').cur_animation.frame_index = 0
+
+        if self.child('消息输入框').enter_event:
+            text = self.child('消息输入框').text
+            if text:
+                ch = '当前'
+                send(C_角色发言, dict(频道=ch, 内容=text))
+                self.child('消息输入框').clear_text()
 
     def update(self):
         pass

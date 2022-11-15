@@ -22,6 +22,10 @@ class Game:
     def camera(self):
         return self.director.get_node('scene/world_scene/camera')
 
+    @property
+    def world_msg_flow(self):
+        return self.director.get_node('function_layer/message_area/聊天区背景/信息流文本')
+
 
 game = Game()
 
@@ -129,9 +133,21 @@ CHL_EMOJI = {
     'sl': 0xF9ADC3DA,
     'gm': 0xE8897A81,
     'cw': 0xCD23D726,
-    'bq': 0xAD9D6490,
+    'bp': 0xAD9D6490,
     'dw': 0xF9858C95
 }
+
+# 频道代码
+CHL_CODE = dict(
+    系统='#xt',
+    世界='#sj',
+    当前='#dq',
+    私聊='#sl',
+    GM='#gm',
+    传闻='#cw',
+    帮派='#bq',
+    队伍='#dw'
+)
 
 # nt manager QT UI相关
 COL_NODE = 0

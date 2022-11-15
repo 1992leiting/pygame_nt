@@ -8,6 +8,7 @@ from common.socket_id import *
 import sys
 import logging
 import traceback
+from scene.scene_handler import *
 
 
 uuidChars = ("a", "b", "c", "d", "e", "f",
@@ -49,15 +50,10 @@ class GameServer(threading.Thread):
             try:
                 _bytes = self.socket.recv(2)  # 阻塞获取2字节, 如果有则是消息长度
                 msg_len = int.from_bytes(_bytes, byteorder='big')  # 消息长度, 2字节
-                recv_len = 0
                 msg = b''
-                while recv_len < msg_len:
-                    msg += self.socket.recv(msg_len - recv_len)  # 获取消息内容
-                    recv_len += len(msg)
-                    # try:
-                    self.recv_handler(msg)
-                    # except Exception as e:
-                    #     sprint('Game Server处理业务时发生错误:' + str(e))
+                while len(msg) < msg_len:
+                    msg += self.socket.recv(msg_len - len(msg))  # 获取消息内容
+                self.recv_handler(msg)
             except ConnectionResetError as e:
                 sprint('接收服务器数据异常, 请尝试重新登陆:' + str(e))
                 exit()
@@ -77,14 +73,16 @@ class GameServer(threading.Thread):
             rset(pid, CHAR, x, 'mx')
             rset(pid, CHAR, y, 'my')
         elif cmd == C_进入场景:
-            from scene.scene_handler import player_enter_scene
             map_id = msg['map_id']
             player_enter_scene(pid, map_id)
         elif cmd == C_发送路径:
-            from scene.scene_handler import player_set_path_request
             path = msg['路径']
             print('发送路径,', pid, path)
             player_set_path_request(pid, path)
+        elif cmd == C_角色发言:
+            ch = msg['频道']
+            text = msg['内容']
+            player_speak(pid, ch, text)
 
 
 def start_game_server():

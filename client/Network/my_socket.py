@@ -4,7 +4,7 @@ import threading
 import time
 from Common.socket_id import *
 from Common.common import show_error
-from Common.constants import game
+from Common.constants import *
 
 
 class MyEncoder(json.JSONEncoder):
@@ -41,7 +41,7 @@ class SocketClient:
                 msg_len = int.from_bytes(_bytes, byteorder='big')  # 消息长度, 2字节
                 msg = b''
                 while len(msg) < msg_len:
-                    msg += self.socket.recv(99999)  # 获取消息内容
+                    msg += self.socket.recv(msg_len - len(msg))  # 获取消息内容
                 self.recv_handler(msg)
             except BaseException as e:
                 raise e
@@ -91,6 +91,12 @@ class SocketClient:
             pid = msg['玩家']
             path = msg['路径']
             game.world.player_set_path(pid, path)
+        elif cmd == S_频道发言:
+            ch = msg['频道']
+            text = msg['内容']
+            name = msg['名称']
+            added_text = '{}#W[{}] {}'.format(CHL_CODE[ch], name, text)
+            game.world_msg_flow.append_text(added_text)
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd

@@ -69,9 +69,10 @@ class GatewayServer(socketserver.BaseRequestHandler):
             try:
                 data = self.request.recv(2)  # 2字节的data_len
                 data_len = int.from_bytes(data, byteorder='big')
-                data = self.request.recv(data_len)  # data_len字节的内容
-                msg = json.loads(data)
-                # print('msg:', msg)
+                msg = b''
+                while len(msg) < data_len:
+                    msg += self.request.recv(data_len - len(msg))  # data_len字节的内容
+                msg = json.loads(msg)
                 tp = msg['cmd']
             except:
                 self.event.set()

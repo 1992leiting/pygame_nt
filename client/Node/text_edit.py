@@ -56,6 +56,17 @@ class LineEdit(Node):
         self.tk_timer = 0  # 闪烁计时器
         self.cursor_pos = 0  # 光标的位置(第几个字符的右边)
         self.cursor_x, self.cursor_y = 0, 0  # 光标坐标
+        self._enter_event = None
+
+    @property
+    def enter_event(self):
+        """
+        当外部访问event时, 会返回_event并清空_event
+        :return:
+        """
+        _tmp = self._enter_event
+        self._enter_event = None
+        return _tmp
 
     def setup(self):
         self.height = self.font_size
@@ -81,9 +92,20 @@ class LineEdit(Node):
         if self.cursor_pos == 0:
             return
         ori = list(self.text)
-        ori.pop(self.cursor_pos - 1)
-        self.cursor_pos -= 1
-        self.text = ''.join(map(str, ori))
+        try:
+            ori.pop(self.cursor_pos - 1)
+            self.cursor_pos -= 1
+            self.text = ''.join(map(str, ori))
+            self._parse()
+        except:
+            pass
+
+    def set_text(self, text):
+        self.text = text
+        self._parse()
+
+    def clear_text(self):
+        self.text = ''
         self._parse()
 
     def _parse(self):
@@ -163,6 +185,9 @@ class LineEdit(Node):
                     self.cursor_pos = max(0, self.cursor_pos - 1)
                 if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_RIGHT]):
                     self.cursor_pos = min(len(self.text), self.cursor_pos + 1)
+        if self.is_active:
+            if self.director.match_kb_event(STOP, pygame.K_KP_ENTER) or self.director.match_kb_event(STOP, pygame.K_RETURN):
+                self._enter_event = True
 
 
 class TextEdit(LineEdit):
