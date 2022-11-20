@@ -10,7 +10,7 @@ from Game.res_manager import fill_res
 from UiLayer.WindowLayer.hero_attr import HeroAttr
 from UiLayer.WindowLayer.hero_skill import HeroSkill
 from UiLayer.WindowLayer.simple_login import SimpleLogin
-from Node.prompt import GamePrompt, GamePromptManager
+from Node.prompt import GamePrompt, PromptManager
 from Common.constants import game
 from UiLayer.WindowLayer.simple_register import SimpleRegister
 from UiLayer.WindowLayer.simple_hero_select import SimpleHeroSelect
@@ -23,7 +23,7 @@ pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
 game.director = game_director
 # director.setup_from_config('game_ui.conf')
-game.director.add_child('gp_manager', GamePromptManager())
+game.director.add_child('gp_manager', PromptManager())
 print_node(game.director)
 
 # world = director.get_node('scene/world_scene')

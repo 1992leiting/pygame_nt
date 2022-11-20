@@ -97,6 +97,10 @@ class SocketClient:
             name = msg['名称']
             added_text = '{}#W[{}] {}'.format(CHL_CODE[ch], name, text)
             game.world_msg_flow.append_text(added_text)
+        elif cmd == S_角色发言显示:
+            pid = msg['player']
+            text = msg['内容']
+            game.world.player_add_speech_prompt(pid, text)
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd

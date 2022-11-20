@@ -19,7 +19,7 @@ class NewUiMainWindow(UIM):
     def __init__(self):
         super(NewUiMainWindow, self).__init__()
         self.setupUi(MainWindow)
-        self.treeWidget_node_tree = TreeWidget(self.groupBox)
+        self.treeWidget_node_tree = TreeWidget()
         self.treeWidget_node_tree.setGeometry(QtCore.QRect(10, 20, 771, 471))
         self.treeWidget_node_tree.headerItem().setText(0, '节点')
         self.treeWidget_node_tree.headerItem().setText(1, '类型')

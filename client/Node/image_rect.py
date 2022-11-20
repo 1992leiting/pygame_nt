@@ -14,6 +14,8 @@ class ImageRect(Node):
         self.is_hover_enabled = False
         self.rsp_file = ''
         self.hash_id = 0
+        self.outline_surface = pygame.surface.Surface((self.width, self.height))
+        self.outline_surface.fill((0, 0, 0, 0))
 
     def setup(self):
         if self.rsp_file and self.hash_id:
@@ -57,12 +59,16 @@ class ImageRect(Node):
         from Common.common import auto_sizing
         self.image = auto_sizing(self.image, w, h, margin)
         self.width, self.height = w, h
+        self.outline_surface = pygame.surface.Surface((self.width, self.height))
+        self.outline_surface.fill((0, 0, 0, 0))
 
     def draw(self):
         if not self.disp_image:
             self.disp_image = self.image
         if self.disp_image and not self.disp_image.get_locked():
-            self.director.screen.blit(self.disp_image, (self.x - self.kx, self.y - self.ky))
 
             if len(self.mask_outline['outline']) > 2:
-                pygame.draw.polygon(self.director.screen, self.mask_outline['color'], self.mask_outline['outline'], self.mask_outline['width'])
+                pygame.draw.polygon(self.surface, self.mask_outline['color'], self.mask_outline['outline'], self.mask_outline['width'])
+                # self.disp_image.blit(self.outline_surface, (0, 0))
+
+            self.director.screen.blit(self.disp_image, (self.x - self.kx, self.y - self.ky))

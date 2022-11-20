@@ -23,6 +23,8 @@ class Animation(Node):
         当前的帧
         :return:
         """
+        if self.frame_num == 0:
+            return None
         return self.frames[self.frame_index]
 
     @property
@@ -33,6 +35,8 @@ class Animation(Node):
         pass
 
     def update(self):
+        if self.frame_num == 0:
+            return
         if self.is_playing:
             # 利用pygame FPS
             if self.fps_cnt >= int(self.director.game_fps / self.fps):
@@ -63,6 +67,8 @@ class Animation8D(Node):
         self.direction = 0
         self.is_playing = True
         self.is_hover_enabled = False
+        self.palette16 = []  # 565调色板RGB信息
+        self.palette32 = []  # 888调色板RGBA信息
         self.add_child('0', Animation())
 
     @property

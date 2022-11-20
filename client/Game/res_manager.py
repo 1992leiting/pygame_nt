@@ -1,6 +1,7 @@
 from Common.constants import *
 from io import BytesIO
 import numpy as np
+import copy
 import time
 import pygame
 from PIL import Image
@@ -16,7 +17,54 @@ class Rs:
         self.width = 0
         self.height = 0
         self.dir_cnt = 0
+        self.palette16_data = None  # 565调色板原始数据
+        self.palette16 = []  # 565调色板, 256个RGB
+        self.palette32_data = None  # 888调色板原始数据
+        self.palette32 = []  # 888调色板, 256个RGBA
         self.frames = {}  # 帧队列,最多8个方向,内容为pygame.image
+
+    def get_palette(self):
+        # 565
+        if self.palette16_data:
+            i = 0
+            for _byte in self.palette16_data:
+                if i == 0:
+                    self.palette16.append(dict(
+                        R=-1,
+                        G=-1,
+                        B=-1,
+                    ))
+                if i == 0:
+                    self.palette16[-1]['R'] = int(_byte)
+                if i == 1:
+                    self.palette16[-1]['G'] = int(_byte)
+                if i == 2:
+                    self.palette16[-1]['B'] = int(_byte)
+                i += 1
+                if i > 2:
+                    i = 0
+        # 888
+        if self.palette32_data:
+            i = 0
+            for _byte in self.palette32_data:
+                if i == 0:
+                    self.palette32.append(dict(
+                        R=-1,
+                        G=-1,
+                        B=-1,
+                        A=-1
+                    ))
+                if i == 0:
+                    self.palette32[-1]['R'] = int(_byte)
+                if i == 1:
+                    self.palette32[-1]['G'] = int(_byte)
+                if i == 2:
+                    self.palette32[-1]['B'] = int(_byte)
+                if i == 3:
+                    self.palette32[-1]['A'] = int(_byte)
+                i += 1
+                if i > 3:
+                    i = 0
 
 
 class Mask:
@@ -42,6 +90,155 @@ class Mapx:
 
         self.mask_cnt = 0
         self.masks = []  # 所有的遮罩, 类型为MapMask
+
+
+class Wpal:
+    """
+    染色配置文件
+    """
+    def __init__(self):
+        self.head = b'wpal'  # 文件头
+        self.seg_num = 0  # 分段数量
+        self.seg_data = []  #
+
+    def print(self):
+        print('----------')
+        print('head', self.head)
+        print('seg num:', self.seg_num)
+        # print(self.seg_data)
+        for m in range(self.seg_num):
+            for n in range(len(self.seg_data[m])):
+                print(self.seg_data[m][n][0], self.seg_data[m][n][1], self.seg_data[m][n][2])
+            print(' ')
+
+
+def palette16_to_palette32(pal16: list):
+    """
+    565调色板信息转888调色板信息
+    pal16: 256个RGB
+    """
+    pal32 = []
+    for color in pal16:
+        r, g, b = color['R'], color['G'], color['B']
+
+        pixel = {'R': 0, 'G': 0, 'B': 0, 'Alpha': 0}
+        pixel['R'] = (r << 3) | (r >> 2)
+        pixel['G'] = (g << 2) | (g >> 4)
+        pixel['B'] = (b << 3) | (b >> 2)
+        pixel['Alpha'] = 255
+        pal32.append(pixel)
+
+    return pal32
+
+
+def read_wpal(file_path):
+    with open(file_path, 'rb') as f:
+        pal = Wpal()
+        head = f.read(4)
+        if not head == pal.head:
+            print('非法wpal文件:', file_path)
+            return None
+        pal.seg_num = int.from_bytes(f.read(4), byteorder='little')
+        # 跳过
+        for _ in range(1 + pal.seg_num):
+            f.read(4)
+        for i in range(pal.seg_num):
+            pal.seg_data.append([])
+            solution_num = int.from_bytes(f.read(4), byteorder='little')
+            # print('sol num:', solution_num)
+            for j in range(solution_num):
+                pal.seg_data[i].append([])
+                c11 = int.from_bytes(f.read(4), byteorder='little')
+                c12 = int.from_bytes(f.read(4), byteorder='little')
+                c13 = int.from_bytes(f.read(4), byteorder='little')
+                pal.seg_data[i][j].append([c11, c12, c13])
+                # print(c11, c12, c13)
+                c21 = int.from_bytes(f.read(4), byteorder='little')
+                c22 = int.from_bytes(f.read(4), byteorder='little')
+                c23 = int.from_bytes(f.read(4), byteorder='little')
+                pal.seg_data[i][j].append([c21, c22, c23])
+                # print(c21, c22, c23)
+                c31 = int.from_bytes(f.read(4), byteorder='little')
+                c32 = int.from_bytes(f.read(4), byteorder='little')
+                c33 = int.from_bytes(f.read(4), byteorder='little')
+                pal.seg_data[i][j].append([c31, c32, c33])
+                # print(c31, c32, c33)
+    return pal
+
+
+def palette_modulate(ori_pal16: list, wpal_file, segment, solution):
+    """
+    进行调色板调色
+    ori_pal16: 资源文件的原始调色板, 256个RGB
+    wpal_file: wpal文件路径
+    segment: 部位
+    solution: 染色方案
+
+    return: 调色之后的新调色板
+    """
+    pal = read_wpal(wpal_file)
+    new_palette = copy.deepcopy(ori_pal16)
+    C11, C12, C13 = pal.seg_data[segment][solution][0]
+    C21, C22, C23 = pal.seg_data[segment][solution][1]
+    C31, C32, C33 = pal.seg_data[segment][solution][2]
+
+    if segment == 0:
+        r = range(0, 63)
+    elif segment == 1:
+        r = range(64, 127)
+    elif segment == 1:
+        r = range(128, 191)
+    else:
+        r = range(192, 256)
+
+    for i in r:
+        R = ori_pal16[i]['R']
+        G = ori_pal16[i]['G']
+        B = ori_pal16[i]['B']
+
+        R2 = (R * C11 + G * C12 + B * C13) // 256
+        G2 = (R * C21 + G * C22 + B * C23) // 256
+        B2 = (R * C31 + G * C32 + B * C33) // 256
+
+        R2 = min(R2, 31)
+        G2 = min(G2, 63)
+        B2 = min(B2, 31)
+
+        new_palette[i]['R'] = R2
+        new_palette[i]['G'] = G2
+        new_palette[i]['B'] = B2
+
+    return new_palette
+
+
+def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
+    t = time.time()
+    w, h = img.get_size()
+    for x in range(w):
+        for y in range(h):
+            img_pix = img.get_at((x, y))
+            if img_pix != (0, 0, 0, 0):
+                for index, pal16_pix in enumerate(ori_pal32):
+                    if pal16_pix != new_pal32[index]:
+                        pal_color = (pal16_pix['R'], pal16_pix['G'], pal16_pix['B'])
+                        if img_pix == pal_color:
+                            r = new_pal32[index]['R']
+                            g = new_pal32[index]['G']
+                            b = new_pal32[index]['B']
+                            img.set_at((x, y), (r, g, b, 255))
+
+    dt = time.time() - t
+    print('img调色耗时: {}ms'.format(int(dt*1000)))
+
+
+def modulate_animation8d_by_palette(ani8d, wpal_file, segment, solution):
+    ori_pal16 = ani8d.palette16
+    new_pal16 = palette_modulate(ori_pal16, wpal_file, segment, solution)
+    ori_pal32 = palette16_to_palette32(ori_pal16)
+    new_pal32 = palette16_to_palette32(new_pal16)
+    for ani in ani8d.get_children().values():
+        for frame in ani.frames:
+            modulate_img_by_palette(frame, ori_pal32, new_pal32)
 
 
 def bytes_to_image(bytes_data):
@@ -116,6 +313,8 @@ def fill_animation8d(ani8d, rsp_file, hash_id):
         for img in frames:
             ani.frames.append(img)
         ani8d.add_child(str(i), ani)
+    ani8d.palette16 = res.palette16
+    ani8d.palette32 = res.palette32
     ani8d.width, ani8d.height = res.width, res.height
 
 
@@ -147,9 +346,12 @@ def fill_magic_effect(eff, name):
     fill_animation8d(eff, _rsp, int(_hash))
 
 
-def read_int(f, length):
+def read_int(f, length, bo='little'):
     bts = f.read(length)
-    return int.from_bytes(bts, byteorder='big')
+    if bo == 'little':
+        return int.from_bytes(bts, byteorder='little')
+    else:
+        return int.from_bytes(bts, byteorder='big')
 
 
 def get_hash_list():
@@ -205,25 +407,19 @@ def read_rsp(rsp_file, hash_id):
             res.width = read_int(rspf, 2)
             res.height = read_int(rspf, 2)
             res.dir_cnt = read_int(rspf, 2)
+            if 'shape.rsp' in file_path:
+                res.palette16_data = rspf.read(768)  # 565调色板原始数据
+            res.palette32_data = rspf.read(1024)  # 888调色板原始数据
+            res.get_palette()
             for dir_num in range(res.dir_cnt):
                 res.frames[dir_num] = []
                 fr_cnt = read_int(rspf, 2)
                 for j in range(fr_cnt):
                     fr_size = read_int(rspf, 4)
                     fr_data = rspf.read(fr_size)
-                    # TODO: 测试转换RGB
-                    # with open('tmp.png', 'wb') as f:
-                    #     f.write(fr_data)
-                    # pil_image = Image.open('tmp.png')
-                    # r, g, b, a = pil_image.split()
-                    # pil_image = Image.merge('RGBA', (r, g, r, a))
-                    # pil_image.save('tmp.png')
-                    # with open('tmp.png', 'rb') as f:
-                    #     fr_data = f.read()
-
                     img = bytes_to_image(fr_data)
                     res.frames[dir_num].append(img)
-        rsp_cache[key] = {'time': time.time(), 'res': res}
+        # rsp_cache[key] = {'time': time.time(), 'res': res}
     return res
 
 
@@ -237,19 +433,19 @@ def read_mapx(map_id):
     file_path = map_dir + str(map_id) + '.mapx'
     with open(file_path, 'rb') as mapf:
         map_flag = mapf.read(4)
-        mapx.width = read_int(mapf, 2)
-        mapx.height = read_int(mapf, 2)
-        jpg_data_len = read_int(mapf, 4)
+        mapx.width = read_int(mapf, 2, 'big')
+        mapx.height = read_int(mapf, 2, 'big')
+        jpg_data_len = read_int(mapf, 4, 'big')
         jpg_data = mapf.read(jpg_data_len)
         mapx.jpg = bytes_to_image(jpg_data)
 
-        mapx.navi_width = read_int(mapf, 2)
-        mapx.navi_height = read_int(mapf, 2)
+        mapx.navi_width = read_int(mapf, 2, 'big')
+        mapx.navi_height = read_int(mapf, 2, 'big')
         navi_array = []
         for i in range(mapx.navi_width):
             row = []
             for j in range(mapx.navi_height):
-                num = read_int(mapf, 1)
+                num = read_int(mapf, 1, 'big')
                 if num == 0:
                     num = 9999
                 else:
@@ -262,16 +458,16 @@ def read_mapx(map_id):
         # df = pd.DataFrame(mapx.navi)
         # df.to_excel('navi.xlsx', index=None)
 
-        mapx.mask_cnt = read_int(mapf, 2)
+        mapx.mask_cnt = read_int(mapf, 2, 'big')
         for i in range(mapx.mask_cnt):
             # print(i)
             mask = MapMask()
-            mask.id = read_int(mapf, 2)
-            mask.x = read_int(mapf, 2)
-            mask.y = read_int(mapf, 2)
-            mask.width = read_int(mapf, 2)
-            mask.height = read_int(mapf, 2)
-            mask_data_len = read_int(mapf, 4)
+            mask.id = read_int(mapf, 2, 'big')
+            mask.x = read_int(mapf, 2, 'big')
+            mask.y = read_int(mapf, 2, 'big')
+            mask.width = read_int(mapf, 2, 'big')
+            mask.height = read_int(mapf, 2, 'big')
+            mask_data_len = read_int(mapf, 4, 'big')
             mask_data = mapf.read(mask_data_len)
             mask.img = bytes_to_image(mask_data)
             mapx.masks.append(mask)

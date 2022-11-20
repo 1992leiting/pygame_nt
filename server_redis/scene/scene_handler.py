@@ -123,6 +123,7 @@ def player_speak(pid, ch, text):
         print('发言给:', get_players_in_scene(pid, map_id, True))
         for _pid in get_players_in_scene(pid, map_id, True):
             send2pid(_pid, S_频道发言, dict(频道=ch, 内容=text, 名称=rget(pid, CHAR, '名称')))
+            send2pid(_pid, S_角色发言显示, dict(player=pid, 内容=text))
 
 
 def scene_transfer():

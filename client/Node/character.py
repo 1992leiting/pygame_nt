@@ -7,6 +7,7 @@ from Common.constants import *
 from Node.label import Label
 from Node.magic_effect import MagicEffect, BuffEffect
 from Node.node import Node
+from Node.prompt import GamePrompt, PromptManager
 
 
 class BasicCharacter(Node):
@@ -31,7 +32,8 @@ class BasicCharacter(Node):
         self.cur_weapon_animation = None
         self.mask_rect = pygame.Rect(0, 0, 0, 0)
         self.mouse_filter = STOP
-        self.setup_from_config('basic_character.conf')
+        self.setup_ui()
+        # self.setup_from_config('basic_character.conf')
 
     @property
     def speed(self):
@@ -52,18 +54,19 @@ class BasicCharacter(Node):
         else:
             self.is_hover = False
 
-    # def setup_ui(self):
-    #     # UI层
-    #     self.add_child('behind_buff', Node())  # 后置buff
-    #     self.add_child('char_stand', Node())  # 身体动画
-    #     self.add_child('char_walk', Node())  # 身体动画
-    #     self.add_child('weapon_stand', Node())  # 武器动画
-    #     self.add_child('weapon_walk', Node())  # 武器动画
-    #     self.add_child('shadow', Node())  # 脚底阴影
-    #     self.add_child('title', Node())  # 称谓
-    #     self.add_child('name', Node())  # 名称
-    #     self.add_child('front_buff', Node())  # 前置buff
-    #     self.add_child('effect', Node())  # 特效(攻击特效,升级特效等)
+    def setup_ui(self):
+        # UI层
+        self.add_child('front_buff', Node())  # 后置buff
+        self.add_child('char_stand', Animation8D())  # 身体动画
+        self.add_child('char_walk', Animation8D())  # 身体动画
+        self.add_child('weapon_stand', Animation8D())  # 武器动画
+        self.add_child('weapon_walk', Animation8D())  # 武器动画
+        self.add_child('shadow', Node())  # 脚底阴影
+        self.add_child('title', Node())  # 称谓
+        self.add_child('name', Node())  # 名称
+        self.add_child('front_buff', Node())  # 前置buff
+        self.add_child('effect', Node())  # 特效(攻击特效,升级特效等)
+        self.add_child('speech_prompt', PromptManager(style=CHAR_SPEECH))
 
     def set_data(self, data):
         if '模型' in data:
@@ -123,17 +126,23 @@ class BasicCharacter(Node):
             # self.x, self.y = p[0]  # 直接移动到第一个路径坐标
 
     def setup_basic(self):
-        from Game.res_manager import fill_animation8d, fill_image_rect
-        self.clear_children()
+        from Game.res_manager import fill_animation8d, fill_image_rect, modulate_animation8d_by_palette
+        # self.clear_children()
+        self.setup_ui()
         model_index = self.model
         weapon_index = ""
         if self.weapon and self.weapon != "":
             weapon_index = self.weapon + "_" + self.model
 
-        self.clear_children()
+        # self.clear_children()
+        self.setup_ui()
         if model_index in self.shapes:
             ani_char = Animation8D()
             fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['静立']))
+            if self.name == '大鹌鹑二号':
+                # modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 4)
+                modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 2)
+                modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 1, 6)
             ani_char.set_fps(7)
             self.add_child('char_stand', ani_char)
         else:
@@ -149,6 +158,10 @@ class BasicCharacter(Node):
         if model_index in self.shapes:
             ani_char = Animation8D()
             fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['行走']))
+            if self.name == '大鹌鹑二号':
+                # modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 4)
+                modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 2)
+                modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 1, 6)
             ani_char.set_fps(18)
             self.add_child('char_walk', ani_char)
         else:

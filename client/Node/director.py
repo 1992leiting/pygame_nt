@@ -5,7 +5,7 @@ from Common.constants import *
 from Game.event_handler import EventHandler
 from Game.astar import Astar
 import socket
-from Node.prompt import GamePromptManager
+from Node.prompt import PromptManager
 from Network.my_socket import SocketClient
 from Common.socket_id import *
 from Node.world import World

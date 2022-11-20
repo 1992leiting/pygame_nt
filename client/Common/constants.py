@@ -58,7 +58,7 @@ if not os.path.exists(res_dir):
 if not os.path.exists(res_dir):
     res_dir = 'D:/pygame/Res/'
 
-rsp_dir = res_dir + 'rsp/'
+rsp_dir = res_dir + 'rsp_new/'
 data_dir = res_dir + 'data/'
 map_dir = res_dir + 'mapx/'
 font_dir = res_dir + 'font/'
@@ -66,6 +66,7 @@ pic_dir = res_dir + 'pic/'
 music_dir = res_dir + 'audio/'
 sound_dir = res_dir + 'sound/'
 winconfig_dir = data_dir + 'WinConfig/'
+wpal_dir = res_dir + 'wpal/'
 
 shapes = csv2dict(data_dir + 'normal_shapes.csv')
 bshapes = csv2dict(data_dir + 'battle_shapes.csv')
@@ -159,3 +160,7 @@ NODE_LIST = [
     'TextEdit', 'LineEdit', 'Camera', 'BasicCharacter', 'Character', 'NPC', 'BattleUnit', 'Emoji', 'HpEffect',
     'BuffEffect', 'MagicEffect', 'FullScreenEffect', 'MapMask', 'Mouse', 'Portal', 'World'
 ]
+
+# Prompt风格
+GAME_PROMPT = 0  # 系统提示
+CHAR_SPEECH = 1  # 玩家发言

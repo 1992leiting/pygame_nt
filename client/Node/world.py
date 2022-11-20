@@ -63,6 +63,14 @@ class World(Node):
                 if child.id == pid:
                     child.set_path(path)
 
+    def player_add_speech_prompt(self, pid, text):
+        for name, child in self.get_children().items():
+            if name == 'player_' + str(pid):
+                if child.id == pid:
+                    child.child('speech_prompt').append(text)
+        if game.hero.id == pid:
+            game.hero.child('speech_prompt').append(text)
+
     def change_map(self, map_id):
         print('change map:', map_id)
         self.map_id = map_id
@@ -192,10 +200,11 @@ class World(Node):
             if hero.visible:
                 mouse_x, mouse_y = int(pygame.mouse.get_pos()[0] + camera.x), int(pygame.mouse.get_pos()[1] + camera.y)
                 hero_x, hero_y = int(hero.map_x), int(hero.map_y)
-                # print('鼠标点击:', (hero_x, hero_y), (mouse_x, mouse_y))
+                print('鼠标点击:', (hero_x, hero_y), (mouse_x, mouse_y))
                 path = self.director.astar.find_path((hero_x, hero_y), (mouse_x, mouse_y))
-                # print('发送路径:', path)
-                self.director.client.send(C_发送路径, dict(路径=path))
+                print('发送路径:', path)
+                if path:
+                    self.director.client.send(C_发送路径, dict(路径=path))
 
     def update(self):
         if self.director.is_in_battle:
