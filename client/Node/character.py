@@ -139,10 +139,14 @@ class BasicCharacter(Node):
         if model_index in self.shapes:
             ani_char = Animation8D()
             fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['静立']))
-            if self.name == '大鹌鹑二号':
-                # modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 4)
-                modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 2)
-                modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 1, 6)
+            # if self.name == '大鹌鹑二号':
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 2)
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 1, 2)
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 2, 3)
+            # if self.model == '龙太子':
+                # modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 0, 2)
+                # modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 1, 2)
+                # modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 2, 4)
             ani_char.set_fps(7)
             self.add_child('char_stand', ani_char)
         else:
@@ -158,10 +162,14 @@ class BasicCharacter(Node):
         if model_index in self.shapes:
             ani_char = Animation8D()
             fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['行走']))
-            if self.name == '大鹌鹑二号':
-                # modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 4)
-                modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 2)
-                modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 1, 6)
+            # if self.name == '大鹌鹑二号':
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 4)
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 2)
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 1, 6)
+            # if self.model == '龙太子':
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 0, 2)
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 1, 2)
+            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 2, 4)
             ani_char.set_fps(18)
             self.add_child('char_walk', ani_char)
         else:
@@ -178,6 +186,10 @@ class BasicCharacter(Node):
         shadow = ImageRect()
         fill_image_rect(shadow, 'shape.rsp', 3705976162)
         self.add_child('shadow', shadow)
+
+        if self.model == '龙太子':
+            modulate_animation8d_by_palette(self.child('char_stand'), wpal_dir + '10.wpal', 2, 4)
+            modulate_animation8d_by_palette(self.child('char_walk'), wpal_dir + '10.wpal', 2, 4)
 
     def move(self):
         target = self.path[0]

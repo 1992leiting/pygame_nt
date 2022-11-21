@@ -5,6 +5,7 @@ import copy
 import time
 import pygame
 from PIL import Image
+from threading import Thread
 
 hash_list = {}
 rsp_cache = {}  # key: wdf+hash
@@ -99,6 +100,7 @@ class Wpal:
     def __init__(self):
         self.head = b'wpal'  # 文件头
         self.seg_num = 0  # 分段数量
+        self.seg_index = []  # 每个分段对应的调色板位置
         self.seg_data = []  #
 
     def print(self):
@@ -141,7 +143,9 @@ def read_wpal(file_path):
         pal.seg_num = int.from_bytes(f.read(4), byteorder='little')
         # 跳过
         for _ in range(1 + pal.seg_num):
-            f.read(4)
+            idx = read_int(f, 4)
+            pal.seg_index.append(idx)
+        print('seg index:', pal.seg_index)
         for i in range(pal.seg_num):
             pal.seg_data.append([])
             solution_num = int.from_bytes(f.read(4), byteorder='little')
@@ -182,16 +186,16 @@ def palette_modulate(ori_pal16: list, wpal_file, segment, solution):
     C21, C22, C23 = pal.seg_data[segment][solution][1]
     C31, C32, C33 = pal.seg_data[segment][solution][2]
 
-    if segment == 0:
-        r = range(0, 63)
-    elif segment == 1:
-        r = range(64, 127)
-    elif segment == 1:
-        r = range(128, 191)
-    else:
-        r = range(192, 256)
+    # if segment == 0:
+    #     r = range(0, 40)
+    # elif segment == 1:
+    #     r = range(40, 80)
+    # elif segment == 2:
+    #     r = range(80, 120)
+    # else:
+    #     r = range(120, 256)
 
-    for i in r:
+    for i in range(pal.seg_index[segment], pal.seg_index[segment + 1]):
         R = ori_pal16[i]['R']
         G = ori_pal16[i]['G']
         B = ori_pal16[i]['B']
@@ -208,37 +212,63 @@ def palette_modulate(ori_pal16: list, wpal_file, segment, solution):
         new_palette[i]['G'] = G2
         new_palette[i]['B'] = B2
 
-    return new_palette
+    return new_palette, (pal.seg_index[segment], pal.seg_index[segment + 1])
 
 
-def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
-    t = time.time()
+def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list, pal_range):
     w, h = img.get_size()
+    # ---暴力循环法---
+    pix_array = {}
     for x in range(w):
         for y in range(h):
             img_pix = img.get_at((x, y))
             if img_pix != (0, 0, 0, 0):
-                for index, pal16_pix in enumerate(ori_pal32):
-                    if pal16_pix != new_pal32[index]:
-                        pal_color = (pal16_pix['R'], pal16_pix['G'], pal16_pix['B'])
-                        if img_pix == pal_color:
-                            r = new_pal32[index]['R']
-                            g = new_pal32[index]['G']
-                            b = new_pal32[index]['B']
-                            img.set_at((x, y), (r, g, b, 255))
+                pix_array[(x, y)] = (img_pix[0], img_pix[1], img_pix[2])
+    for pos, pix in pix_array.items():
+        for index in range(pal_range[0], pal_range[1]):
+            ori_pal32_pix = ori_pal32[index]
+            if ori_pal32_pix != new_pal32[index]:
+                ori_pal32_color = (ori_pal32_pix['R'], ori_pal32_pix['G'], ori_pal32_pix['B'])
+                if pix == ori_pal32_color:
+                    r = new_pal32[index]['R']
+                    g = new_pal32[index]['G']
+                    b = new_pal32[index]['B']
+                    img.set_at(pos, (r, g, b, 255))
+    # ---PIL-numpy法---
+    # img_bytes = img.get_buffer().raw
+    # # pil_img = Image.frombytes('RGBA', (w, h), img_bytes)
+    # # pil_img.show()
+    # # data = np.array(pil_img)
+    # data = np.frombuffer(img_bytes, np.int8).copy()
+    # data = data.reshape((w, h, 4))
+    # for index in range(pal_range[0], pal_range[1]):
+    #     ori_pal32_pix = ori_pal32[index]
+    #     # data[(data == (0, 0, 0, 0)).all(axis=-1)] = (255, 255, 255, 255)
+    # img = Image.fromarray(data, 'RGBA')
+    # img_data = img.tobytes()
+    # img = pygame.image.frombuffer(img_data, (w, h), 'RGBA')
+    # img.show()
+    return img
 
-    dt = time.time() - t
-    print('img调色耗时: {}ms'.format(int(dt*1000)))
 
-
-def modulate_animation8d_by_palette(ani8d, wpal_file, segment, solution):
+def thread_modulate_animation8d_by_palette(ani8d, wpal_file, segment, solution):
+    t = time.time()
     ori_pal16 = ani8d.palette16
-    new_pal16 = palette_modulate(ori_pal16, wpal_file, segment, solution)
+    new_pal16, pal_range = palette_modulate(ori_pal16, wpal_file, segment, solution)
     ori_pal32 = palette16_to_palette32(ori_pal16)
     new_pal32 = palette16_to_palette32(new_pal16)
     for ani in ani8d.get_children().values():
+        new_frames = []
         for frame in ani.frames:
-            modulate_img_by_palette(frame, ori_pal32, new_pal32)
+            new_frames.append(modulate_img_by_palette(frame, ori_pal32, new_pal32, pal_range))
+        ani.frames = new_frames
+    dt = time.time() - t
+    print('img调色耗时: {}ms'.format(int(dt * 1000)))
+
+
+def modulate_animation8d_by_palette(ani8d, wpal_file, segment, solution):
+    th = Thread(target=thread_modulate_animation8d_by_palette, args=(ani8d, wpal_file, segment, solution))
+    th.start()
 
 
 def bytes_to_image(bytes_data):
