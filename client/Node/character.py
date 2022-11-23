@@ -1,4 +1,6 @@
 import random
+import time
+
 import pygame.mouse
 from Common.common import *
 from Node.animation import Animation8D
@@ -28,6 +30,7 @@ class BasicCharacter(Node):
         self.direction = 0
         self.id = 0
         self.type = 'char'
+        self.color_recipe = (0, 0, 0)  # 分别代表3个部位不同的染色方案
         self.cur_char_animation = None
         self.cur_weapon_animation = None
         self.mask_rect = pygame.Rect(0, 0, 0, 0)
@@ -126,27 +129,19 @@ class BasicCharacter(Node):
             # self.x, self.y = p[0]  # 直接移动到第一个路径坐标
 
     def setup_basic(self):
-        from Game.res_manager import fill_animation8d, fill_image_rect, modulate_animation8d_by_palette
-        # self.clear_children()
+        if self.name == '大鹌鹑二号':
+            self.color_recipe = (3, 3, 0)
+        from Game.res_manager import fill_animation8d, fill_image_rect
         self.setup_ui()
         model_index = self.model
         weapon_index = ""
         if self.weapon and self.weapon != "":
             weapon_index = self.weapon + "_" + self.model
 
-        # self.clear_children()
         self.setup_ui()
         if model_index in self.shapes:
             ani_char = Animation8D()
             fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['静立']))
-            # if self.name == '大鹌鹑二号':
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 2)
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 1, 2)
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 2, 3)
-            # if self.model == '龙太子':
-                # modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 0, 2)
-                # modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 1, 2)
-                # modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 2, 4)
             ani_char.set_fps(7)
             self.add_child('char_stand', ani_char)
         else:
@@ -162,14 +157,6 @@ class BasicCharacter(Node):
         if model_index in self.shapes:
             ani_char = Animation8D()
             fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['行走']))
-            # if self.name == '大鹌鹑二号':
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 4)
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 0, 2)
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '2.wpal', 1, 6)
-            # if self.model == '龙太子':
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 0, 2)
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 1, 2)
-            #     modulate_animation8d_by_palette(ani_char, wpal_dir + '10.wpal', 2, 4)
             ani_char.set_fps(18)
             self.add_child('char_walk', ani_char)
         else:
@@ -186,10 +173,6 @@ class BasicCharacter(Node):
         shadow = ImageRect()
         fill_image_rect(shadow, 'shape.rsp', 3705976162)
         self.add_child('shadow', shadow)
-
-        if self.model == '龙太子':
-            modulate_animation8d_by_palette(self.child('char_stand'), wpal_dir + '10.wpal', 2, 4)
-            modulate_animation8d_by_palette(self.child('char_walk'), wpal_dir + '10.wpal', 2, 4)
 
     def move(self):
         target = self.path[0]
@@ -245,6 +228,20 @@ class BasicCharacter(Node):
                 self.child('char_walk').visible = False
             if self.child('weapon_walk'):
                 self.child('weapon_walk').visible = False
+
+        # 染色
+        if self.color_recipe != (0, 0, 0) and not self.cur_char_animation.is_modulated:
+            from Game.res_manager import modulate_animation_by_palette
+            wpal_file = '{}{}.wpal'.format(wpal_dir, self.model)
+            if os.path.exists(wpal_file):
+                print('染色:', self.name)
+                if self.is_moving:
+                    pal16 = self.child('char_walk').palette16
+                else:
+                    pal16 = self.child('char_stand').palette16
+                modulate_animation_by_palette(self.cur_char_animation, wpal_file, pal16, self.color_recipe)
+            else:
+                print('染色文件不存在:', wpal_file)
 
         if self.child('char_stand'):
             self.child('char_stand').direction = self.direction
@@ -322,7 +319,7 @@ class Character(BasicCharacter):
         self.setup_character()
 
     def update_character(self):
-        if self.child('title'):
+        if self.title:
             self.child('title').center_x = self.x
             self.child('title').center_y = self.y + 20
             if self.child('name'):
@@ -372,7 +369,7 @@ class NPC(BasicCharacter):
         self.setup_hero()
 
     def update_hero(self):
-        if self.child('title'):
+        if self.title:
             self.child('title').center_x = self.x
             self.child('title').center_y = self.y + 20
             if self.child('name'):

@@ -82,6 +82,10 @@ class Director(Node):
         self.add_child('mouse', new_node('Mouse'))
 
     def start_game(self):
+        # 设置窗口标题
+        # title = '梦幻西游ONLINE-{}{}'.format(self.hero_data['名称'], self.hero_data['id'])
+        # print('title:', title)
+        # pygame.display.set_caption(title)
         # 关闭一些窗口
         game.window_layer.child('简易登陆').switch(False)
         game.window_layer.child('简易注册').switch(False)

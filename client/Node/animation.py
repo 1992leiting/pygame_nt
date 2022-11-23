@@ -16,6 +16,7 @@ class Animation(Node):
         self.frame_index = 0  # 帧序号
         self.highlight = False
         self.is_playing = True  # 动画是否播放
+        self.is_modulated = False  # 已经调色完成
 
     @property
     def cur_frame(self):
