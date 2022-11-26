@@ -238,21 +238,26 @@ def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
     #                 g = new_pal32[index]['G']
     #                 b = new_pal32[index]['B']
     #                 img.set_at(pos, (r, g, b, 255))
+
     # ---暴力循环法2---
-    for x in range(w):
-        for y in range(h):
-            # img_pix = img.get_at((x, y))
-            # img_pix = (10, 10, 99, 99)
-            # if img_pix != (0, 0, 0, 0):
-            for index in range(256):
-                pass
-                    # # r, g, b, a = ori_pal32[index]['R'], ori_pal32[index]['G'], ori_pal32[index]['B'], 255
-                    # r, g, b, a = 10, 0, 10, 10
-                    # if img_pix == (r, g, b, a):
-                    #     # rr, gg, bb, aa = new_pal32[index]['R'], new_pal32[index]['G'], new_pal32[index]['B'], 255
-                    #     rr, gg, bb, aa = 10, 10, 10, 10
-                    #     # img.set_at((x, y), (rr, gg, bb, 255))
-                    #     break
+    # for x in range(w):
+    #     for y in range(h):
+    #         img_pix = img.get_at((x, y))
+    #         if img_pix != (0, 0, 0, 0):
+    #             for index in range(256):
+    #                 r, g, b, a = ori_pal32[index]['R'], ori_pal32[index]['G'], ori_pal32[index]['B'], 255
+    #                 if img_pix == (r, g, b, a):
+    #                     rr, gg, bb, aa = new_pal32[index]['R'], new_pal32[index]['G'], new_pal32[index]['B'], 255
+    #                     img.set_at((x, y), (rr, gg, bb, 255))
+    #                     break
+
+    # ---pixelarray替换法---
+    pa = pygame.PixelArray(img)
+    for index in range(256):
+        ori_color = ori_pal32[index]['R'], ori_pal32[index]['G'], ori_pal32[index]['B'], 255
+        new_color = new_pal32[index]['R'], new_pal32[index]['G'], new_pal32[index]['B'], 255
+        pa.replace(ori_color, new_color, 0)
+    pa.close()
 
     # ---PIL-numpy法---
     # img_bytes = img.get_buffer().raw
@@ -268,6 +273,7 @@ def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
     # img_data = img.tobytes()
     # img = pygame.image.frombuffer(img_data, (w, h), 'RGBA')
     # # img.show()
+
     return img
 
 

@@ -200,9 +200,9 @@ class World(Node):
             if hero.visible:
                 mouse_x, mouse_y = int(pygame.mouse.get_pos()[0] + camera.x), int(pygame.mouse.get_pos()[1] + camera.y)
                 hero_x, hero_y = int(hero.map_x), int(hero.map_y)
-                print('鼠标点击:', (hero_x, hero_y), (mouse_x, mouse_y))
+                # print('鼠标点击:', (hero_x, hero_y), (mouse_x, mouse_y))
                 path = self.director.astar.find_path((hero_x, hero_y), (mouse_x, mouse_y))
-                print('发送路径:', path)
+                # print('发送路径:', path)
                 if path:
                     self.director.client.send(C_发送路径, dict(路径=path))
 
