@@ -129,7 +129,7 @@ class BasicCharacter(Node):
             # self.x, self.y = p[0]  # 直接移动到第一个路径坐标
 
     def setup_basic(self):
-        if self.name == '大鹌鹑二号':
+        if self.name == '大鹌鹑二号' or '风' in self.name:
             self.color_recipe = (3, 3, 0)
         from Game.res_manager import fill_animation8d, fill_image_rect
         self.setup_ui()

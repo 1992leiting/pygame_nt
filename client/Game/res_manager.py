@@ -221,23 +221,39 @@ def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
     pygame image染色
     """
     w, h = img.get_size()
-    # ---暴力循环法---
-    pix_array = {}
+    # ---暴力循环法1---
+    # pix_array = {}
+    # for x in range(w):
+    #     for y in range(h):
+    #         img_pix = img.get_at((x, y))
+    #         if img_pix != (0, 0, 0, 0):
+    #             pix_array[(x, y)] = (img_pix[0], img_pix[1], img_pix[2])  # TODO:这一步很慢
+    # for pos, pix in pix_array.items():
+    #     for index in range(256):
+    #         ori_pal32_pix = ori_pal32[index]
+    #         if ori_pal32_pix != new_pal32[index]:
+    #             ori_pal32_color = (ori_pal32_pix['R'], ori_pal32_pix['G'], ori_pal32_pix['B'])
+    #             if pix == ori_pal32_color:
+    #                 r = new_pal32[index]['R']
+    #                 g = new_pal32[index]['G']
+    #                 b = new_pal32[index]['B']
+    #                 img.set_at(pos, (r, g, b, 255))
+    # ---暴力循环法2---
     for x in range(w):
         for y in range(h):
-            img_pix = img.get_at((x, y))
-            if img_pix != (0, 0, 0, 0):
-                pix_array[(x, y)] = (img_pix[0], img_pix[1], img_pix[2])
-    for pos, pix in pix_array.items():
-        for index in range(256):
-            ori_pal32_pix = ori_pal32[index]
-            if ori_pal32_pix != new_pal32[index]:
-                ori_pal32_color = (ori_pal32_pix['R'], ori_pal32_pix['G'], ori_pal32_pix['B'])
-                if pix == ori_pal32_color:
-                    r = new_pal32[index]['R']
-                    g = new_pal32[index]['G']
-                    b = new_pal32[index]['B']
-                    img.set_at(pos, (r, g, b, 255))
+            # img_pix = img.get_at((x, y))
+            # img_pix = (10, 10, 99, 99)
+            # if img_pix != (0, 0, 0, 0):
+            for index in range(256):
+                pass
+                    # # r, g, b, a = ori_pal32[index]['R'], ori_pal32[index]['G'], ori_pal32[index]['B'], 255
+                    # r, g, b, a = 10, 0, 10, 10
+                    # if img_pix == (r, g, b, a):
+                    #     # rr, gg, bb, aa = new_pal32[index]['R'], new_pal32[index]['G'], new_pal32[index]['B'], 255
+                    #     rr, gg, bb, aa = 10, 10, 10, 10
+                    #     # img.set_at((x, y), (rr, gg, bb, 255))
+                    #     break
+
     # ---PIL-numpy法---
     # img_bytes = img.get_buffer().raw
     # # pil_img = Image.frombytes('RGBA', (w, h), img_bytes)
@@ -289,19 +305,20 @@ def modulate_animation_by_palette(ani, wpal_file, ori_pal16, recipe):
     new_pal16, _ = palette_modulate(new_pal16, wpal_file, 2, recipe[0])
     new_pal32 = palette16_to_palette32(new_pal16)
     for j in range(len(ani.frames)):
-        # modulate_img_by_palette(frame, ori_pal32, new_pal32)
-        bg_color = None
-        # ani.frames[j] = palette_swap(ani.frames[j], (0, 0, 0, 0), (0, 0, 0, 0))
-        for i in range(256):
-            ori_color = (ori_pal32[i]['R'], ori_pal32[i]['G'], ori_pal32[i]['B'])
-            new_color = (new_pal32[i]['R'], new_pal32[i]['G'], new_pal32[i]['B'])
-            if not bg_color:
-                bg_color = new_color
-            ani.frames[j] = palette_swap(ani.frames[j], ori_color, new_color)
-        img_bg = pygame.Surface(ani.frames[j].get_size(), pygame.SRCALPHA)
-        ani.frames[j].set_colorkey(bg_color)
-        img_bg.blit(ani.frames[j], (0, 0))
-        ani.frames[j] = img_bg
+        # ---set_colorkey法---
+        # bg_color = None
+        # for i in range(256):
+        #     ori_color = (ori_pal32[i]['R'], ori_pal32[i]['G'], ori_pal32[i]['B'])
+        #     new_color = (new_pal32[i]['R'], new_pal32[i]['G'], new_pal32[i]['B'])
+        #     if not bg_color:
+        #         bg_color = new_color
+        #     ani.frames[j] = palette_swap(ani.frames[j], ori_color, new_color)
+        # img_bg = pygame.Surface(ani.frames[j].get_size(), pygame.SRCALPHA)
+        # ani.frames[j].set_colorkey(bg_color)
+        # img_bg.blit(ani.frames[j], (0, 0))
+        # ani.frames[j] = img_bg
+        # ---循环置像素法---
+        modulate_img_by_palette(ani.frames[j], ori_pal32, new_pal32)
     ani.is_modulated = True
     dt = time.time() - t
     print('animation染色时间:{}ms'.format(int(dt*1000)))
