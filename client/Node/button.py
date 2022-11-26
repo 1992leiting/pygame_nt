@@ -2,6 +2,7 @@ import pygame.mouse
 from Node.node import Node
 from Common.constants import *
 from Game.res_manager import fill_button
+from Node.label import Label
 
 
 class Button(Node):
@@ -43,9 +44,12 @@ class Button(Node):
             pos = pygame.mouse.get_pos()
             rect_pos = (pos[0] - self.rect.x, pos[1] - self.rect.y)
             if self.rect.collidepoint(pos):
-                color = self.cur_img.get_at(rect_pos)
-                if color != (0, 0, 0, 0):
-                    self.director.node_hover = self
+                if self.cur_img:
+                    color = self.cur_img.get_at(rect_pos)
+                    if color != (0, 0, 0, 0):
+                        self.director.node_hover = self
+                        self.is_hover = True
+                else:
                     self.is_hover = True
             else:
                 self.is_hover = False
@@ -134,7 +138,6 @@ class ButtonClassicRed(Button):
 
     def setup(self):
         self.auto_sizing()
-        from Node.label import Label
         self.x -= 5
         self.y -= 5
         label = Label(self.text, size=14)
@@ -171,3 +174,20 @@ class ToggleButtonGroup(Node):
             self.toggled_button = 0
         if self.buttons:
             self.buttons[self.toggled_button].is_toggled = True
+
+
+class DialogOptionItem(Button):
+    def __init__(self, text):
+        super(DialogOptionItem, self).__init__()
+        self.text = text
+        fill_button(self, 'wzife4.rsp', 0x802EB60A)
+        self.setup()
+
+    def setup(self):
+        label = Label(self.text, size=15, color=(255, 0, 0))
+        self.add_child('label', label)
+        label.ori_x, label.ori_y = 10, 6
+        label.is_hover_enabled = False
+        self.width = label.width + 20
+        self.auto_sizing()
+        self.img_normal = None  # 不指向时不显示背景

@@ -67,7 +67,7 @@ class GatewayServer(socketserver.BaseRequestHandler):
         super(GatewayServer, self).handle()
         while not self.event.is_set():
             try:
-                data = self.request.recv(2)  # 2字节的data_len
+                data = self.request.recv(4)  # 4字节的data_len
                 data_len = int.from_bytes(data, byteorder='big')
                 msg = b''
                 while len(msg) < data_len:

@@ -1,5 +1,6 @@
 import os
 
+
 def csv2dict(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError('CSV file not exist: ' + file_path)

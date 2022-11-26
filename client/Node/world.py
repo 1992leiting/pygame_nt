@@ -34,6 +34,8 @@ class World(Node):
 
     def update_hero_xy(self):
         hero = game.hero
+        if not hero:
+            return
         send_data = {
             'x': hero.game_x,
             'y': hero.game_y,
@@ -72,18 +74,24 @@ class World(Node):
             print('hero sp:', text)
             game.hero.child('speech_prompt').append(text)
 
-    def change_map(self, map_id):
+    def change_map(self, map_id, x=None, y=None):
         print('change map:', map_id)
         self.map_id = map_id
         map_file = map_dir + str(map_id) + '.mapx'
         if not os.path.exists(map_file):
             print('map不存在:', map_id)
             return
+
+        if x:
+            game.hero.game_x = x
+        if y:
+            game.hero.game_y = y
+
         self.remove_all_npcs()
-        # self.remove_all_portals()
-        # self.remove_all_players()
-        # self.remove_all_masks()
-        # self.remove_map_jpg()
+        self.remove_all_portals()
+        self.remove_all_players()
+        self.remove_all_masks()
+        self.remove_map_jpg()
         # if map_id == 1001:
         #     self.director.mapx = ca_mapx
         # elif map_id == 1501:
@@ -100,10 +108,15 @@ class World(Node):
         self.director.astar.cell = self.director.mapx.navi
         map_jpg.image = self.director.mapx.jpg
         self.add_child('mapjpg', map_jpg)
+        # NPC
+        for npc_id, npc_data in game.npcs.items():
+            if int(npc_data['地图']) == self.director.mapx.map_id:
+                npc_data['id'] = int(npc_id)
+                self.add_npc(npc_data)
         # 传送阵
         for pid, portal in portals.items():
-            map_id = portal['原地图']
-            if int(map_id) == self.director.mapx.map_id:
+            mapid = portal['原地图']
+            if int(mapid) == self.director.mapx.map_id:
                 p = Portal()
                 p.portal_id = pid
                 p.game_x, p.game_y = int(float(portal['原地图x'])), int(float(portal['原地图y']))
@@ -129,7 +142,7 @@ class World(Node):
 
     def remove_all_players(self):
         for child_name, child in self.get_children().copy().items():
-            if type(child) == Character and child.type == 'player':
+            if 'player_' in child_name:
                 self.remove_child(child_name)
 
     def remove_all_masks(self):

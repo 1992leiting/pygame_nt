@@ -9,6 +9,7 @@ class Game:
         self.director = None
         self.account = ''  # 当前游戏处理的账号
         self.window_layer = None
+        self.npcs = {}  # 所有NPC数据,key:npc_id, value:NPC数据
 
     @property
     def world(self):

@@ -9,6 +9,7 @@ import sys
 import logging
 import traceback
 from scene.scene_handler import *
+from scene.dialog_handler import *
 
 
 uuidChars = ("a", "b", "c", "d", "e", "f",
@@ -48,7 +49,7 @@ class GameServer(threading.Thread):
         sprint('game server进程启动...')
         while True:
             try:
-                _bytes = self.socket.recv(2)  # 阻塞获取2字节, 如果有则是消息长度
+                _bytes = self.socket.recv(4)  # 阻塞获取2字节, 如果有则是消息长度
                 msg_len = int.from_bytes(_bytes, byteorder='big')  # 消息长度, 2字节
                 msg = b''
                 while len(msg) < msg_len:
@@ -83,6 +84,17 @@ class GameServer(threading.Thread):
             ch = msg['频道']
             text = msg['内容']
             player_speak(pid, ch, text)
+        elif cmd == C_点击NPC:
+            npc_id = msg['id']
+            trigger_npc_dialog(pid, npc_id)
+        elif cmd == C_传送点传送:
+            portal_id = msg['portal_id']
+            if str(portal_id) in PORTALS:
+                target_map = int(PORTALS[str(portal_id)]['目的地'])
+                target_x = int(PORTALS[str(portal_id)]['目的地x'])
+                target_y = int(PORTALS[str(portal_id)]['目的地y'])
+                send_data = dict(map_id=target_map, x=target_x, y=target_y)
+                send2pid(pid, S_地图传送, send_data)
 
 
 def start_game_server():

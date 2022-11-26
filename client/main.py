@@ -15,6 +15,7 @@ from Common.constants import game
 from UiLayer.WindowLayer.simple_register import SimpleRegister
 from UiLayer.WindowLayer.simple_hero_select import SimpleHeroSelect
 from UiLayer.WindowLayer.simple_create_player import SimpleCreatePlayer
+from UiLayer.WindowLayer.dialog import Dialog
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -65,6 +66,10 @@ wl.add_child('人物属性', win)
 win2 = HeroSkill()
 win2.visible = False
 wl.add_child('人物技能', win2)
+
+win2 = Dialog()
+win2.visible = True
+wl.add_child('对话栏', win2)
 
 
 while True:

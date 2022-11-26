@@ -256,7 +256,7 @@ def modulate_animation_by_palette(ani, wpal_file, ori_pal16, recipe):
         ani.frames[j] = modulate_img_by_palette(ani.frames[j], ori_pal32, new_pal32)
     ani.is_modulated = True
     dt = time.time() - t
-    print('animation染色时间:{}ms'.format(int(dt*1000)))
+    # print('animation染色时间:{}ms'.format(int(dt*1000)))
 
 
 def bytes_to_image(bytes_data):

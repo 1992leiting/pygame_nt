@@ -3,6 +3,22 @@ import json
 from redis.client import Redis
 import time
 import os
+import random
+from common.socket_id import *
+
+
+class NPC:
+    def __init__(self):
+        self.npc_id = 0
+        self.npc_type = '普通'  # 0普通, 2商业, 3特殊, 4传送, 5任务
+        self.dialogue = {'contents': ['你找我有事吗?', '欢迎来到梦幻西游~'], 'options': ['随便看看']}
+
+    def send_msg(self, pid, option=None):
+        cont = random.sample(self.dialogue['contents'], 1)
+        op = self.dialogue['options']
+
+        send_data = {'npc_id': self.npc_id, '对话': cont, '选项': op}
+        send2pid(pid, S_发送NPC对话, send_data)
 
 
 def send(sk, cmd: str, send_data: dict):
@@ -16,7 +32,7 @@ def send(sk, cmd: str, send_data: dict):
     send_data['cmd'] = cmd
     json_str = json.dumps(send_data)
     json_str_len = len(json_str)
-    len_bytes = json_str_len.to_bytes(2, byteorder='big')
+    len_bytes = json_str_len.to_bytes(4, byteorder='big')
     send_bytes = len_bytes + json_str.encode(encoding='utf-8')
     try:
         sk.sendall(send_bytes)

@@ -37,7 +37,7 @@ class SocketClient:
         """
         while True:
             try:
-                _bytes = self.socket.recv(2)  # 阻塞获取2字节, 如果有则是消息长度
+                _bytes = self.socket.recv(4)  # 获取4字节, 如果有则是消息长度
                 msg_len = int.from_bytes(_bytes, byteorder='big')  # 消息长度, 2字节
                 msg = b''
                 while len(msg) < msg_len:
@@ -101,6 +101,19 @@ class SocketClient:
             pid = msg['player']
             text = msg['内容']
             game.world.player_add_speech_prompt(pid, text)
+        elif cmd == S_所有NPC数据:
+            game.npcs = msg['内容']
+            print('所有NPC:', game.npcs)
+        elif cmd == S_发送NPC对话:
+            print('npc对话:', msg)
+            npc_id = msg['npc_id']
+            if str(npc_id) in game.npcs:
+                npc = game.npcs[str(npc_id)]
+                game.director.dialog_window.show(npc['模型'], npc['名称'], msg['对话'][0], msg['选项'])
+            else:
+                print('npc不存在:', npc_id)
+        elif cmd == S_地图传送:
+            game.world.change_map(msg['map_id'], msg['x'], msg['y'])
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd
@@ -110,7 +123,7 @@ class SocketClient:
             print('发送数据解析错误:', send_data, str(e))
             return
         json_str_len = len(json_str)
-        len_bytes = json_str_len.to_bytes(2, byteorder='big')
+        len_bytes = json_str_len.to_bytes(4, byteorder='big')
         send_bytes = len_bytes + json_str.encode(encoding='utf-8')
         try:
             self.socket.sendall(send_bytes)

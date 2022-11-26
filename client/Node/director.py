@@ -73,6 +73,10 @@ class Director(Node):
         self.window_w, self.window_h = arg
         self.screen = pygame.display.set_mode(self.window_size, 0, 32)
 
+    @property
+    def dialog_window(self):
+        return self.get_node('window_layer/对话栏')
+
     def setup_ui(self):
         game.director = self
         self.add_child('scene', Node())

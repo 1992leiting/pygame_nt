@@ -10,6 +10,7 @@ from Node.label import Label
 from Node.magic_effect import MagicEffect, BuffEffect
 from Node.node import Node
 from Node.prompt import GamePrompt, PromptManager
+from Common.socket_id import *
 
 
 class BasicCharacter(Node):
@@ -124,9 +125,12 @@ class BasicCharacter(Node):
         """
         设置人物路径
         """
+        self.path = p
         if p:
-            self.path = p
+            pass
             # self.x, self.y = p[0]  # 直接移动到第一个路径坐标
+        else:
+            self.is_moving = False
 
     def setup_basic(self):
         if self.name == '大鹌鹑二号' or '风' in self.name:
@@ -238,7 +242,6 @@ class BasicCharacter(Node):
             from Game.res_manager import modulate_animation_by_palette
             wpal_file = '{}{}.wpal'.format(wpal_dir, self.model)
             if os.path.exists(wpal_file):
-                print('染色:', self.name)
                 if self.is_moving:
                     pal16 = self.child('char_walk').palette16
                 else:
@@ -292,7 +295,9 @@ class BasicCharacter(Node):
                 pass
             # 左键弹起则触发点击事件
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
-                print('点击人物:', self.name)
+                print('点击人物:', self.name, self.id)
+                if self.type == 'npc':
+                    send(C_点击NPC, dict(id=self.id))
 
 
 class Character(BasicCharacter):
@@ -507,7 +512,7 @@ class BattleUnit(BasicCharacter):
                 print('shapes不存在6: ', model_index, weapon_index)
 
         shadow = ImageRect()
-        fill_image_rect(shadow, 'shape.rsp', 3705976162)
+        fill_image_rect(shadow, 'shape.rsp', 0xDCE4B562)  # 3705976162
         self.add_child('shadow', shadow)
 
         self.attack_acc = get_model_attack_frame(self.model, get_weapon_type(self.weapon))[1]

@@ -5,26 +5,6 @@ from common.constants import *
 from common.server_process import server
 
 
-class NPC:
-    def __init__(self) -> None:
-        self.npc_id = 0
-        self.name = 'NPC'
-        self.title = None
-        self.model = '男人_苦力'
-        self.mx, self.my = 0, 0
-        self.direction = 0  # 方向, 0 ↘, 1 ↓, 2 ↙, 3 →, 4 ←, 5 ↗, 6 ↑, 7 ↖
-        self.map_id = 1001
-        self.npc_type = '普通'  # 普通, 商业, 特殊, 传送, 任务
-        self.dialogue = {'contents': ['你找我有事吗?'], 'options': []}
-
-    def talk(self, pid, option=None):
-        cont = random.sample(self.dialogue['contents'], 1)
-        op = self.dialogue['options']
-
-        send_data = {'模型': self.model, 'npc_id': self.npc_id, '名称': self.name, '对话': cont, '选项': op}
-        send2pid(pid, S_发送NPC对话, send_data)
-
-
 def get_npc_in_scene(pid, map_id=0):
     if not map_id:
         map_id = rget(pid, CHAR, '地图')
@@ -89,8 +69,8 @@ def player_enter_scene(pid, map_id):
     if not map_id:
         map_id = rget(pid, CHAR, '地图')
     # 发送所有npc
-    for npc_data in get_npc_in_scene(pid, map_id):
-        send2pid(pid, S_NPC数据, npc_data)
+    # for npc_data in get_npc_in_scene(pid, map_id):
+    #     send2pid(pid, S_NPC数据, npc_data)
     # 取其他玩家数据
     for _pid in get_players_in_scene(pid, map_id):
         player_data = rget(_pid, CHAR)
@@ -99,6 +79,10 @@ def player_enter_scene(pid, map_id):
     my_data = rget(pid, CHAR)
     for _pid in get_players_in_scene(pid, map_id):
         send2pid(_pid, S_玩家数据, my_data)
+
+
+def player_leave_scene(pid, map_id):
+    pass
 
 
 def player_set_path_request(pid, path: list):

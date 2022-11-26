@@ -1,5 +1,7 @@
 import pygame.draw
 from Node.animation import Animation8D
+from Common.socket_id import *
+from Common.constants import *
 
 
 class Portal(Animation8D):
@@ -19,13 +21,14 @@ class Portal(Animation8D):
         self._rect.height -= 30
         # pygame.draw.rect(self.director.screen, (255, 255, 255), self._rect, 2)
 
-        hero = self.director.get_node('scene/world_scene/hero')
+        hero = game.hero
         hero_pos = (hero.x, hero.y)
         if self._rect.collidepoint(hero_pos):
-            if self.director.is_hero_in_portal == 0:
+            if self.director.is_hero_in_portal == 0 and hero.is_moving:
+                hero.set_path([])
                 print('触发传送:', self.portal_id)
-                send_data = {'传送阵id': self.portal_id}
-                self.director.client.send('触发传送阵', send_data)
+                send_data = {'portal_id': self.portal_id}
+                self.director.client.send(C_传送点传送, send_data)
             self.director.is_hero_in_portal = self.portal_id
         else:
             if self.director.is_hero_in_portal == self.portal_id:
