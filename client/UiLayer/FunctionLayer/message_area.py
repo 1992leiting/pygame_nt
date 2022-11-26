@@ -58,13 +58,13 @@ class MessageArea(Node):
         表情开关.is_playing = False
         self.add_child('表情开关', 表情开关)
 
-        btn_语音 = set_node_attr(Button(), {'rsp_file': 'other.rsp',
+        btn_语音 = set_node_attr(Button(), {'rsp_file': 'other2.rsp',
                                             'hash_id': 65874,
                                             'bottom_left_x': 44,
                                             'bottom_left_y': self.director.window_h - 3})
         self.add_child('btn_语音', btn_语音)
 
-        btn_冒泡 = set_node_attr(Button(), {'rsp_file': 'other.rsp',
+        btn_冒泡 = set_node_attr(Button(), {'rsp_file': 'other2.rsp',
                                             'hash_id': 65875,
                                             'bottom_left_x': 62,
                                             'bottom_left_y': self.director.window_h - 3})

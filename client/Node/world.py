@@ -69,6 +69,7 @@ class World(Node):
                 if child.id == pid:
                     child.child('speech_prompt').append(text)
         if game.hero.id == pid:
+            print('hero sp:', text)
             game.hero.child('speech_prompt').append(text)
 
     def change_map(self, map_id):

@@ -4,25 +4,21 @@ from Node.rich_text import RichText
 import time
 from Common.constants import *
 
-GP_MARGIN_X = 5  # 系统提示文字距离边框的距离
-GP_MARGIN_Y = 5
-GP_SPACE = 5  # 系统提示之间的间距
-
 
 class PromptManager(ImageRect):
     """
     弹出管理器,计算位置,超时消失,等
     """
-    def __init__(self, style=GAME_PROMPT):
+    def __init__(self, style=GAME_PROMPT, x=300, y=300):
         super(PromptManager, self).__init__()
-        self.next_x, self.next_y = 300, 300  # 下一条提示的坐标
+        self.x, self.y = x, y
         self.is_hover_enabled = True
         self.is_draggable = False
         self.rsp_file = 'wzife.rsp'
         self.hash_id = 0x4CFB6A98
         self.style = style
         if self.style == GAME_PROMPT:
-            self.start_x, self.start_y = 300, 300
+            self.start_x, self.start_y = self.x, self.y
             self.setup()
         else:
             self.start_x, self.start_y = 0, 0
@@ -41,10 +37,14 @@ class PromptManager(ImageRect):
         _x, _y = self.start_x, self.start_y
         for i in range(0, len(pt_list)):
             pt = pt_list[i]
-            _y = _y - GP_SPACE - pt.height
-            pt.x, pt.y = _x, _y
-        for _, child in self.get_children().items():
-            child.setup_outline()
+            _y = _y - PROMPT_Y_SPACE[self.style] - pt.height + 3
+            if self.style == CHAR_SPEECH:
+                pt.ori_y = _y
+            else:
+                pt.x, pt.y = _x, _y
+
+        # for _, child in self.get_children().items():
+        #     child.setup_outline()
 
     def check_event(self):
         super(PromptManager, self).check_event()
@@ -54,7 +54,7 @@ class PromptManager(ImageRect):
         super(PromptManager, self).update()
         # 删除过期提示
         for name, child in self.get_children().copy().items():
-            if time.time() - child.time > 5:
+            if time.time() - child.time > PROMPT_TIMEOUT[self.style]:
                 self.remove_child(name)
                 self.compose()
 
@@ -63,25 +63,28 @@ class GamePrompt(ImageRect):
     """
     系统提示
     """
-    def __init__(self, txt='默认提示...', x=300, y=300, style=GAME_PROMPT):
+    def __init__(self, txt='默认提示...', style=GAME_PROMPT, x=0, y=0):
         super(GamePrompt, self).__init__()
+        print('prompt item:', txt)
         self.time = time.time()
         self.text = txt
         self.x, self.y = x, y
-        if style == GAME_PROMPT:
-            self.rsp_file = 'wzife4.rsp'
-            self.hash_id = 0xB5FDF1AC
-            self.default_color = '#Y'
-        else:
+        self.style = style
+        self.rsp_file = 'wzife4.rsp'
+        self.hash_id = 0xB5FDF1AC
+        if self.style == CHAR_SPEECH:
             # 人物喊话
             self.rsp_file = 'wzife4.rsp'
-            self.hash_id = 0xB5FDF1AC
+            self.hash_id = 0x80E0B578
             self.default_color = '#W'
             self.x, self.y = 0, 0
+        else:
+            # 系统提示, 等
+            self.default_color = '#Y'
         self.is_hover_enabled = True
 
-        self.rich_text = RichText(width=300)
-        self.rich_text.ori_x, self.rich_text.ori_y = GP_MARGIN_X, GP_MARGIN_Y
+        self.rich_text = RichText(width=PROMPT_WIDTH[self.style])
+        self.rich_text.ori_x, self.rich_text.ori_y = PROMPT_MARGIN_X, PROMPT_MARGIN_Y
         self.add_child('rich_text', self.rich_text)
 
     def setup(self):
@@ -89,11 +92,15 @@ class GamePrompt(ImageRect):
 
         # 配置富文本
         self.rich_text.set_text(self.default_color + self.text)
-        self.width = self.rich_text.width + GP_MARGIN_X * 2
-        self.height = self.rich_text.max_height + GP_MARGIN_Y * 2
-        self.width = max(self.width, 300)
+        self.width = self.rich_text.actual_width + PROMPT_MARGIN_X * 2
+        self.height = self.rich_text.max_height + PROMPT_MARGIN_Y * 2
+        if self.style == CHAR_SPEECH:
+            self.width = min(self.width, PROMPT_WIDTH[self.style] + PROMPT_MARGIN_X * 2)
+            self.ori_x += (PROMPT_WIDTH[self.style] - self.width)//2
+        else:
+            self.width = max(self.width, PROMPT_WIDTH[self.style])
         self.auto_sizing()
-        self.setup_outline((255, 255, 255))  # 添加outline
+        # self.setup_outline((255, 255, 255))  # 添加outline
 
     def check_event(self):
         super(GamePrompt, self).check_event()

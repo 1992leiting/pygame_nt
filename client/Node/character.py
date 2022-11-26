@@ -130,7 +130,7 @@ class BasicCharacter(Node):
 
     def setup_basic(self):
         if self.name == '大鹌鹑二号' or '风' in self.name:
-            self.color_recipe = (3, 3, 0)
+            self.color_recipe = (4, 4, 0)
         from Game.res_manager import fill_animation8d, fill_image_rect
         self.setup_ui()
         model_index = self.model
@@ -146,6 +146,10 @@ class BasicCharacter(Node):
             self.add_child('char_stand', ani_char)
         else:
             print('shapes不存在1: ', model_index)
+
+        self.width = self.child('char_stand').width
+        self.height = self.child('char_stand').height
+
         if weapon_index and weapon_index != '':
             if weapon_index in self.shapes:
                 ani_weapon = Animation8D()
@@ -258,8 +262,6 @@ class BasicCharacter(Node):
             self.mask_rect = mask.get_rect()
             self.mask_rect.x = self.x - self.cur_char_animation.kx
             self.mask_rect.y = self.y - self.cur_char_animation.ky
-            # if self.name == '大鹌鹑二号':
-            #     print('maskrect:', mask, self.mask_rect)
 
         if self.cur_char_animation:
             self.cur_char_animation.highlight = self.is_hover
@@ -277,6 +279,10 @@ class BasicCharacter(Node):
                 self.director.char_hover = None
                 if self.type == 'npc':
                     self.director.child('mouse').set_last_state()
+
+        # 发言框
+        self.child('speech_prompt').x = self.x - self.width//2 - (CHAR_SPEECH_PROMPT_WIDTH - self.width)//2
+        self.child('speech_prompt').y = self.y - self.height + 10
 
     def check_event(self):
         super(BasicCharacter, self).check_event()

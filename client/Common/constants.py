@@ -58,7 +58,7 @@ if not os.path.exists(res_dir):
 if not os.path.exists(res_dir):
     res_dir = 'D:/pygame/Res/'
 
-rsp_dir = res_dir + 'rsp_new/'
+rsp_dir = res_dir + 'rsp_new2/'
 data_dir = res_dir + 'data/'
 map_dir = res_dir + 'mapx/'
 font_dir = res_dir + 'font/'
@@ -161,6 +161,22 @@ NODE_LIST = [
     'BuffEffect', 'MagicEffect', 'FullScreenEffect', 'MapMask', 'Mouse', 'Portal', 'World'
 ]
 
-# Prompt风格
-GAME_PROMPT = 0  # 系统提示
-CHAR_SPEECH = 1  # 玩家发言
+# Prompt相关
+GAME_PROMPT = 0  # 系统提示风格
+CHAR_SPEECH = 1  # 玩家发言风格
+PROMPT_MARGIN_X = 5  # 系统提示文字距离边框的距离
+PROMPT_MARGIN_Y = 5
+CHAR_SPEECH_PROMPT_WIDTH = 106
+PROMPT_WIDTH = {
+    CHAR_SPEECH: CHAR_SPEECH_PROMPT_WIDTH,
+    GAME_PROMPT: 300,
+}
+PROMPT_Y_SPACE = {
+    CHAR_SPEECH: 4,
+    GAME_PROMPT: 5,
+}  # 提示之间的间距
+PROMPT_TIMEOUT = {
+    CHAR_SPEECH: 10,
+    GAME_PROMPT: 5
+}  # 超时消失的时间
+

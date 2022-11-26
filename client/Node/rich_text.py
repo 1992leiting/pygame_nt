@@ -60,6 +60,7 @@ class RichText(Node):
         self.font_name = font_name  # 字体名称
         self.dx, self.dy = 0, 0  # 文本基于surface左上角偏移的坐标
         self.width, self.height = width, height
+        self.actual_width = 0  # 实际宽度,如果没满一行,实际宽度可能<self.width,如果多余一行则=self.width
         self.max_height = self.height  # 解析之后获得的最大高度值(用于调整dynamic/static_surface大小)
         self.surface = pygame.Surface((self.width, self.height), flags=pygame.SRCALPHA)  # 显示内容的surface
         self.static_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示静态元素的surface，如文字
@@ -239,6 +240,12 @@ class RichText(Node):
             self.static_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)
             self.dynamic_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)
             self.compose()
+
+        # 实际宽度
+        if self.total_line_num < 2:
+            self.actual_width = cur_width
+        else:
+            self.actual_width = self.width
 
     def draw(self):
         self.surface.fill((0, 0, 0, 0))
