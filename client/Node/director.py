@@ -24,7 +24,7 @@ class Director(Node):
     """
     def __init__(self):
         super(Director, self).__init__()
-        self.game_fps = 60
+        self.game_fps = 30
         self.window_w = 800
         self.window_h = 600
         self.screen = pygame.display.set_mode(self.window_size, 0, 32)

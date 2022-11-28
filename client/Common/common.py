@@ -137,14 +137,18 @@ def traverse_node(node):
     if len(children) > 0:
         # 遍历所有子节点并绘制
         for child in children.values():
-            if not child.enable:
-                break
-            child.update()
-            if child.visible:
-                child.draw()
-                if child.ysort:
-                    child.process_ysort()
-            traverse_node(child)
+            if child.enable:
+                child.update()
+                if child.visible:
+                    child.draw()
+                    if child.ysort:
+                        child.process_ysort()
+
+                    t = time.time()
+                    traverse_node(child)
+                    dt = int((time.time() - t) * 10000)
+                    _str = ' '.join(' - ' for _ in range(child.level)) + ' ' + child.node_name + ' ' + str(dt) + 'ms'
+                    print(_str)
 
 
 def traverse_node_reverse(node):

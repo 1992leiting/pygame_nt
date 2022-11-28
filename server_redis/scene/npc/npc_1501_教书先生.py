@@ -1,0 +1,46 @@
+
+from scene.scene_handler import NPC, scene_transfer
+from common.common import *
+import random
+
+class NPCX(NPC):
+    def __init__(self) -> None:
+        super().__init__()
+        self.npc_id = 150128
+        self.name = '教书先生'
+        self.title = '强化技能学习'
+        self.model = '书生'
+        self.mx, self.my = 77.0, 54.0
+        self.direction = 1
+        self.map_id = 1501
+        self.npc_type = '特殊'  # 普通, 商业, 特殊, 传送, 任务
+        self.dialogue = {
+            'contents':
+            [
+                '我是城里的教书先生，如果你不清楚接下来做些什么，我可以给你一些建议','黑发不知勤学早，白首方悔读书迟。少侠可不要荒废了学业','在我教过的学生里，雷黑子是最刻苦上进的一个。'
+                ],
+            'options':
+            [
+                '学习强化技能','我随便逛逛不好意思'
+                ]
+        }
+
+    def talk(self, pid, content=None, option=None):
+        """
+        NPC对话
+        """
+        cont = random.sample(self.dialogue['contents'], 1)
+        op = self.dialogue['options']
+
+        if content is not None:
+            cont = content
+        if option is not None:
+            op = option
+
+        send_data = {'模型': self.model, 'npc_id': self.npc_id, '名称': self.name, '对话': cont, '选项': op, '类型': 'npc'}
+        send2pid(pid, S_发送NPC对话, send_data)
+    
+    def response(self, pid, msg):
+        pass
+
+npc = NPCX()

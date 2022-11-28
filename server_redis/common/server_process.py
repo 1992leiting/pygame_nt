@@ -21,7 +21,7 @@ class Server:
         self.tmp_client_socket = {}  # 非服务器/非玩家的临时socket
         self.logged_socket = []  # 已经登陆的socket连接
 
-        self.npcs = []  # 所有的npc数据
+        # self.npcs = []  # 所有的npc数据
         self.npc_objects = {}  # 所有的npc对象, key:npc_id, value:NPC类
 
 

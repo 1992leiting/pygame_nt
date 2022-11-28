@@ -113,6 +113,6 @@ class Animation8D(Node):
                 self.cur_animation.is_playing = self.is_playing
                 self.width = self.cur_animation.width
                 self.height = self.cur_animation.height
-                child.visible = True
+                child.enable = True
             else:
-                child.visible = False
+                child.enable = False

@@ -1,3 +1,5 @@
+import time
+
 import pygame
 from numpy import rec
 from Common.constants import *
@@ -22,7 +24,7 @@ class Node:
         self.uuid = str(uuid4())  # 唯一标识符
         self._visible = True
         self._parent = None
-        self.enable = True
+        self._enable = True
         self._children = {}
         self.ori_x, self.ori_y = 0, 0  # 原始坐标, 相对于父节点的坐标
         self.press_x, self.press_y = 0, 0  # 鼠标按下时坐标
@@ -271,6 +273,17 @@ class Node:
     @visible.setter
     def visible(self, v):
         self._visible = v
+
+    @property
+    def enable(self):
+        if self._parent:
+            return self._enable and self._parent.enable
+        else:
+            return self._enable
+
+    @enable.setter
+    def enable(self, v):
+        self._enable = v
 
     """
     ysort时根据z值来排序

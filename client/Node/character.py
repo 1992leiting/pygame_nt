@@ -89,12 +89,14 @@ class BasicCharacter(Node):
             self.game_x = int(data['地图数据']['x'])
             self.game_y = int(data['地图数据']['y'])
         if 'x' in data:
-            if '.' in data['x']:
-                data['x'] = data['x'].split('.')[0]
+            if type(data['x']) == str:
+                if '.' in data['x']:
+                    data['x'] = data['x'].split('.')[0]
             self.game_x = int(data['x'])
         if 'y' in data:
-            if '.' in data['y']:
-                data['y'] = data['y'].split('.')[0]
+            if type(data['y']) == str:
+                if '.' in data['y']:
+                    data['y'] = data['y'].split('.')[0]
             self.game_y = int(data['y'])
         if 'mx' in data:
             # if '.' in data['mx']:
@@ -108,11 +110,14 @@ class BasicCharacter(Node):
             self.direction = int(data['方向'])
         if 'id' in data:
             self.id = int(data['id'])
+        if '染色' in data:
+            self.color_recipe = data['染色']
         # if '类型' in data:
         #     self.type = data['类型']
         self.setup()
 
     def setup(self):
+        print('setup char:', self.name)
         self.setup_basic()
 
     def set_fps(self, v):
@@ -216,26 +221,26 @@ class BasicCharacter(Node):
 
         if self.is_moving:
             if self.child('char_stand'):
-                self.child('char_stand').visible = False
+                self.child('char_stand').enable = False
             if self.child('weapon_stand'):
-                self.child('weapon_stand').visible = False
+                self.child('weapon_stand').enable = False
             if self.child('char_walk'):
-                self.child('char_walk').visible = True
+                self.child('char_walk').enable = True
                 self.cur_char_animation = self.child('char_walk').cur_animation
             if self.child('weapon_walk'):
-                self.child('weapon_walk').visible = True
+                self.child('weapon_walk').enable = True
                 self.cur_weapon_animation = self.child('weapon_walk').cur_animation
         else:
             if self.child('char_stand'):
-                self.child('char_stand').visible = True
+                self.child('char_stand').enable = True
                 self.cur_char_animation = self.child('char_stand').cur_animation
             if self.child('weapon_stand'):
-                self.child('weapon_stand').visible = True
+                self.child('weapon_stand').enable = True
                 self.cur_weapon_animation = self.child('weapon_stand').cur_animation
             if self.child('char_walk'):
-                self.child('char_walk').visible = False
+                self.child('char_walk').enable = False
             if self.child('weapon_walk'):
-                self.child('weapon_walk').visible = False
+                self.child('weapon_walk').enable = False
 
         # 染色
         if self.color_recipe != (0, 0, 0) and not self.cur_char_animation.is_modulated:
@@ -288,7 +293,7 @@ class BasicCharacter(Node):
         self.child('speech_prompt').y = self.y - self.height + 10
 
     def check_event(self):
-        super(BasicCharacter, self).check_event()
+        # super(BasicCharacter, self).check_event()
         if self.is_hover:
             # 左键按下事件要吸收掉
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
@@ -342,8 +347,11 @@ class Character(BasicCharacter):
                 self.child('name').center_y = self.y + 20
 
     def update(self):
+        # t = time.time()
         self.update_basic()
         self.update_character()
+        # dt = time.time() - t
+        # print('char update time: {}, {}ms'.format(self.name, dt * 1000))
 
         # if self.cur_char_animation:
         #     pygame.draw.rect(self.director.screen, (255, 255, 255), self.cur_char_animation.rect, 2)
@@ -355,7 +363,7 @@ class NPC(BasicCharacter):
         self.type = 'npc'
         self.shapes = shapes
 
-    def setup_hero(self):
+    def setup_npc(self):
         name = Label()
         name.text = self.name
         name.font_name = 'mod_AdobeSong.ttf'
@@ -377,9 +385,9 @@ class NPC(BasicCharacter):
 
     def setup(self):
         self.setup_basic()
-        self.setup_hero()
+        self.setup_npc()
 
-    def update_hero(self):
+    def update_npc(self):
         if self.title:
             self.child('title').center_x = self.x
             self.child('title').center_y = self.y + 20
@@ -392,8 +400,11 @@ class NPC(BasicCharacter):
                 self.child('name').center_y = self.y + 20
 
     def update(self):
+        # t = time.time()
         self.update_basic()
-        self.update_hero()
+        self.update_npc()
+        # dt = time.time() - t
+        # print('npc update time: {}, {}ms'.format(self.name, int(dt * 1000)))
 
 
 class BattleUnit(BasicCharacter):
@@ -405,7 +416,6 @@ class BattleUnit(BasicCharacter):
         self.shapes = bshapes
         self.h_speed = MOVING_SPEED * (60 // self.director.game_fps) * 15  # 保证速度不会因为fps变化而变化
         self.l_speed = self.h_speed / 10  # 高速/低速, 用于不同动作
-        self.speed = self.h_speed
         self.cur_action = '待战'
         self.is_ani_playing = True  # 动画是否在播放
         self.is_shaking = False  # 抖动

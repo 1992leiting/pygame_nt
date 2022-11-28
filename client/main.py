@@ -1,3 +1,5 @@
+import time
+
 from Node.director import game_director
 from Nt.nt_item import ConfigItem
 from Common.common import *
@@ -68,16 +70,23 @@ win2.visible = False
 wl.add_child('人物技能', win2)
 
 win2 = Dialog()
-win2.visible = True
+win2.visible = False
 wl.add_child('对话栏', win2)
 
 
 while True:
+    # print('---------')
+    # t = time.time()
     game.director.screen.fill((0, 0, 0))
     game.director.event_handler.update()
+    # t1 = time.time()
     game.director.update()
+    # t2 = time.time()
     traverse_node(game.director)
+    # t3 = time.time()
     traverse_node_reverse(game.director)
+    # t4 = time.time()
+    # print(int((t1 - t)*1000), int((t2 - t1)*1000), int((t3 - t2)*1000), int((t4 - t3)*1000))
 
     pygame.display.flip()
     clock.tick(game.director.game_fps)

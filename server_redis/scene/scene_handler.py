@@ -110,5 +110,6 @@ def player_speak(pid, ch, text):
             send2pid(_pid, S_角色发言显示, dict(player=pid, 内容=text))
 
 
-def scene_transfer():
-    pass
+def scene_transfer(pid, map_id, x, y):
+    send_data = dict(map_id=map_id, x=x, y=y)
+    send2pid(pid, S_地图传送, send_data)

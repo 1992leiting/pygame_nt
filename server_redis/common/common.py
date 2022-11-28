@@ -13,11 +13,11 @@ class NPC:
         self.npc_type = '普通'  # 0普通, 2商业, 3特殊, 4传送, 5任务
         self.dialogue = {'contents': ['你找我有事吗?', '欢迎来到梦幻西游~'], 'options': ['随便看看']}
 
-    def send_msg(self, pid, option=None):
+    def talk(self, pid, option=None):
         cont = random.sample(self.dialogue['contents'], 1)
         op = self.dialogue['options']
 
-        send_data = {'npc_id': self.npc_id, '对话': cont, '选项': op}
+        send_data = {'npc_id': self.npc_id, '对话': cont, '选项': op, '类型': 'npc'}
         send2pid(pid, S_发送NPC对话, send_data)
 
 
@@ -209,7 +209,7 @@ def get_filenames_in_path(path):
 
 
 # 获取所有NPC
-def import_npcs():
+def import_npc_objects():
     """
     根据NPC脚本加载NPC
     :return:
@@ -221,7 +221,8 @@ def import_npcs():
         for file in files:
             if not '__init__' in file and not 'npc_importer' in file and not '.pyc' in file and '.py' in file:
                 f.write('from scene.npc.{} import npc\n'.format(file.rstrip('.py')))
-                f.write('server.npcs.append(npc)\n')
+                _str = 'server.npc_objects[\'{}\'] = {}'.format(file.rstrip('.py'), 'npc')
+                f.write(_str + '\n')
     import scene.npc.npc_importer
 
 

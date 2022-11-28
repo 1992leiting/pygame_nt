@@ -70,9 +70,10 @@ class GameServer(threading.Thread):
         # print('game server recv:', msg)
 
         if cmd == C_更新坐标:
-            x, y = msg['x'], msg['y']
+            x, y, map_id = msg['x'], msg['y'], msg['mapid']
             rset(pid, CHAR, x, 'mx')
             rset(pid, CHAR, y, 'my')
+            rset(pid, CHAR, int(map_id), '地图')
         elif cmd == C_进入场景:
             map_id = msg['map_id']
             player_enter_scene(pid, map_id)
@@ -93,8 +94,18 @@ class GameServer(threading.Thread):
                 target_map = int(PORTALS[str(portal_id)]['目的地'])
                 target_x = int(PORTALS[str(portal_id)]['目的地x'])
                 target_y = int(PORTALS[str(portal_id)]['目的地y'])
-                send_data = dict(map_id=target_map, x=target_x, y=target_y)
-                send2pid(pid, S_地图传送, send_data)
+                # send_data = dict(map_id=target_map, x=target_x, y=target_y)
+                # send2pid(pid, S_地图传送, send_data)
+                scene_transfer(pid, target_map, target_x, target_y)
+        elif cmd == C_对话选项:
+            print('对话选项:', msg)
+            map_id = msg['map_id']  # 对话发生时的地图id
+            name = msg['name']  # 对话对象的名称
+            option = msg['option']
+            id = msg['id']
+            dialog_type = msg['type']
+            if dialog_type == 'npc':
+                trigger_npc_response(pid, id, option)
 
 
 def start_game_server():
@@ -107,7 +118,7 @@ def start_game_server():
     game_server.start()
 
     send2gw(GAME_SERVER_REGISTER_CMD, dict(uuid=game_server.uuid))
-    # import_npcs()
+    import_npc_objects()
 
 
 start_game_server()
