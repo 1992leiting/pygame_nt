@@ -27,6 +27,7 @@ class Dialog(Window):
         self.setup()
 
     def show(self, model: str, name: str, id, text: str, options: list, type):
+        self.enable = False
         self.char_model = model
         self.char_name = name
         self.char_id = id
@@ -41,7 +42,10 @@ class Dialog(Window):
         super(Dialog, self).setup()
         # 大头像
         head = Animation8D()
-        fill_res(head, head_image[self.char_model]['大头像文件'], head_image[self.char_model]['大头像'])
+        if self.char_model in head_image:
+            fill_res(head, head_image[self.char_model]['大头像文件'], head_image[self.char_model]['大头像'])
+        else:
+            print('头像未找到:', self.char_model)
         head.x, head.y = 20, -head.height
         self.add_child('head_image', head)
         # 阴影

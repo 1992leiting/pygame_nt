@@ -110,10 +110,17 @@ class World(Node):
         map_jpg.image = self.director.mapx.jpg
         self.add_child('mapjpg', map_jpg)
         # NPC
-        for npc_id, npc_data in game.npcs.items():
-            if int(npc_data['地图']) == self.director.mapx.map_id:
-                npc_data['id'] = int(npc_id)
-                self.add_npc(npc_data)
+        # --旧版NPC配置
+        # for npc_id, npc_data in game.npcs.items():
+        #     if int(npc_data['地图']) == self.director.mapx.map_id:
+        #         npc_data['id'] = int(npc_id)
+        #         self.add_npc(npc_data)
+        # --BH NPC配置
+        for npc_id, data in game.npcs.items():
+            if data['地图'] and int(data['地图']) == self.director.mapx.map_id:
+                npc_id = int(npc_id)
+                data['id'] = npc_id
+                self.add_npc(data)
         # TODO: test
         # if map_id == 1001:
         #     for _ in range(100):

@@ -105,8 +105,10 @@ class SocketClient:
             game.npcs = msg['内容']
             # print('所有NPC:', game.npcs)
         elif cmd == S_发送NPC对话:
-            print('npc对话:', msg)
+            # print('npc对话:', msg)
             npc_id = msg['npc_id']
+            if not msg['对话']:
+                msg['对话'] = ['...']
             if str(npc_id) in game.npcs:
                 npc = game.npcs[str(npc_id)]
                 game.director.dialog_window.show(npc['模型'], npc['名称'], npc_id, msg['对话'][0], msg['选项'], msg['类型'])

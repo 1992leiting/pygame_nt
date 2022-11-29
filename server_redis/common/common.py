@@ -5,20 +5,83 @@ import time
 import os
 import random
 from common.socket_id import *
+from common.constants import *
+
+
+# class NPC:
+#     def __init__(self):
+#         self.npc_id = 0
+#         self.npc_type = '普通'  # 0普通, 2商业, 3特殊, 4传送, 5任务
+#         self.dialogue = {'contents': ['你找我有事吗?', '欢迎来到梦幻西游~'], 'options': ['随便看看']}
+#
+#     def talk(self, pid, option=None):
+#         cont = random.sample(self.dialogue['contents'], 1)
+#         op = self.dialogue['options']
+#
+#         send_data = {'npc_id': self.npc_id, '对话': cont, '选项': op, '类型': 'npc'}
+#         send2pid(pid, S_发送NPC对话, send_data)
 
 
 class NPC:
-    def __init__(self):
-        self.npc_id = 0
-        self.npc_type = '普通'  # 0普通, 2商业, 3特殊, 4传送, 5任务
-        self.dialogue = {'contents': ['你找我有事吗?', '欢迎来到梦幻西游~'], 'options': ['随便看看']}
+    def __init__(self, id) -> None:
+        self.npc_id = id
+        self.map_id = 0
+        self.name = '未知'
+        self.title = ''
+        self.model = '泡泡'
+        self.x, self.y = 0, 0
+        self.direction = 0
+        self.npc_type = '普通'
+        self.contents = []
+        self.options = []
+        self.team_trigger = False
 
-    def talk(self, pid, option=None):
-        cont = random.sample(self.dialogue['contents'], 1)
-        op = self.dialogue['options']
+    def setup(self):
+        """
+        根据npc_id从excel加载数据
+        :return:
+        """
+        my_npc_data = BH_NPC_DATA[self.npc_id]
+        self.name = my_npc_data['名称']
+        self.model = my_npc_data['模型']
+        self.x = int(my_npc_data['X'])
+        self.y = int(my_npc_data['Y'])
+        self.direction = int(my_npc_data['方向'])
+        self.npc_type = my_npc_data['事件']
+        self.title = my_npc_data['称谓']
+        self.contents = parse_cell(my_npc_data['对话'])
+        self.options = parse_cell(my_npc_data['选项'])
+        self.team_trigger = my_npc_data['队伍']
+        self.map_id = my_npc_data['地图']
+
+    def send(self, pid, contents: list = None, options: list = None):
+        """
+        NPC发送对话
+        :param pid:
+        :param contents:
+        :param options:
+        :return:
+        """
+        if contents:
+            cont = contents
+        else:
+            cont = self.contents
+        if options:
+            op = options
+        else:
+            op = self.options
 
         send_data = {'npc_id': self.npc_id, '对话': cont, '选项': op, '类型': 'npc'}
         send2pid(pid, S_发送NPC对话, send_data)
+
+    def response(self, pid, msg):
+        """
+        根据点选的msg回应
+        :param pid:
+        :param msg:
+        :return:
+        """
+        pass
 
 
 def send(sk, cmd: str, send_data: dict):
@@ -206,6 +269,18 @@ def get_filenames_in_path(path):
             for file in files:
                 filenames.append(file)
     return filenames
+
+
+def load_npc_objects():
+    """
+    从excel加载所有NPC对象
+    :return:
+    """
+    from common.server_process import server
+    for npc_id in BH_NPC_DATA.keys():
+        npc = NPC(npc_id)
+        npc.setup()
+        server.npc_objects[npc_id] = npc
 
 
 # 获取所有NPC

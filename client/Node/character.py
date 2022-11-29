@@ -98,6 +98,16 @@ class BasicCharacter(Node):
                 if '.' in data['y']:
                     data['y'] = data['y'].split('.')[0]
             self.game_y = int(data['y'])
+        if 'X' in data:
+            if type(data['X']) == str:
+                if '.' in data['X']:
+                    data['X'] = data['X'].split('.')[0]
+            self.game_x = int(data['X'])
+        if 'Y' in data:
+            if type(data['Y']) == str:
+                if '.' in data['Y']:
+                    data['Y'] = data['Y'].split('.')[0]
+            self.game_y = int(data['Y'])
         if 'mx' in data:
             # if '.' in data['mx']:
             #     data['mx'] = data['mx'].split('.')[0]
@@ -300,7 +310,7 @@ class BasicCharacter(Node):
                 pass
             # 左键弹起则触发点击事件
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
-                print('点击人物:', self.name, self.id)
+                # print('点击人物:', self.name, self.id)
                 if self.type == 'npc':
                     send(C_点击NPC, dict(id=self.id))
 

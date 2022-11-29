@@ -118,7 +118,8 @@ def start_game_server():
     game_server.start()
 
     send2gw(GAME_SERVER_REGISTER_CMD, dict(uuid=game_server.uuid))
-    import_npc_objects()
+    load_npc_objects()
+    # import_npc_objects()
 
 
 start_game_server()
