@@ -6,7 +6,7 @@ import tkinter.messagebox as mb
 import time
 import pygame
 from Node.node import Node
-from Nt.nt_item import ConfigItem
+# from Nt.nt_item import ConfigItem
 import csv
 from Common.constants import game
 
@@ -108,16 +108,16 @@ def new_node(node_type, *args):
         raise KeyError('未知节点类型:{}'.format(node_type))
 
 
-def traverse_config_item(config_item: ConfigItem, node: Node):
-    node.node_name = config_item.node_name
-    node.uuid = config_item.node_uuid
-    if config_item.children:
-        for name, child_config_item in config_item.children.items():
-            child_node = new_node(child_config_item.node_type)
-            child_node.node_name = child_config_item.node_name
-            child_node.uuid = child_config_item.node_uuid
-            node.add_child(child_config_item.node_name, child_node)
-            traverse_config_item(child_config_item, child_node)
+# def traverse_config_item(config_item: ConfigItem, node: Node):
+#     node.node_name = config_item.node_name
+#     node.uuid = config_item.node_uuid
+#     if config_item.children:
+#         for name, child_config_item in config_item.children.items():
+#             child_node = new_node(child_config_item.node_type)
+#             child_node.node_name = child_config_item.node_name
+#             child_node.uuid = child_config_item.node_uuid
+#             node.add_child(child_config_item.node_name, child_node)
+#             traverse_config_item(child_config_item, child_node)
 
 
 def traverse_node(node):
@@ -144,11 +144,11 @@ def traverse_node(node):
                     if child.ysort:
                         child.process_ysort()
 
-                    t = time.time()
+                    # t = time.time()
                     traverse_node(child)
-                    dt = int((time.time() - t) * 10000)
-                    _str = ' '.join(' - ' for _ in range(child.level)) + ' ' + child.node_name + ' ' + str(dt) + 'ms'
-                    print(_str)
+                    # dt = int((time.time() - t) * 100000)
+                    # _str = ' '.join(' - ' for _ in range(child.level)) + ' ' + child.node_name + ' ' + str(dt) + 'ms'
+                    # print(_str)
 
 
 def traverse_node_reverse(node):

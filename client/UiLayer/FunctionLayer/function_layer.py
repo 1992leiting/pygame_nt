@@ -19,5 +19,5 @@ class FunctionLayer(Node):
         message_area = MessageArea()
         self.add_child('message_area', message_area)
         emoji_window = EmojiWindow()
-        emoji_window.visible = False
+        emoji_window.enable = False
         self.add_child('emoji_window', emoji_window)

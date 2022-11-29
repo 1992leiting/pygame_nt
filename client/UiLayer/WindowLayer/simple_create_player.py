@@ -9,7 +9,7 @@ from Common.common import *
 class SimpleCreatePlayer(Window):
     def __init__(self):
         super(SimpleCreatePlayer, self).__init__()
-        self.visible = False
+        self.enable = False
         self.window_title = '简易创建角色'
         self.width, self.height = 300, 300
         self.setup()

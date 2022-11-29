@@ -15,10 +15,10 @@ class Portal(Animation8D):
     def update(self):
         # 减小传送阵rect范围, 主角走到传送阵上才触发传送
         self._rect = self.cur_animation.rect
-        self._rect.x += 30
-        self._rect.y += 15
-        self._rect.width -= 60
-        self._rect.height -= 30
+        self._rect.x += 20
+        self._rect.y += 10
+        self._rect.width -= 40
+        self._rect.height -= 20
         # pygame.draw.rect(self.director.screen, (255, 255, 255), self._rect, 2)
 
         hero = game.hero

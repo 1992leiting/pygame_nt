@@ -43,8 +43,8 @@ class PromptManager(ImageRect):
             else:
                 pt.x, pt.y = _x, _y
 
-        # for _, child in self.get_children().items():
-        #     child.setup_outline()
+        for _, child in self.get_children().items():
+            child.setup_outline()
 
     def check_event(self):
         super(PromptManager, self).check_event()

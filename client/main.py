@@ -46,31 +46,31 @@ game.window_layer = wl
 
 win = SimpleLogin()
 wl.add_child('简易登陆', win)
-win.visible = True
+win.enable = True
 
 win = SimpleRegister()
 wl.add_child('简易注册', win)
-win.visible = False
+win.enable = False
 
 win = SimpleHeroSelect()
 wl.add_child('简易选择角色', win)
-win.visible = False
+win.enable = False
 
 win = SimpleCreatePlayer()
 wl.add_child('简易创建角色', win)
-win.visible = False
+win.enable = False
 
 #
 win = HeroAttr()
-win.visible = False
+win.enable = False
 wl.add_child('人物属性', win)
 
 win2 = HeroSkill()
-win2.visible = False
+win2.enable = False
 wl.add_child('人物技能', win2)
 
 win2 = Dialog()
-win2.visible = False
+win2.enable = False
 wl.add_child('对话栏', win2)
 
 

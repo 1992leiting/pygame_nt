@@ -115,19 +115,19 @@ class World(Node):
                 npc_data['id'] = int(npc_id)
                 self.add_npc(npc_data)
         # TODO: test
-        if map_id == 1001:
-            for _ in range(100):
-                npx = {}
-                npx['x'] = random.randint(210, 240)
-                npx['y'] = random.randint(110, 130)
-                npx['模型'] = random.sample(HERO_MODELS, 1)[0]
-                pal = [(0, 0, 0), (1, 1, 0), (2, 2, 0), (3, 3, 0)]
-                npx['染色'] = random.sample(pal, 1)[0]
-                _id = random.randint(10000, 99999)
-                npx['id'] = _id
-                npx['名称'] = '名字{}'.format(_id)
-                npx['方向'] = random.randint(0, 7)
-                self.add_player(npx)
+        # if map_id == 1001:
+        #     for _ in range(100):
+        #         npx = {}
+        #         npx['x'] = random.randint(210, 240)
+        #         npx['y'] = random.randint(110, 130)
+        #         npx['模型'] = random.sample(HERO_MODELS, 1)[0]
+        #         pal = [(0, 0, 0), (1, 1, 0), (2, 2, 0), (3, 3, 0)]
+        #         npx['染色'] = random.sample(pal, 1)[0]
+        #         _id = random.randint(10000, 99999)
+        #         npx['id'] = _id
+        #         npx['名称'] = '名字{}'.format(_id)
+        #         npx['方向'] = random.randint(0, 7)
+        #         self.add_player(npx)
 
         # 传送阵
         for pid, portal in portals.items():
@@ -138,10 +138,11 @@ class World(Node):
                 p.game_x, p.game_y = int(float(portal['原地图x'])), int(float(portal['原地图y']))
                 self.add_child('portal_' + str(pid), p)
         # 遮罩
-        # for mask in self.director.mapx.masks:
-        #     self.add_child('mapmask_' + str(mask.id), mask)
+        for mask in self.director.mapx.masks:
+            self.add_child('mapmask_' + str(mask.id), mask)
 
         self.change_state(self.director.is_in_battle)
+        self.director.is_hero_in_portal = False
 
     def remove_map_jpg(self):
         self.remove_child('mapjpg')
@@ -237,7 +238,6 @@ class World(Node):
                     self.director.client.send(C_发送路径, dict(路径=path))
 
     def update(self):
-        # t = time.time()
         if self.director.is_in_battle:
             return
         # 更新主角坐标
@@ -247,19 +247,18 @@ class World(Node):
         # 距离主角一定范围内才显示
         hero = game.hero
 
-        # cnt = 0
         for child_name in self.get_children().copy().keys():
             child = self.child(child_name)
             if child != hero:
-                # if type(child) == NPC or type(child) == Character or type(child) == NPC or type(child) == MapMask:
-                if 'mask_' in child_name or 'player_' in child_name or 'npc_' in child_name:
+                if 'player_' in child_name or 'npc_' in child_name:
                     dis = math.dist((child.map_x, child.map_y), (hero.map_x, hero.map_y))
-                    if dis < 400:
-                        # if 'npc_' in child_name:
-                        #     cnt += 1
+                    if dis < 600:
                         child.enable = True
-                    if dis > 450:
+                    if dis > 650:
                         child.enable = False
-        # print('world child cnt:', cnt)
-        # dt = int((time.time() - t) * 1000)
-        # print('world update: {}ms'.format(dt))
+                if 'mask_' in child_name:
+                    dis = math.dist((child.map_x + child.width//2, child.map_y + child.height//2), (hero.map_x, hero.map_y))
+                    if dis < 600:
+                        child.enable = True
+                    if dis > 650:
+                        child.enable = False

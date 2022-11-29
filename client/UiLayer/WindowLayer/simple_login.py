@@ -8,7 +8,7 @@ from Common.socket_id import *
 class SimpleLogin(Window):
     def __init__(self):
         super(SimpleLogin, self).__init__()
-        self.visible = False
+        self.enable = False
         self.window_title = '简易登陆'
         self.width, self.height = 300, 300
         self.setup()

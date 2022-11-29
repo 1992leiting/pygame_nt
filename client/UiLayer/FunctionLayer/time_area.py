@@ -31,7 +31,7 @@ class TimeArea(Node):
                                                 'top_left_y': 32})
         self.add_child('night_bg', 夜晚背景)
         self.child('night_bg').crop(0, 0, 80, 30)
-        self.child('night_bg').visible = False
+        self.child('night_bg').enable = False
 
         背景 = set_node_attr(ImageRect(), {'rsp_file': 'wzife.rsp',
                                                  'hash_id': 0xDE3F48B7,
@@ -50,7 +50,7 @@ class TimeArea(Node):
                                                   'top_left_x': 58,
                                                   'top_left_y': 60})
         self.add_child('runner', 奔跑小人)
-        self.child('runner').visible = False
+        self.child('runner').enable = False
 
         label_hms = Label()
         label_hms.size = 13

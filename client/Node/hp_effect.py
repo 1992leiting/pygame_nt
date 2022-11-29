@@ -52,7 +52,7 @@ class HpEffect(Node):
             child.y += self.get_offset(self.i - k * 2)
             if self.i - k * 2 >= len(offset) + 25:
                 # self.remove_self()
-                self.visible= False
+                self.visible = False
                 return
 
         self.i += 1

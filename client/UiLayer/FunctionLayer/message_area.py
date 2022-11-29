@@ -98,7 +98,7 @@ class MessageArea(Node):
             self.child('表情开关').is_playing = True
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
                 emoji_window = self.director.get_node('function_layer/emoji_window')
-                emoji_window.visible = not emoji_window.visible
+                emoji_window.enable = not emoji_window.enable
         else:
             self.child('表情开关').is_playing = False
             self.child('表情开关').cur_animation.frame_index = 0

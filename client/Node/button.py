@@ -122,7 +122,7 @@ class ButtonClassicClose(Button):
         super(ButtonClassicClose, self).check_event()
         if self.event and self.get_parent():
             print('close event')
-            self.get_parent().visible = False
+            self.get_parent().enable = False
 
 
 class ButtonClassicRed(Button):

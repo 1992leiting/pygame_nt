@@ -174,7 +174,7 @@ PROMPT_WIDTH = {
 }
 PROMPT_Y_SPACE = {
     CHAR_SPEECH: 4,
-    GAME_PROMPT: 5,
+    GAME_PROMPT: 7,
 }  # 提示之间的间距
 PROMPT_TIMEOUT = {
     CHAR_SPEECH: 10,

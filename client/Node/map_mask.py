@@ -19,5 +19,5 @@ class MapMask(Node):
     def draw(self):
         if self.img:
             self.director.screen.blit(self.img, (self.x - self.kx, self.y - self.ky))
-        # pygame.draw.circle(self.director.screen, (255, 0, 0), (self.x, self.y), 5)
+        # pygame.draw.circle(self.director.screen, (255, 0, 0), (self.x + self.width//2, self.y + self.height//2), 5)
         # pygame.draw.rect(self.director.screen, (255, 255, 0), self.rect, 2)

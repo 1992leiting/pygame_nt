@@ -12,7 +12,7 @@ from Common.socket_id import *
 class Dialog(Window):
     def __init__(self):
         super(Dialog, self).__init__()
-        self.visible = False
+        self.enable = False
         self.window_title = '对话栏'
         self.width, self.height = 550, 178
         self.x = self.director.window_w - self.width
@@ -34,7 +34,7 @@ class Dialog(Window):
         self.options = options
         self.dialog_type = type
         self.setup()
-        self.visible = True
+        self.enable = True
 
     def setup(self):
         from Game.res_manager import fill_res
@@ -82,9 +82,9 @@ class Dialog(Window):
     def check_event(self):
         super(Dialog, self).check_event()
         if self.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
-            self.visible = False
+            self.enable = False
         for op in self.child('option_area').get_children().values():
             if op.event:
                 print('对话选项点击:', op.text)
                 send(C_对话选项, dict(map_id=game.world.map_id, name=self.char_name, id=self.char_id, option=op.text, type=self.dialog_type))
-                self.visible = False
+                self.enable = False

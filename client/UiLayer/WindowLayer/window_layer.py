@@ -166,7 +166,7 @@ class Window(Node):
         # 右键点击关闭
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
-                self.visible = False
+                self.enable = False
 
         for child in self.get_children().values():
             # 点击子节点也激活自身
@@ -221,11 +221,11 @@ class WindowLayer(Node):
             win = self.child(win)
         # visible为None时切换可视状态, 指定visible可以指定可视状态
         if visible is None:
-            visible = not win.visible
-        win.visible = visible
+            visible = not win.enable
+        win.enable = visible
 
         # 若窗口变为可视则加入队列, 且提升到最高层级
-        if win.visible:
+        if win.enable:
             self.set_active_window(win.window_name)
 
     def check_event(self):

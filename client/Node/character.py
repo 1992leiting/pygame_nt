@@ -347,11 +347,8 @@ class Character(BasicCharacter):
                 self.child('name').center_y = self.y + 20
 
     def update(self):
-        # t = time.time()
         self.update_basic()
         self.update_character()
-        # dt = time.time() - t
-        # print('char update time: {}, {}ms'.format(self.name, dt * 1000))
 
         # if self.cur_char_animation:
         #     pygame.draw.rect(self.director.screen, (255, 255, 255), self.cur_char_animation.rect, 2)

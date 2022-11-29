@@ -6,7 +6,7 @@ from Common.constants import *
 class HeroAttr(Window):
     def __init__(self):
         super(HeroAttr, self).__init__()
-        self.visible = False
+        self.enable = False
         self.window_title = '人物状态'
         self.width, self.height = 258, 454
         self.x = self.director.window_w - self.width
