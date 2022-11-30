@@ -3,6 +3,7 @@ from Node.image_rect import ImageRect
 from Node.rich_text import RichText
 import time
 from Common.constants import *
+import pygame
 
 
 class PromptManager(ImageRect):
@@ -43,9 +44,6 @@ class PromptManager(ImageRect):
             else:
                 pt.x, pt.y = _x, _y
 
-        for _, child in self.get_children().items():
-            child.setup_outline()
-
     def check_event(self):
         super(PromptManager, self).check_event()
         self.visible = self._children
@@ -63,11 +61,12 @@ class GamePrompt(ImageRect):
     """
     系统提示
     """
-    def __init__(self, txt='默认提示...', style=GAME_PROMPT, x=0, y=0):
+    def __init__(self, txt='默认提示...', style=GAME_PROMPT, x=0, y=0, font_size=14):
         super(GamePrompt, self).__init__()
         print('prompt item:', txt)
         self.time = time.time()
         self.text = txt
+        self.font_size = font_size
         self.x, self.y = x, y
         self.style = style
         self.rsp_file = 'wzife4.rsp'
@@ -79,13 +78,15 @@ class GamePrompt(ImageRect):
             self.default_color = '#W'
             self.x, self.y = 0, 0
         else:
-            # 系统提示, 等
+            # 系统提示, 悬浮提示, 等
             self.default_color = '#Y'
         self.is_hover_enabled = True
-
-        self.rich_text = RichText(width=PROMPT_WIDTH[self.style])
+        self.add_child('rich_text', RichText(width=PROMPT_WIDTH[self.style], font_size=self.font_size))
         self.rich_text.ori_x, self.rich_text.ori_y = PROMPT_MARGIN_X, PROMPT_MARGIN_Y
-        self.add_child('rich_text', self.rich_text)
+
+    @property
+    def rich_text(self):
+        return self.child('rich_text')
 
     def setup(self):
         super(GamePrompt, self).setup()  # 填充背景
@@ -97,10 +98,15 @@ class GamePrompt(ImageRect):
         if self.style == CHAR_SPEECH:
             self.width = min(self.width, PROMPT_WIDTH[self.style] + PROMPT_MARGIN_X * 2)
             self.ori_x += (PROMPT_WIDTH[self.style] - self.width)//2
+        elif self.style == FLOATING_PROMPT:
+            self.width = self.width
         else:
             self.width = max(self.width, PROMPT_WIDTH[self.style])
         self.auto_sizing()
-        # self.setup_outline((255, 255, 255))  # 添加outline
+
+        # outline
+        if self.style in [GAME_PROMPT, FLOATING_PROMPT]:
+            self.setup_outline()
 
     def check_event(self):
         super(GamePrompt, self).check_event()
@@ -108,3 +114,25 @@ class GamePrompt(ImageRect):
             print('gp右键')
             self.remove_self()
             self.director.gp_manager.compose()
+
+
+class FloatingPrompt(GamePrompt):
+    def __init__(self):
+        super(FloatingPrompt, self).__init__(style=FLOATING_PROMPT, font_size=16)
+        self.add_child('rich_text', RichText(font_size=self.font_size, h_center=True))
+        self.rich_text.ori_x, self.rich_text.ori_y = PROMPT_MARGIN_X, PROMPT_MARGIN_Y
+        self.text = ''
+        self.is_hover_enabled = False
+        self.setup()
+
+    def show(self, text):
+        self.enable = True
+        # if text != self.text:
+        self.text = text
+        self.setup()
+
+    def update(self):
+        super(FloatingPrompt, self).update()
+        mpos = pygame.mouse.get_pos()
+        self.x, self.y = mpos[0] - 20, mpos[1] - 20
+

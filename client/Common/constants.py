@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 
 class Game:
@@ -26,6 +27,10 @@ class Game:
     @property
     def world_msg_flow(self):
         return self.director.get_node('function_layer/message_area/聊天区背景/信息流文本')
+
+    @property
+    def fp(self):
+        return self.director.child('floating_prompt')
 
 
 game = Game()
@@ -75,6 +80,12 @@ portals = csv2dict(data_dir + 'XA_portals.csv')
 colors = csv2dict(data_dir + 'color.csv')
 effects = csv2dict(data_dir + 'XA_effects.csv')
 head_image = csv2dict(data_dir + 'head_image.csv')
+bh_shapes = pd.read_excel(data_dir + 'BH_模型数据.xlsx', index_col='名称').fillna('').T.to_dict()
+max_shape_list = pd.read_excel(data_dir + 'max_hash对应表.xlsx', index_col='max_hash').T.to_dict()
+BH_NPC_FILE = data_dir + 'BH_NPC数据.xlsx'
+BH_MAP_FILE = data_dir + 'BH_地图数据.xlsx'
+BH_NPC_DATA = pd.read_excel(BH_NPC_FILE, index_col='地图编号').fillna('').T.to_dict()
+BH_MAP_DATA = pd.read_excel(BH_MAP_FILE, index_col='地图编号').fillna('').T.to_dict()
 # ashapes = pd.read_csv(data_dir + 'ashapes.csv', index_col='名称').T.to_dict()
 
 # 血量类型
@@ -165,12 +176,14 @@ NODE_LIST = [
 # Prompt相关
 GAME_PROMPT = 0  # 系统提示风格
 CHAR_SPEECH = 1  # 玩家发言风格
+FLOATING_PROMPT = 2  # 悬浮提示
 PROMPT_MARGIN_X = 5  # 系统提示文字距离边框的距离
 PROMPT_MARGIN_Y = 5
 CHAR_SPEECH_PROMPT_WIDTH = 106
 PROMPT_WIDTH = {
     CHAR_SPEECH: CHAR_SPEECH_PROMPT_WIDTH,
     GAME_PROMPT: 300,
+    FLOATING_PROMPT: 10
 }
 PROMPT_Y_SPACE = {
     CHAR_SPEECH: 4,

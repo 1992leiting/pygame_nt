@@ -47,8 +47,7 @@ class Window(Node):
         :param visible:
         :return:
         """
-        print('switch:', self.window_name, visible)
-        self._parent.switch_window(self, visible)
+        self.enable = visible
 
     def setup_win_config(self, file=None, given_node=None):
         """
@@ -222,7 +221,7 @@ class WindowLayer(Node):
         # visible为None时切换可视状态, 指定visible可以指定可视状态
         if visible is None:
             visible = not win.enable
-        win.enable = visible
+        win.switch(visible)
 
         # 若窗口变为可视则加入队列, 且提升到最高层级
         if win.enable:
@@ -234,3 +233,6 @@ class WindowLayer(Node):
         # alt W
         if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_w):
             self.switch_window(self.child('人物属性'))
+        # Tab
+        if self.director.match_kb_event(STOP, pygame.K_TAB):
+            self.switch_window(self.child('小地图'))

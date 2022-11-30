@@ -49,10 +49,13 @@ class BasicCharacter(Node):
         if self.director.node_hover == self:
             self.director.node_hover = None
         if self.director.node_hover is None and self.mask_rect.collidepoint(pos):
-            color = self.cur_char_animation.cur_frame.get_at(rect_pos)
-            if color != (0, 0, 0, 0):
-                self.is_hover = True
-                self.director.node_hover = self
+            if self.cur_char_animation:
+                color = self.cur_char_animation.cur_frame.get_at(rect_pos)
+                if color != (0, 0, 0, 0):
+                    self.is_hover = True
+                    self.director.node_hover = self
+                else:
+                    self.is_hover = False
             else:
                 self.is_hover = False
         else:
@@ -158,40 +161,38 @@ class BasicCharacter(Node):
             weapon_index = self.weapon + "_" + self.model
 
         self.setup_ui()
-        if model_index in self.shapes:
-            ani_char = Animation8D()
-            fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['静立']))
-            ani_char.set_fps(7)
-            self.add_child('char_stand', ani_char)
-        else:
-            print('shapes不存在1: ', model_index)
+        ani_char = Animation8D()
+        # fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['静立']))
+        _rsp, _hash = get_normal_shape_res_hash(model_index, '静立', self.shapes)
+        fill_animation8d(ani_char, _rsp, _hash)
+        ani_char.set_fps(7)
+        self.add_child('char_stand', ani_char)
 
         self.width = self.child('char_stand').width
         self.height = self.child('char_stand').height
 
         if weapon_index and weapon_index != '':
-            if weapon_index in self.shapes:
-                ani_weapon = Animation8D()
-                fill_animation8d(ani_weapon, self.shapes[weapon_index]['资源'], int(self.shapes[weapon_index]['静立']))
-                ani_weapon.set_fps(7)
-                self.add_child('weapon_stand', ani_weapon)
-            else:
-                print('shapes不存在2: ', model_index)
-        if model_index in self.shapes:
-            ani_char = Animation8D()
-            fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['行走']))
-            ani_char.set_fps(18)
-            self.add_child('char_walk', ani_char)
-        else:
-            print('shapes不存在3: ', model_index)
+            ani_weapon = Animation8D()
+            # fill_animation8d(ani_weapon, self.shapes[weapon_index]['资源'], int(self.shapes[weapon_index]['静立']))
+            _rsp, _hash = get_normal_shape_res_hash(weapon_index, '静立', self.shapes)
+            fill_animation8d(ani_weapon, _rsp, _hash)
+            ani_weapon.set_fps(7)
+            self.add_child('weapon_stand', ani_weapon)
+
+        ani_char = Animation8D()
+        # fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['行走']))
+        _rsp, _hash = get_normal_shape_res_hash(model_index, '行走', self.shapes)
+        fill_animation8d(ani_char, _rsp, _hash)
+        ani_char.set_fps(18)
+        self.add_child('char_walk', ani_char)
+
         if weapon_index and weapon_index != '':
-            if weapon_index in self.shapes:
-                ani_weapon = Animation8D()
-                fill_animation8d(ani_weapon, self.shapes[weapon_index]['资源'], int(self.shapes[weapon_index]['行走']))
-                ani_weapon.set_fps(18)
-                self.add_child('weapon_walk', ani_weapon)
-            else:
-                print('shapes不存在4: ', model_index)
+            ani_weapon = Animation8D()
+            # fill_animation8d(ani_weapon, self.shapes[weapon_index]['资源'], int(self.shapes[weapon_index]['行走']))
+            _rsp, _hash = get_normal_shape_res_hash(weapon_index, '行走', self.shapes)
+            fill_animation8d(ani_weapon, _rsp, _hash)
+            ani_weapon.set_fps(18)
+            self.add_child('weapon_walk', ani_weapon)
 
         shadow = ImageRect()
         fill_image_rect(shadow, 'shape.rsp', 3705976162)

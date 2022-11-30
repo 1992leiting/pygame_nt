@@ -337,6 +337,7 @@ def fill_animation8d(ani8d, rsp_file, hash_id):
 def fill_image_rect(img, rsp_file, hash_id):
     res = read_rsp(rsp_file, hash_id)
     img.image = res.frames[0][0]
+    img.raw_image = img.image.copy()
     img.kx, img.ky = res.kx, res.ky
     # 没有指定宽高则取素材宽高, 否则进行裁切
     crop = False

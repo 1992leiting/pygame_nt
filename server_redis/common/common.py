@@ -141,14 +141,17 @@ def sprint(text: str, tp='info'):
 
 def dict2file(data: dict, file: str):
     """
-    将字典保存成json文件
+    将字典保存成json文件(先存临时文件)
     :param data:
     :param file:
     :return:
     """
+    tmp_file = file + '_tmp'
     data_str = json.dumps(data, indent=4, ensure_ascii=False)
-    with open(file, 'w', encoding='utf-8') as f:
+    with open(tmp_file, 'w', encoding='utf-8') as f:
         f.write(data_str)
+    os.remove(file)
+    os.rename(tmp_file, file)
 
 
 def file2dict(file) -> dict:

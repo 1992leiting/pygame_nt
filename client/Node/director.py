@@ -11,6 +11,7 @@ from Common.socket_id import *
 from Node.world import World
 from Node.character import Character
 from UiLayer.FunctionLayer.function_layer import FunctionLayer
+from Node.prompt import FloatingPrompt
 
 
 pygame.init()
@@ -84,6 +85,7 @@ class Director(Node):
         self.add_child('window_layer', Node())
         self.add_child('floating_layer', Node())
         self.add_child('mouse', new_node('Mouse'))
+        self.add_child('floating_prompt', FloatingPrompt())
 
     def start_game(self):
         # 设置窗口标题

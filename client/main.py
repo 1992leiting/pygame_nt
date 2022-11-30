@@ -18,6 +18,7 @@ from UiLayer.WindowLayer.simple_register import SimpleRegister
 from UiLayer.WindowLayer.simple_hero_select import SimpleHeroSelect
 from UiLayer.WindowLayer.simple_create_player import SimpleCreatePlayer
 from UiLayer.WindowLayer.dialog import Dialog
+from UiLayer.WindowLayer.smap import Smap
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -29,17 +30,6 @@ game.director = game_director
 game.director.add_child('gp_manager', PromptManager())
 print_node(game.director)
 
-# world = director.get_node('scene/world_scene')
-# world.change_map(1092)
-# camera = director.get_node('scene/world_scene/camera')
-#
-# hero = world.get_node('hero')
-# hero.setup()
-# hero.x, hero.y = 300, 300
-#
-# fl = FunctionLayer()
-# director.add_child('function_layer', fl)
-#
 wl = WindowLayer()
 game.director.add_child('window_layer', wl)
 game.window_layer = wl
@@ -73,21 +63,21 @@ win2 = Dialog()
 win2.enable = False
 wl.add_child('对话栏', win2)
 
+win2 = Smap()
+win2.enable = False
+wl.add_child('小地图', win2)
+
 
 while True:
-    # print('---------')
-    # t = time.time()
     game.director.screen.fill((0, 0, 0))
     game.director.event_handler.update()
-    # t1 = time.time()
     game.director.update()
-    # t2 = time.time()
     traverse_node(game.director)
-    # t3 = time.time()
     traverse_node_reverse(game.director)
-    # t4 = time.time()
-    # print(int((t1 - t)*1000), int((t2 - t1)*1000), int((t3 - t2)*1000), int((t4 - t3)*1000))
 
     pygame.display.flip()
     clock.tick(game.director.game_fps)
+
+    # if game.fp:
+    #     game.fp.enable = False
 
