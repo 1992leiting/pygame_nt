@@ -369,6 +369,7 @@ class NPC(BasicCharacter):
     def __init__(self):
         super(NPC, self).__init__()
         self.type = 'npc'
+        self.npc_type = '普通'
         self.shapes = shapes
 
     def setup_npc(self):
@@ -394,6 +395,13 @@ class NPC(BasicCharacter):
     def setup(self):
         self.setup_basic()
         self.setup_npc()
+
+    def set_data(self, data):
+        super(NPC, self).set_data(data)
+        if '事件' in data:
+            self.npc_type = data['事件']
+        if '类型' in data:
+            self.npc_type = data['类型']
 
     def update_npc(self):
         if self.title:

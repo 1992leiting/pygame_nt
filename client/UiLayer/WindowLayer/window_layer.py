@@ -234,5 +234,9 @@ class WindowLayer(Node):
         if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_w):
             self.switch_window(self.child('人物属性'))
         # Tab
-        if self.director.match_kb_event(STOP, pygame.K_TAB):
-            self.switch_window(self.child('小地图'))
+        if self.director.match_kb_event(STOP, pygame.K_TAB) and game.director.mapx:
+            smap_hash = BH_MAP_DATA[game.world.map_id]['小地图']
+            if not smap_hash:
+                game.director.gp_manager.append('当前场景无法查看小地图')
+            else:
+                self.switch_window(self.child('小地图'))

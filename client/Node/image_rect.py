@@ -3,7 +3,7 @@ from Node.node import Node
 
 
 class ImageRect(Node):
-    def __init__(self):
+    def __init__(self, with_mask=False):
         super(ImageRect, self).__init__()
         self.ori_image = None  # 原始的素材image, 未裁切
         self.image = None  # pygame.image
@@ -16,6 +16,12 @@ class ImageRect(Node):
         self.is_hover_enabled = False
         self.rsp_file = ''
         self.hash_id = 0
+        self.modulation = None
+        if with_mask:
+            # 添加一个mask层, 实现遮罩效果
+            node = ImageRect().from_color((0, 0, 0, 0))
+            node.is_hover_enabled = False
+            self.add_child('mask', node)
 
     def setup(self):
         if self.rsp_file and self.hash_id:
@@ -62,6 +68,20 @@ class ImageRect(Node):
         from Common.common import auto_sizing
         self.image = auto_sizing(self.raw_image, w, h, margin)
         self.width, self.height = w, h
+
+    def set_modulation(self, rgba):
+        mask = self.child('mask')
+        print('img mudl:', rgba, mask)
+        if mask:
+            mask.auto_sizing(self.width, self.height)
+            mask.image.fill(rgba)
+            self.modulation = rgba
+
+    def reset_modulation(self):
+        if self.modulation:
+            mask = self.child('mask')
+            mask.fill((0, 0, 0, 0))
+            self.modulation = None
 
     def draw(self):
         if not self.disp_image:

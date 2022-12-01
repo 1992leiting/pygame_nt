@@ -69,15 +69,18 @@ wl.add_child('小地图', win2)
 
 
 while True:
+
     game.director.screen.fill((0, 0, 0))
     game.director.event_handler.update()
     game.director.update()
     traverse_node(game.director)
     traverse_node_reverse(game.director)
 
+    # 默认floating prompt不显示
+    if game.fp:
+        game.fp.enable = False
     pygame.display.flip()
     clock.tick(game.director.game_fps)
 
-    # if game.fp:
-    #     game.fp.enable = False
+
 

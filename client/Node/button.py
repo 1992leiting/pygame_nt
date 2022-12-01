@@ -77,9 +77,6 @@ class Button(Node):
                 if self.toggle_button_group:
                     # 一个按钮按下时, 按钮组其他按钮弹起
                     self.toggle_button_group.set_toggled_button(self)
-                    # for btn in self.toggle_button_group.buttons:
-                    #     if btn != self:
-                    #         btn.is_toggled = False
             if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
                 self.is_pressed = False
                 if not self.is_toggled:
@@ -125,6 +122,34 @@ class ButtonClassicClose(Button):
             self.get_parent().enable = False
 
 
+class ClassicCheckButton(Button):
+    def __init__(self, text='', text_color=(255, 255, 255)):
+        super(ClassicCheckButton, self).__init__()
+        fill_button(self, 'wzife.rsp', 0xFF205590)
+        self.text = text
+        self.text_color = text_color
+        self.is_checked = False
+        self.setup()
+
+    def setup(self):
+        label = Label('√', size=14)
+        label.center_x = self.width/2
+        label.center_y = self.height/2
+        self.add_child('check_label', label)
+        label.is_hover_enabled = False
+        if self.text:
+            label = Label(self.text, size=14, color=self.text_color)
+            label.center_y = self.center_y
+            label.x = 30
+            self.add_child('label', label)
+
+    def update(self):
+        super(ClassicCheckButton, self).update()
+        self.child('check_label').enable = self.is_checked
+        if self.event:
+            self.is_checked = not self.is_checked
+
+
 class ButtonClassicRed(Button):
     """
     传统样式红色按钮
@@ -145,6 +170,54 @@ class ButtonClassicRed(Button):
         label.center_y = self.height/2
         self.add_child('label', label)
         label.is_hover_enabled = False
+
+
+class LabelButton(Button):
+    """
+    只有文字的按钮
+    """
+    def __init__(self, txt, size=14, color=(255, 255, 255)):
+        super(LabelButton, self).__init__()
+        self.text = txt
+        self.font_size = size
+        self.font_color = color
+        self.highlight_color = (255, 0, 0)
+        self.setup()
+
+    def setup(self):
+        label = Label(self.text, size=self.font_size, color=self.font_color)
+        self.add_child('label', label)
+        label.is_hover_enabled = True
+
+    def update(self):
+        super(LabelButton, self).update()
+        label = self.child('label')
+        if self.is_hover:
+            if label.color != self.highlight_color:
+                label.color = self.highlight_color
+                label.setup()
+        else:
+            if label.color != self.font_color:
+                label.color = self.font_color
+                label.setup()
+
+        if self.is_pressed:
+            label.ori_x, label.ori_y = 1, 1
+        else:
+            label.ori_x, label.ori_y = 0, 0
+
+    def check_event(self):
+        label = self.child('label')
+        self.is_hover = label.is_hover
+        # 判断按住
+        if self.is_hover:
+            if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
+                self.is_pressed = True
+                self._event = True
+            if self.is_pressed and self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+                self.is_pressed = False
+        else:
+            self.is_pressed = False
 
 
 class ToggleButtonGroup(Node):
@@ -170,7 +243,6 @@ class ToggleButtonGroup(Node):
     def update(self):
         # 默认第一个按钮锁定
         if self.buttons and self.toggled_button is None:
-            print('默认0')
             self.toggled_button = 0
         if self.buttons:
             self.buttons[self.toggled_button].is_toggled = True

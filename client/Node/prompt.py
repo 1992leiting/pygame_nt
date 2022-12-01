@@ -127,9 +127,9 @@ class FloatingPrompt(GamePrompt):
 
     def show(self, text):
         self.enable = True
-        # if text != self.text:
-        self.text = text
-        self.setup()
+        if text != self.text:
+            self.text = text
+            self.setup()
 
     def update(self):
         super(FloatingPrompt, self).update()

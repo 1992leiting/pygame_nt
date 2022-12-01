@@ -26,6 +26,7 @@ class World(Node):
         super(World, self).__init__()
         self.xy_timer = 0
         self.map_id = 0
+        self.cur_npcs = []  # 当前地图的npc
         self.setup_ui()
 
     def setup_ui(self):
@@ -51,13 +52,14 @@ class World(Node):
         self.add_child('npc_' + str(npc.id), npc)
         # print('add npc:', data)
         npc.visible = not self.director.is_in_battle
+        self.cur_npcs.append(npc)
 
     def add_player(self, data: dict):
         player = Character()
         player.type = 'player'
         player.set_data(data)
         self.add_child('player_' + str(player.id), player)
-        print('add player:', data)
+        # print('add player:', data)
         player.visible = not self.director.is_in_battle
 
     def player_set_path(self, pid, path):
@@ -88,6 +90,8 @@ class World(Node):
         if y:
             game.hero.game_y = y
 
+        game.window_layer.child('小地图').enable = False  # 关闭小地图
+        self.cur_npcs.clear()
         self.remove_all_npcs()
         self.remove_all_portals()
         self.remove_all_players()
@@ -240,7 +244,7 @@ class World(Node):
                 hero_x, hero_y = int(hero.map_x), int(hero.map_y)
                 # print('鼠标点击:', (hero_x, hero_y), (mouse_x, mouse_y))
                 path = self.director.astar.find_path((hero_x, hero_y), (mouse_x, mouse_y))
-                print('发送路径:', path)
+                # print('发送路径:', path)
                 if path:
                     self.director.client.send(C_发送路径, dict(路径=path))
 

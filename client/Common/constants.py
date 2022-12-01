@@ -88,6 +88,8 @@ BH_NPC_DATA = pd.read_excel(BH_NPC_FILE, index_col='地图编号').fillna('').T.
 BH_MAP_DATA = pd.read_excel(BH_MAP_FILE, index_col='地图编号').fillna('').T.to_dict()
 # ashapes = pd.read_csv(data_dir + 'ashapes.csv', index_col='名称').T.to_dict()
 
+ALPHABET = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz'
+
 # 血量类型
 HP_DROP = 1  # 掉血
 HP_RECOVER = 2  # 加血
@@ -196,3 +198,14 @@ PROMPT_TIMEOUT = {
 
 HERO_MODELS = ["飞燕女", "英女侠", "逍遥生", "剑侠客", "狐美人", "骨精灵", "巨魔王", "虎头怪", "舞天姬", "玄彩娥", "神天兵", "龙太子"]
 
+
+# 小地图相关
+SMAP_NPC_COLOR = dict(
+    全部='深青',
+    普通='白',
+    商业='金',
+    特殊='酸橙',
+    传送='秋麒麟',
+    任务='深天蓝',
+    出口='紫'
+)

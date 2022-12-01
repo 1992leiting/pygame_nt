@@ -42,10 +42,14 @@ class Word:
         _, (_, _, self.width_offset, _) = self.font.render(' ', fgcolor=self.color, size=self.size)
         self.font_surface, (_, _, self.width, self.height) = self.font.render(' ' + self.char, fgcolor=self.color, size=self.size)
         self.width -= self.width_offset  # 补偿一个空格的宽度
-        # 数字居中显示, 要计算高度并补偿
+        # 数字垂直居中显示, 要计算高度并补偿
         if self.h_center_aligned and self.char.isdigit():
             _, (_, _, _, word_height) = self.font.render(self.char, fgcolor=self.color, size=self.size)
             self.height_offset += (self.size - word_height)//2  # 上下居中
+        # 不垂直居中显示的话字母和数字上抬
+        else:
+            if self.char.isdigit() or self.char in ALPHABET:
+                self.height_offset += int(self.size/10)
         # 阴影效果其实是绘制两层文字, 底层会黑色且有一定位置偏移
         if self.shadow:
             self.shadow_surface, (_, _, self.width, self.height) = self.font.render(' ' + self.char, fgcolor=(0, 0, 0), size=self.size)

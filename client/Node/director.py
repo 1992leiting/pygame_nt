@@ -53,6 +53,7 @@ class Director(Node):
         self.item_warehouse_data = None
         self.pet_data = None
         self.pet_warehouse_data = None
+        self.mapx = None
 
         self.socket = socket.socket()
         self.connect_server()
