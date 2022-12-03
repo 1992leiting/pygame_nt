@@ -1,3 +1,5 @@
+import math
+
 from pyastar2d import astar_path
 
 
@@ -60,12 +62,15 @@ class Astar:
             y1 = path[left][1]
             x2 = path[right][0]
             y2 = path[right][1]
-            if self.is_obstacle_in_between(x1, y1, x2, y2):
-                right -= 1  # 有阻碍，则right - 1，检验前一个点
-                continue
-            _path.append((path[right][1] * 20 + 10, path[right][0] * 20 + 10))  # 没有阻碍，则可直接到这个点
-            left = right
-            right = len(path) - 1
+            dis = math.dist(path[left], path[right])
+            if dis > 8 or self.is_obstacle_in_between(x1, y1, x2, y2):  # 距离太远或者有阻碍，则right - 1，检验前一个点
+                right -= 1
+                # continue
+            else:  # 没有阻碍，则可直接到这个点
+                _path.append((path[right][1] * 20 + 10, path[right][0] * 20 + 10))
+                left = right
+                right = len(path) - 1
+
         return _path
 
     def is_obstacle_in_between(self, x1, y1, x2, y2):

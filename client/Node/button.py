@@ -45,10 +45,13 @@ class Button(Node):
             rect_pos = (pos[0] - self.rect.x, pos[1] - self.rect.y)
             if self.rect.collidepoint(pos):
                 if self.cur_img:
-                    color = self.cur_img.get_at(rect_pos)
-                    if color != (0, 0, 0, 0):
-                        self.director.node_hover = self
-                        self.is_hover = True
+                    try:  # 可能会pixel out of range
+                        color = self.cur_img.get_at(rect_pos)
+                        if color != (0, 0, 0, 0):
+                            self.director.node_hover = self
+                            self.is_hover = True
+                    except:
+                        self.is_hover = False
                 else:
                     self.is_hover = True
             else:
@@ -150,26 +153,54 @@ class ClassicCheckButton(Button):
             self.is_checked = not self.is_checked
 
 
-class ButtonClassicRed(Button):
+class ClassicButton(Button):
     """
-    传统样式红色按钮
+    传统样式按钮
     """
-    def __init__(self, text='按钮', width=800):
-        super(ButtonClassicRed, self).__init__()
-        fill_button(self, 'wzife4.rsp', 0x0267FB16)
+    def __init__(self, text='按钮', width=800, outline=False):
+        super(ClassicButton, self).__init__()
         self.text = text
-        self.width = width
-        self.setup()
+        self.text_outline = outline
 
     def setup(self):
         self.auto_sizing()
         self.x -= 5
         self.y -= 5
-        label = Label(self.text, size=14)
+        label = Label(self.text, size=14, outline=self.text_outline)
         label.center_x = self.width/2
         label.center_y = self.height/2
         self.add_child('label', label)
         label.is_hover_enabled = False
+
+
+class ButtonClassicRed(ClassicButton):
+    def __init__(self, text='按钮', width=800, outline=True):
+        super(ButtonClassicRed, self).__init__()
+        fill_button(self, 'wzife4.rsp', 0x0267FB16)
+        self.text = text
+        self.width = width
+        self.text_outline = outline
+        self.setup()
+
+
+class ButtonClassicBlue(ClassicButton):
+    def __init__(self, text='按钮', width=800):
+        super(ButtonClassicBlue, self).__init__()
+        fill_button(self, 'wzife4.rsp', 0xCD9700B7)
+        self.text = text
+        self.width = width
+        self.setup()
+
+
+class ButtonClassicRedToggle(ClassicButton):
+    def __init__(self, text='按钮', width=800, outline=True):
+        super(ButtonClassicRedToggle, self).__init__()
+        fill_button(self, 'wzife4.rsp', 0x1A106D6A)
+        self.text = text
+        self.width = width
+        self.text_outline = outline
+        self.toggle_mode = True
+        self.setup()
 
 
 class LabelButton(Button):

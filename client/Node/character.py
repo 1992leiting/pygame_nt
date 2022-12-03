@@ -211,9 +211,10 @@ class BasicCharacter(Node):
         self.ori_y += vector.y
 
     def update(self):
+        self.update_path()
         self.update_basic()
 
-    def update_basic(self):
+    def update_path(self):
         if len(self.path) > 0:
             if self.clear_path:
                 self.path = []
@@ -230,6 +231,7 @@ class BasicCharacter(Node):
         else:
             self.is_moving = False
 
+    def update_basic(self):
         if self.is_moving:
             if self.child('char_stand'):
                 self.child('char_stand').enable = False
@@ -358,11 +360,36 @@ class Character(BasicCharacter):
                 self.child('name').center_y = self.y + 20
 
     def update(self):
+        self.update_path()
         self.update_basic()
         self.update_character()
 
         # if self.cur_char_animation:
         #     pygame.draw.rect(self.director.screen, (255, 255, 255), self.cur_char_animation.rect, 2)
+
+
+class Hero(Character):
+    def __init__(self):
+        super(Hero, self).__init__()
+        self.type = 'hero'
+
+    def set_path(self, p: list):
+        super(Hero, self).set_path(p)
+        # from Game.res_manager import fill_res
+        # points_canvas = game.world.child('map_jpg').child('hero_path_points')
+        # points_canvas.clear_children()
+        # for i, (x, y) in enumerate(p):
+        #     point = ImageRect()
+        #     fill_res(point, 'wzife.rsp', 0x18E4B31B)
+        #     point.x, point.y = x, y
+        #     points_canvas.add_child(str(i), point)
+
+    # def update(self):
+    #     super(Hero, self).update()
+    #     # 寻路结束时清除寻路标记点
+    #     if not self.path and game.world.child('map_jpg'):
+    #         points_canvas = game.world.child('map_jpg').child('hero_path_points')
+    #         points_canvas.clear_children()
 
 
 class NPC(BasicCharacter):
@@ -416,11 +443,9 @@ class NPC(BasicCharacter):
                 self.child('name').center_y = self.y + 20
 
     def update(self):
-        # t = time.time()
+        self.update_path()
         self.update_basic()
         self.update_npc()
-        # dt = time.time() - t
-        # print('npc update time: {}, {}ms'.format(self.name, int(dt * 1000)))
 
 
 class BattleUnit(BasicCharacter):
@@ -554,23 +579,6 @@ class BattleUnit(BasicCharacter):
             self.child('name').center_y = self.y + 20
 
     def update_basic(self):
-        if len(self.path) > 0:
-            if self.clear_path:
-                self.path = []
-                self.clear_path = False
-                self.is_moving = False
-            else:
-                self.is_moving = True
-                _target = self.path[0]
-                th = self.speed // 2 + 1
-                if abs(self.x - int(_target[0])) <= th and abs(self.y - int(_target[1])) <= th:
-                    self.x, self.y = self.path[0][0], self.path[0][1]
-                    self.path.pop(0)
-                else:
-                    self.move()
-        else:
-            self.is_moving = False
-
         if self.child('char'):
             self.child('char').direction = self.direction
         if self.child('weapon'):
@@ -788,5 +796,6 @@ class BattleUnit(BasicCharacter):
         self.child('behind_buff').remove_child(name)
 
     def update(self):
+        self.update_path()
         self.update_basic()
         self.update_battle_unit()

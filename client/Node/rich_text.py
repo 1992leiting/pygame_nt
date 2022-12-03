@@ -166,11 +166,13 @@ class RichText(Node):
                 elif i < len(char_list) - 2 and (char_list[i + 1] + char_list[i + 2]) == 'dw':
                     chl_name = 'dw'
                 if chl_name is not None:
+                    print('频道emoji:', chl_name)
                     skip = 2
                     from Game.res_manager import fill_res
                     emoji = Emoji()
                     emoji.surface = self.dynamic_surface
                     fill_res(emoji, 'wzife.rsp', CHL_EMOJI[chl_name])
+                    emoji.shift_y = 1
                     self.word_list.append(emoji)
             else:
                 char = char_list[i]
@@ -267,7 +269,7 @@ class RichText(Node):
                 word.update()
                 if word.cur_frame:
                     _frame = word.cur_frame.copy()
-                    self.dynamic_surface.blit(_frame, (word.x, word.y - word.ky))
+                    self.dynamic_surface.blit(_frame, (word.x, word.y - word.ky + word.shift_y))
         self.surface.blit(self.dynamic_surface, (0, self.scroll))
         self.surface.blit(self.static_surface, (0, self.scroll))
         self.director.screen.blit(self.surface, (self.x, self.y))

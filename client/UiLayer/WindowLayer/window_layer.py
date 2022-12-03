@@ -65,6 +65,8 @@ class Window(Node):
         if not os.path.exists(file):
             print('窗口配置文件不存在:', file)
             return
+        given_node.clear_children()
+        self.setup()
         nodes = read_csv(file)
         for node_info in nodes:
             tp = node_info['\ufefftype']
@@ -123,7 +125,7 @@ class Window(Node):
             self.add_child('标题背景', 标题背景)
             # 关闭按钮, 居右
             关闭按钮 = ButtonClassicClose()
-            关闭按钮.x = self.width - 25
+            关闭按钮.x = self.width - 21
             关闭按钮.y += 4
             self.add_child('关闭按钮', 关闭按钮)
 
@@ -233,6 +235,9 @@ class WindowLayer(Node):
         # alt W
         if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_w):
             self.switch_window(self.child('人物属性'))
+        # alt E
+        if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_e):
+            self.switch_window(self.child('道具行囊'))
         # Tab
         if self.director.match_kb_event(STOP, pygame.K_TAB) and game.director.mapx:
             smap_hash = BH_MAP_DATA[game.world.map_id]['小地图']

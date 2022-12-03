@@ -66,6 +66,7 @@ class SocketClient:
         elif cmd == S_账号所有人物:
             win = game.director.get_node('window_layer/简易选择角色')
             win.switch(True)
+            game.window_layer.child('简易登陆').enable = False
             win.load_hero_data(msg['内容'])
             game.account = msg['账号']
         elif cmd == S_NPC数据:

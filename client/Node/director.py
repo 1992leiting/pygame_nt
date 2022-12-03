@@ -9,7 +9,7 @@ from Node.prompt import PromptManager
 from Network.my_socket import SocketClient
 from Common.socket_id import *
 from Node.world import World
-from Node.character import Character
+from Node.character import Character, Hero
 from UiLayer.FunctionLayer.function_layer import FunctionLayer
 from Node.prompt import FloatingPrompt
 
@@ -102,7 +102,7 @@ class Director(Node):
         fl = FunctionLayer()
         self.add_child('function_layer', fl)
         # 初始化英雄和world
-        hero = Character()
+        hero = Hero()
         hero.set_data(self.hero_data)
         world = World()
         world.add_child('hero', hero)

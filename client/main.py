@@ -19,6 +19,7 @@ from UiLayer.WindowLayer.simple_hero_select import SimpleHeroSelect
 from UiLayer.WindowLayer.simple_create_player import SimpleCreatePlayer
 from UiLayer.WindowLayer.dialog import Dialog
 from UiLayer.WindowLayer.smap import Smap
+from UiLayer.WindowLayer.hero_bag import HeroBag
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -66,6 +67,10 @@ wl.add_child('对话栏', win2)
 win2 = Smap()
 win2.enable = False
 wl.add_child('小地图', win2)
+
+win2 = HeroBag()
+win2.enable = False
+wl.add_child('道具行囊', win2)
 
 
 while True:

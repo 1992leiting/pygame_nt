@@ -101,6 +101,12 @@ def new_node(node_type, *args):
     elif node_type == 'ButtonClassicRed':
         from Node.button import ButtonClassicRed
         return ButtonClassicRed()
+    elif node_type == 'ButtonClassicBlue':
+        from Node.button import ButtonClassicBlue
+        return ButtonClassicBlue()
+    elif node_type == 'ButtonClassicRedToggle':
+        from Node.button import ButtonClassicRedToggle
+        return ButtonClassicRedToggle()
     elif node_type == 'LineEditWithBg':
         from Node.text_edit import LineEditWithBg
         return LineEditWithBg()

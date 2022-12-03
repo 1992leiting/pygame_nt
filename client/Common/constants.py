@@ -29,8 +29,21 @@ class Game:
         return self.director.get_node('function_layer/message_area/聊天区背景/信息流文本')
 
     @property
+    def mouse(self):
+        return self.director.child('mouse')
+
+    @property
     def fp(self):
+        """
+        悬浮提示
+        """
         return self.director.child('floating_prompt')
+
+    @property
+    def hero_path(self):
+        if self.hero:
+            return self.hero.path
+        return None
 
 
 game = Game()
@@ -84,8 +97,10 @@ bh_shapes = pd.read_excel(data_dir + 'BH_模型数据.xlsx', index_col='名称')
 max_shape_list = pd.read_excel(data_dir + 'max_hash对应表.xlsx', index_col='max_hash').T.to_dict()
 BH_NPC_FILE = data_dir + 'BH_NPC数据.xlsx'
 BH_MAP_FILE = data_dir + 'BH_地图数据.xlsx'
+BH_ITEM_FILE = data_dir + 'BH_物品数据.xlsx'
 BH_NPC_DATA = pd.read_excel(BH_NPC_FILE, index_col='地图编号').fillna('').T.to_dict()
 BH_MAP_DATA = pd.read_excel(BH_MAP_FILE, index_col='地图编号').fillna('').T.to_dict()
+BH_ITEM_DATA = pd.read_excel(BH_ITEM_FILE, index_col='名称').fillna('').T.to_dict()
 # ashapes = pd.read_csv(data_dir + 'ashapes.csv', index_col='名称').T.to_dict()
 
 ALPHABET = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz'
@@ -204,8 +219,8 @@ SMAP_NPC_COLOR = dict(
     全部='深青',
     普通='白',
     商业='金',
-    特殊='酸橙',
-    传送='秋麒麟',
+    特殊='橙红',
+    传送='酸橙',
     任务='深天蓝',
     出口='紫'
 )

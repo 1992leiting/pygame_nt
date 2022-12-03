@@ -21,6 +21,21 @@ from Game.res_manager import read_mapx, fill_res
 # jy_mapx = read_mapx(1501)
 
 
+class WorldMapJpg(ImageRect):
+    def __init__(self):
+        super(WorldMapJpg, self).__init__()
+
+    # def update(self):
+    #     super(WorldMapJpg, self).update()
+    #     self.clear_children()
+    #     if game.hero_path:
+    #         for i, (x, y) in enumerate(game.hero_path):
+    #             point = ImageRect()
+    #             fill_res(point, 'wzife.rsp', 0x18E4B31B)
+    #             point.x, point.y = x, y
+    #             self.add_child(str(i), point)
+
+
 class World(Node):
     def __init__(self):
         super(World, self).__init__()
@@ -30,7 +45,7 @@ class World(Node):
         self.setup_ui()
 
     def setup_ui(self):
-        self.add_child('map_jpg', Node())
+        self.add_child('map_jpg', WorldMapJpg())
         self.add_child('hero', Node())
         self.add_child('camera', Camera())
 
@@ -109,10 +124,10 @@ class World(Node):
         camera.limit = [0, 0, self.director.mapx.width - self.director.window_w, self.director.mapx.height - self.director.window_h]
         camera.move_to(hero.map_x, hero.map_y)
         # 底图
-        map_jpg = ImageRect()
+        map_jpg = WorldMapJpg()
         self.director.astar.cell = self.director.mapx.navi
         map_jpg.image = self.director.mapx.jpg
-        self.add_child('mapjpg', map_jpg)
+        self.add_child('map_jpg', map_jpg)
         # NPC
         # --旧版NPC配置
         # for npc_id, npc_data in game.npcs.items():
@@ -156,7 +171,7 @@ class World(Node):
         self.director.is_hero_in_portal = False
 
     def remove_map_jpg(self):
-        self.remove_child('mapjpg')
+        self.remove_child('map_jpg')
 
     def remove_all_npcs(self):
         for child_name, child in self.get_children().copy().items():

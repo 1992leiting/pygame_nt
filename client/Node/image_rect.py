@@ -7,7 +7,7 @@ class ImageRect(Node):
         super(ImageRect, self).__init__()
         self.ori_image = None  # 原始的素材image, 未裁切
         self.image = None  # pygame.image
-        self.raw_image = None # 没有裁切过的
+        self.raw_image = None  # 没有裁切过的
         self.kx, self.ky = 0, 0
         self.width, self.height = 0, 0
         self.disp_image = None  # 当前显示的image

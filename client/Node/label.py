@@ -8,7 +8,7 @@ class Label(Node):
         super(Label, self).__init__()
         self.font_name = font_name
         self.font = None
-        self.text = text
+        self.text = str(text)
         self.size = size
         self.shadow = shadow  # 阴影
         self.anti_aliased = anti_aliased  # 抗锯齿

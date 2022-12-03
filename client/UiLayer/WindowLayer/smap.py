@@ -28,6 +28,12 @@ class NpcButton(LabelButton):
                 self.callback_func(self.npc)
 
 
+class SmapImage(ImageRect):
+    def __init__(self, with_mask):
+        super(SmapImage, self).__init__(with_mask)
+        self.add_child('points', Node())  # 主角路径
+
+
 class Smap(Window):
     def __init__(self):
         super(Smap, self).__init__()
@@ -38,9 +44,10 @@ class Smap(Window):
         self.map_id = 0  # 当前窗口所记录的map_id
         self.setup()
         self.setup_win_config()
-        self.add_child('smap_img', ImageRect(with_mask=True))
+        self.add_child('smap_img', SmapImage(with_mask=True))
         self.smap_img.is_hover_enable = True
         self.is_npc_visible = True
+        # 主角位置
         dot = ImageRect()
         fill_res(dot, 'wzife.rsp', 0x393947EB)
         self.add_child('hero_dot', dot)
@@ -77,11 +84,11 @@ class Smap(Window):
                 # 切换地图后加载内容
                 self.map_id = game.world.map_id
                 # 加载小地图图片
-                from Game.res_manager import fill_res
+                from Game.res_manager import fill_image_rect
                 smap_hash = int(BH_MAP_DATA[game.world.map_id]['小地图'])
-                smap_img = ImageRect(with_mask=True)
+                smap_img = SmapImage(with_mask=True)
                 smap_img.is_hover_enabled = True
-                fill_res(smap_img, 'smap.rsp', smap_hash)
+                fill_image_rect(smap_img, 'smap.rsp', smap_hash)
                 self.add_child('smap_img', smap_img)
                 # 调整背景大小
                 self.width = smap_img.width + SMAP_IMG_SHIFT * 2 + SMAP_IMG_SHIFT * 2 + 40
@@ -126,6 +133,14 @@ class Smap(Window):
         # 显示指向坐标
         if self.is_active and self.smap_img.rect.collidepoint(pygame.mouse.get_pos()):
             game.fp.show(' {}, {} '.format(self.hover_x, self.hover_y))
+        # 刷新主角路径
+        self.child('smap_img').child('points').clear_children()
+        if game.hero_path:
+            for i, (x, y) in enumerate(game.hero_path):
+                point = ImageRect()
+                fill_res(point, 'wzife.rsp', 0xF792E03C)
+                point.x, point.y = x//self.scale_x, y//self.scale_y
+                self.child('smap_img').child('points').add_child(str(i), point)
 
     def check_event(self):
         super(Smap, self).check_event()

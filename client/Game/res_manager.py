@@ -355,6 +355,7 @@ def fill_image_rect(img, rsp_file, hash_id):
         h = img.height
     if crop:
         img.auto_sizing(w, h)
+    return img
 
 
 def fill_magic_effect(eff, name):
