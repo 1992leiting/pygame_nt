@@ -84,6 +84,26 @@ class NPC:
         pass
 
 
+def get_players_in_scene(pid, map_id, include_self=False):
+    """
+    获取同地图的所有玩家pid
+    :param pid:
+    :param map_id:
+    :param include_self: 是否包含自己
+    :return:
+    """
+    if not map_id:
+        map_id = rget(pid, CHAR, '地图')
+    players = []
+    for _pid in get_all_players():
+        if int(_pid) != int(pid) and rget(_pid, CHAR, '地图') == map_id:
+            players.append(_pid)
+    if include_self:
+        players.append(pid)
+
+    return players
+
+
 def send(sk, cmd: str, send_data: dict):
     """
     socket发送数据
@@ -126,6 +146,12 @@ def send2pid_game_msg(pid, msg):
 def send2pid_hero_data(pid):
     send_data = rget(pid, CHAR)
     send2pid(pid, S_角色数据, send_data)
+
+
+def send2pid_in_scene(pid, cmd, send_data):
+    ids = get_players_in_scene(pid, None)
+    for _id in ids:
+        send2pid(_id, cmd, send_data)
 
 
 def sprint(text: str, tp='info'):

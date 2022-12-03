@@ -45,26 +45,6 @@ def get_npc_in_scene(pid, map_id=0):
     return npcs
 
 
-def get_players_in_scene(pid, map_id, include_self=False):
-    """
-    获取同地图的所有玩家pid
-    :param pid:
-    :param map_id:
-    :param include_self: 是否包含自己
-    :return:
-    """
-    if not map_id:
-        map_id = rget(pid, CHAR, '地图')
-    players = []
-    for _pid in get_all_players():
-        if int(_pid) != int(pid) and rget(_pid, CHAR, '地图') == map_id:
-            players.append(_pid)
-    if include_self:
-        players.append(pid)
-
-    return players
-
-
 def player_enter_scene(pid, map_id):
     if not map_id:
         map_id = rget(pid, CHAR, '地图')

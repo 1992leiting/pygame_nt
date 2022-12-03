@@ -316,6 +316,21 @@ def fill_button(btn, rsp_file, hash_id):
     btn.kx, btn.ky = res.kx, res.ky
 
 
+def fill_animation(ani, rsp_file, hash_id):
+    res = read_rsp(rsp_file, hash_id)
+    for i in range(res.dir_cnt):
+        frames = res.frames[i]
+        ani.frames = []
+        ani.kx, ani.ky = res.kx, res.ky
+        ani.width, ani.height = res.width, res.height
+        for img in frames:
+            ani.frames.append(img)
+        break  # 只读第一个方向
+    ani.width, ani.height = res.width, res.height
+    ani.kx, ani.ky = res.kx, res.ky
+    return ani
+
+
 def fill_animation8d(ani8d, rsp_file, hash_id):
     from Node.animation import Animation
     ani8d.clear_children()
@@ -332,6 +347,7 @@ def fill_animation8d(ani8d, rsp_file, hash_id):
     ani8d.palette16 = res.palette16
     ani8d.palette32 = res.palette32
     ani8d.width, ani8d.height = res.width, res.height
+    return ani8d
 
 
 def fill_image_rect(img, rsp_file, hash_id):

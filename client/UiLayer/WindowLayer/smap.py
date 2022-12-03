@@ -132,7 +132,7 @@ class Smap(Window):
             self.child('hero_dot').ori_y = dy + SMAP_IMG_SHIFT
         # 显示指向坐标
         if self.is_active and self.smap_img.rect.collidepoint(pygame.mouse.get_pos()):
-            game.fp.show(' {}, {} '.format(self.hover_x, self.hover_y))
+            game.sp.show(' {}, {} '.format(self.hover_x, self.hover_y))
         # 刷新主角路径
         self.child('smap_img').child('points').clear_children()
         if game.hero_path:

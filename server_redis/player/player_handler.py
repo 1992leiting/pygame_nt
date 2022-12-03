@@ -288,6 +288,7 @@ def player_level_up(pid):
         player_data['最大体力'] += 10
         rset(pid, CHAR, player_data)
         refresh_player_attr(pid, send_data=True, recover=2)
+        send2pid_in_scene(pid, S_人物升级, {})
         send2pid_hero_data(pid)
     else:
         send2pid_game_msg(pid, '你没有那么多经验')
