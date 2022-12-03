@@ -81,9 +81,6 @@ while True:
     traverse_node(game.director)
     traverse_node_reverse(game.director)
 
-    # 默认floating prompt不显示
-    if game.fp:
-        game.fp.enable = False
     pygame.display.flip()
     clock.tick(game.director.game_fps)
 

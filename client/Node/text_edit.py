@@ -101,8 +101,9 @@ class LineEdit(Node):
             pass
 
     def set_text(self, text):
-        self.text = text
-        self._parse()
+        if str(text) != str(self.text):
+            self.text = text
+            self._parse()
 
     def clear_text(self):
         self.text = ''
@@ -294,6 +295,20 @@ class LineEditWithBg(ImageRect):
     def text(self):
         return self.line_edit.text
 
+    @property
+    def y(self):
+        if self._parent:
+            return self.ori_y + self._parent.y
+        else:
+            return self.ori_y
+
+    @y.setter
+    def y(self, yy):
+        if self._parent:
+            self.ori_y = yy - self._parent.y - 4
+        else:
+            self.ori_y = yy - 4
+
     @text.setter
     def text(self, txt):
         self.line_edit.text = txt
@@ -307,13 +322,17 @@ class LineEditWithBg(ImageRect):
     def is_readonly(self, v):
         self.line_edit.is_readonly = v
 
+    def set_text(self, text):
+        if str(text) != str(self.text):
+            self.text = text
+            self.setup()
+
     def setup(self):
         self.auto_sizing(w=self.width)
         self.line_edit.text = self.text
         self.line_edit.font_size = self.font_size
         self.line_edit.width = self.width - 14
         self.line_edit.x = self.x + 8
-        self.y -= 4
         self.line_edit.y = self.y + 2
         self.line_edit.setup()
         self.add_child('edit', self.line_edit)

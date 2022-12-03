@@ -4,6 +4,11 @@ from Node.rich_text import RichText
 import time
 from Common.constants import *
 import pygame
+from Node.label import Label
+from Common.common import *
+from Common.constants import *
+from Node.rich_text import RichText
+from Game.res_manager import fill_image_rect
 
 
 class PromptManager(ImageRect):
@@ -116,9 +121,12 @@ class GamePrompt(ImageRect):
             self.director.gp_manager.compose()
 
 
-class FloatingPrompt(GamePrompt):
+class SimplePrompt(GamePrompt):
+    """
+    简单提示
+    """
     def __init__(self):
-        super(FloatingPrompt, self).__init__(style=FLOATING_PROMPT, font_size=16)
+        super(SimplePrompt, self).__init__(style=FLOATING_PROMPT, font_size=16)
         self.add_child('rich_text', RichText(font_size=self.font_size, h_center=True))
         self.rich_text.ori_x, self.rich_text.ori_y = PROMPT_MARGIN_X, PROMPT_MARGIN_Y
         self.text = ''
@@ -132,7 +140,59 @@ class FloatingPrompt(GamePrompt):
             self.setup()
 
     def update(self):
-        super(FloatingPrompt, self).update()
+        super(SimplePrompt, self).update()
         mpos = pygame.mouse.get_pos()
         self.x, self.y = mpos[0] - 20, mpos[1] - 20
 
+
+class RichPrompt(ImageRect):
+    def __init__(self):
+        super(RichPrompt, self).__init__()
+        self.width, self.height = 312, 172  # 默认提示大小
+        self.icon_rsp = ''
+        self.icon_hash = 0
+        self.text_title = ''
+        self.text = ''
+        fill_image_rect(self, 'wzife4.rsp', 0x80E0B578)
+        icon = ImageRect()  # 大图标
+        icon.x, icon.y = 2, 10
+        self.add_child('icon', icon)
+        lb = Label(size=20, color=get_color('黄'), font_name=ADOBE_SONG, bold=True)  # 标题
+        lb.x, lb.y = 123, 10
+        self.add_child('title', lb)
+        rt = RichText(width=185, font_size=15)  # 文本
+        rt.x, rt.y = 123, 33
+        self.add_child('text', rt)
+
+    @property
+    def title_label(self):
+        return self.child('title')
+
+    @property
+    def rich_text(self):
+        return self.child('text')
+
+    @property
+    def icon_image(self):
+        return self.child('icon')
+
+    def setup(self):
+        # 先计算背景高度
+        self.title_label.text = self.text_title
+        self.title_label.setup()
+        self.rich_text.set_text(self.text)
+        total_height = 33 + self.rich_text.max_height
+        self.height = max(172, total_height)
+        self.auto_sizing(self.width, self.height)
+        self.setup_outline()
+        # 图标
+        fill_image_rect(self.icon_image, self.icon_rsp, self.icon_hash)
+
+    def show(self, icon_rsp, icon_hash, title, text:str):
+        if not text.endswith('。'):
+            text = text + '。'
+        if icon_rsp != self.icon_rsp or icon_hash != self.icon_hash or title != self.text_title or text != self.text:
+            self.icon_rsp, self.icon_hash, self.text_title, self.text = icon_rsp, icon_hash, title, text
+            self.setup()
+        self.enable = True
+        self.x, self.y = game.director.mouse_pos

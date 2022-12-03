@@ -11,7 +11,7 @@ from Common.socket_id import *
 from Node.world import World
 from Node.character import Character, Hero
 from UiLayer.FunctionLayer.function_layer import FunctionLayer
-from Node.prompt import FloatingPrompt
+from Node.prompt import SimplePrompt, RichPrompt
 
 
 pygame.init()
@@ -86,7 +86,8 @@ class Director(Node):
         self.add_child('window_layer', Node())
         self.add_child('floating_layer', Node())
         self.add_child('mouse', new_node('Mouse'))
-        self.add_child('floating_prompt', FloatingPrompt())
+        self.add_child('simple_prompt', SimplePrompt())
+        self.add_child('rich_prompt', RichPrompt())
 
     def start_game(self):
         # 设置窗口标题
@@ -184,8 +185,11 @@ class Director(Node):
             print('连接游戏服务器成功!')
     
     def update(self):
-        # print('--------')
         self.node_hover = None
+        if game.rp:
+            game.rp.enable = False
+        if game.sp:
+            game.sp.enable = False
         self.mouse_pos = pygame.mouse.get_pos()
         # 移动镜头, 远快近慢优化镜头视觉效果
         hero = game.hero

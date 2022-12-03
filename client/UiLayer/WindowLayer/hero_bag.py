@@ -25,6 +25,24 @@ class HeroBag(Window):
         self.top_left_x = 0
         self.center_y = game.director.window_h//2
 
+    def setup_item_blocks(self):
+        # 物品格子
+        block_group = BlockGroup()
+        index = 0
+        _x = 33 - 50
+        for i in range(5):
+            _x += 50.5
+            _y = 200
+            for j in range(4):
+                block = ItemBlock()
+                block_group.append(block)
+                # block.setup(random.sample(['飞行符', '月饼', '烟花', '天眼通符', '藏宝图', '蟠桃', '光环碎片'], 1)[0])
+                block.x, block.y = _x, _y
+                block.index = index
+                self.add_child('block' + str(index), block)
+                index += 1
+                _y += 51
+
     def setup_win_config(self, file=None, given_node=None):
         super(HeroBag, self).setup_win_config(file, given_node)
         btn_group = ToggleButtonGroup()
@@ -45,21 +63,7 @@ class HeroBag(Window):
         self.child('equip_btn_group').append(self.child('btn_2'))
         self.child('equip_btn_group').append(self.child('btn_3'))
 
-        # 物品格子
-        block_group = BlockGroup()
-        index = 0
-        _x = 33 - 50
-        for i in range(5):
-            _x += 50.5
-            _y = 200
-            for j in range(4):
-                block = ItemBlock()
-                block_group.append(block)
-                block.setup(random.sample(['飞行符', '月饼', '烟花', '天眼通符', '藏宝图', '蟠桃', '光环碎片'], 1)[0])
-                block.x, block.y = _x, _y
-                self.add_child('block'+str(index), block)
-                index += 1
-                _y += 51
+        self.setup_item_blocks()
 
     def switch(self, visible):
         super(HeroBag, self).switch(visible)

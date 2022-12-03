@@ -10,6 +10,7 @@ import logging
 import traceback
 from scene.scene_handler import *
 from scene.dialog_handler import *
+from player.player_handler import *
 
 
 uuidChars = ("a", "b", "c", "d", "e", "f",
@@ -106,6 +107,8 @@ class GameServer(threading.Thread):
             dialog_type = msg['type']
             if dialog_type == 'npc':
                 trigger_npc_response(pid, id, option)
+        elif cmd == C_角色升级:
+            player_level_up(pid)
 
 
 def start_game_server():

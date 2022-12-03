@@ -14,15 +14,18 @@ class Label(Node):
         self.anti_aliased = anti_aliased  # 抗锯齿
         self.underline = underline  # 下划线
         self.outline = outline  # 轮廓
-        if bold:
-            print('Label暂时不能设置为True...')
-        self.bold = False  # 加粗
+        self.bold = bold  # 加粗
         self.italic = italic  # 斜体
         self.twinkle = twinkle  # 闪烁
         self.font_surface = None
         self.shadow_surface = None
         self.color = color
         self.setup()
+
+    def set_text(self, text):
+        if str(text) != self.text:
+            self.text = text
+            self.setup()
 
     def setup(self):
         self.clear_children()

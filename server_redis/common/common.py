@@ -113,6 +113,21 @@ def send2pid(pid, cmd: str, send_data: dict):
     send2gw(cmd, send_data)
 
 
+def send2pid_game_msg(pid, msg):
+    """
+    给玩家发送系统提示
+    :param pid:
+    :param msg:
+    :return:
+    """
+    send2pid(pid, S_系统提示, dict(内容=msg))
+
+
+def send2pid_hero_data(pid):
+    send_data = rget(pid, CHAR)
+    send2pid(pid, S_角色数据, send_data)
+
+
 def sprint(text: str, tp='info'):
     """
     系统打印
@@ -239,7 +254,7 @@ def rget(pid, db, *args):
 
 def rset(pid, db, value, *args):
     """
-    像redis写入数据, 先读出整个数据, 修改字典, 再写入redis
+    向redis写入数据, 先读出整个数据, 修改字典, 再写入redis
     :param pid: 玩家id
     :param db: 玩家数据库 char/pet/warehouse...
     :param value: 要设置的值
@@ -250,19 +265,22 @@ def rset(pid, db, value, *args):
     data = redis_get_hash_data(server.redis_conn, pid, db)
     if data:
         _path = ''  # 数据路径
-        args = [arg for arg in args]
-        key = args[-1]
-        args.pop(-1)
-        for arg in args:
-            _path = _path + '/' + str(arg)
-            if arg in args:
-                data = data[arg]
-            else:
-                # 数据路径不存在则警告
-                sprint('rget error:{} {} {}'.format(pid, db, _path), 'warning')
-                return None
-        data[key] = value
-        redis_set_hash_data(server.redis_conn, pid, db, data)
+        if args:
+            args = [arg for arg in args]
+            key = args[-1]
+            args.pop(-1)
+            for arg in args:
+                _path = _path + '/' + str(arg)
+                if arg in args:
+                    data = data[arg]
+                else:
+                    # 数据路径不存在则警告
+                    sprint('rget error:{} {} {}'.format(pid, db, _path), 'warning')
+                    return None
+            data[key] = value
+            redis_set_hash_data(server.redis_conn, pid, db, data)
+        else:
+            redis_set_hash_data(server.redis_conn, pid, db, value)
 
 
 def get_filenames_in_path(path):
@@ -311,3 +329,14 @@ def get_all_players() -> list:
     if 'lock' in keys:
         keys.remove('lock')
     return keys
+
+
+def gdv(d, k):
+    """
+    Get dict value, 获取字典对应键的值
+    若存在改键则返回值, 不存在则返回0
+    """
+    if k not in d:
+        return 0
+    else:
+        return d[k]

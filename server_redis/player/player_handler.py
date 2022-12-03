@@ -27,9 +27,9 @@ initial_model_attr = dict(
 )
 
 initial_player_data = dict(节日礼物=0, id=0, 连接ip=0, 等级=0, 名称="", 性别=0, 模型="", 种族="", 称谓={}, 当前称谓="", 帮派="无帮派",
-                           门派="无门派", 武器=None,
+                           门派="无门派", 武器=None, 伤势=0,
                            人气=600, 门贡=0, 帮贡=0, 气血=0, 魔法=0, 愤怒=0, 活力=0, 体力=0, 命中=0, 伤害=0, 防御=0, 速度=0, 躲避=0, 灵力=0, 法伤属性=0,
-                           法防属性=0, 体质=0, 魔力=0, 力量=0, 耐力=0, 敏捷=0, 总财富=0, 潜力=5, 地图=1501, mx=20, my=20,
+                           法防属性=0, 体质=10, 魔力=10, 力量=10, 耐力=10, 敏捷=10, 总财富=0, 潜力=5, 地图=1501, mx=20, my=20,
                            修炼={'攻击修炼': [0, 0, 9], '法术修炼': [0, 0, 9], '防御修炼': [0, 0, 9], '抗法修炼': [0, 0, 9],
                                '猎术修炼': [0, 0, 9], '当前': "攻击修炼"},
                            bb修炼={'攻击控制力': [0, 0, 9], '法术控制力': [0, 0, 9], '防御控制力': [0, 0, 9], '抗法控制力': [0, 0, 9],
@@ -54,7 +54,8 @@ initial_player_data = dict(节日礼物=0, id=0, 连接ip=0, 等级=0, 名称=""
                            行囊={'0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None, '7': None,
                                '8': None, '9': None, '10': None, '11': None, '12': None, '13': None, '14': None,
                                '15': None, '16': None, '17': None, '18': None, '19': None})
-initial_item_data = dict(道具={}, 行囊={})
+
+initial_item_data = dict(道具=empty_20, 行囊=empty_20)
 initial_itemwarehouse_data = dict(主仓库={}, 房屋仓库={})
 initial_pet_data = dict()
 initial_petwarehouse_data = dict(主仓库={}, 房屋仓库={})
@@ -156,10 +157,17 @@ def player_login(account, pid) -> bool:
     file = os.path.join(pid_path, 'char.json')
     data = file2dict(file)
     redis_set_hash_data(server.redis_conn, str(pid), 'char', data)
-    send(server.tmp_client_socket[account], S_登陆成功, data)
+    refresh_player_attr(pid)
+    send_data = rget(pid, CHAR)
+    send(server.tmp_client_socket[account], S_登陆成功, send_data)
     # 物品数据
     file = os.path.join(pid_path, 'item.json')
     data = file2dict(file)
+    print('物品数据:', data)
+    # if data['道具'] == {}:
+    #     data['道具'] = empty_20
+    # if data['行囊'] == {}:
+    #     data['行囊'] = empty_20
     redis_set_hash_data(server.redis_conn, str(pid), 'item', data)
     # 物品仓库数据
     file = os.path.join(pid_path, 'item_warehouse.json')
@@ -174,3 +182,112 @@ def player_login(account, pid) -> bool:
     data = file2dict(file)
     redis_set_hash_data(server.redis_conn, str(pid), 'pet_warehouse', data)
     return True
+
+
+def get_5d_attr(pid):
+    player_data = rget(pid, CHAR)
+    体质 = player_data['体质']
+    魔力 = player_data['魔力']
+    力量 = player_data['力量']
+    耐力 = player_data['耐力']
+    敏捷 = player_data['敏捷']
+    race = player_data['种族']
+
+    if race == '人':
+        attr = dict(
+            命中=int(力量 * 2 + 30),
+            伤害=int(力量 * 0.67 + 39),
+            防御=int(耐力 * 1.5),
+            速度=int(敏捷),
+            灵力=int(体质 * 0.3 + 魔力 * 0.7 + 耐力 * 0.2 + 力量 * 0.4),
+            躲避=int(敏捷 + 10),
+            气血=int(体质 * 5 + 100),
+            法力=int(魔力 * 3 + 80)
+        )
+    elif race == '魔':
+        attr = dict(
+            命中=int(力量 * 2.3 + 29),
+            伤害=int(力量 * 0.77 + 39),
+            防御=int(耐力 * 214 / 153),
+            速度=int(敏捷),
+            灵力=int(体质 * 0.3 + 魔力 * 0.7 + 耐力 * 0.2 + 力量 * 0.4 - 0.3),
+            躲避=int(敏捷 + 10),
+            气血=int(体质 * 6 + 100),
+            法力=int(魔力 * 2.5 + 80),
+        )
+    else:
+        attr = dict(
+            命中=int(力量 * 1.7 + 30),
+            伤害=int(力量 * 0.57 + 39),
+            防御=int(耐力 * 1.6),
+            速度=int(敏捷),
+            灵力=int(体质 * 0.3 + 魔力 * 0.7 + 耐力 * 0.2 + 力量 * 0.4 - 0.3),
+            躲避=int(敏捷 + 10),
+            气血=int(体质 * 4.5 + 100),
+            法力=int(魔力 * 3.5 + 80),
+        )
+    return attr
+
+
+def refresh_player_attr(pid, recover=None, send_data=False):
+    """
+    更新人物属性
+    pid: 玩家id
+    recover: 是否恢复 0:气血/1:魔法/2:都恢复
+    send_data: 是否发送数据到客户端
+    """
+    player_data = rget(pid, CHAR)
+    # 钱数额取整
+    player_data['现金'] = int(player_data['现金'])
+    player_data['存银'] = int(player_data['存银'])
+    player_data['储备金'] = int(player_data['储备金'])
+
+    # 五维基础属性
+    attr_5d = get_5d_attr(pid)
+
+    # 五维属性
+    player_data['命中'] = attr_5d['命中'] + player_data['装备属性']['命中'] + player_data['技能属性']['命中']
+    player_data['伤害'] = attr_5d['伤害'] + player_data['装备属性']['伤害'] + player_data['技能属性']['伤害']
+    player_data['防御'] = attr_5d['防御'] + player_data['装备属性']['防御'] + player_data['技能属性']['防御']
+    player_data['速度'] = attr_5d['速度'] + player_data['装备属性']['速度'] + player_data['技能属性']['速度']
+    player_data['灵力'] = attr_5d['灵力'] + player_data['装备属性']['灵力'] + player_data['技能属性']['灵力']
+    player_data['躲避'] = attr_5d['命中'] + player_data['装备属性']['躲避'] + player_data['技能属性']['躲避']
+    player_data['最大气血'] = attr_5d['气血'] + player_data['装备属性']['气血'] + player_data['技能属性']['气血'] + player_data['辅助技能'][
+        '强壮'] * 4
+    player_data['最大魔法'] = attr_5d['法力'] + player_data['装备属性']['魔法'] + player_data['技能属性']['魔法']
+    player_data['法伤属性'] = int(player_data['灵力'] + gdv(player_data, '附加法术伤害') + gdv(player_data, '法术伤害') + gdv(player_data['装备属性'], '伤害')/4)
+    player_data['法防属性'] = int(player_data['灵力'] + gdv(player_data, '法术防御'))
+
+    if recover is not None:
+        if recover == 0 or recover == 2:
+            player_data['气血上限'] = player_data['最大气血']
+            player_data['气血'] = player_data['最大气血']
+        if recover == 1 or recover == 2:
+            player_data['魔法'] = player_data['最大魔法']
+
+    print('refresh data:', player_data)
+    rset(pid, CHAR, player_data)
+
+
+def player_level_up(pid):
+    """
+    玩家升级处理
+    """
+    player_data = rget(pid, CHAR)
+    lv = player_data['等级']
+    if player_data['当前经验'] >= CHAR_LEVEL_EXP_REQ[lv]:
+        player_data['当前经验'] -= CHAR_LEVEL_EXP_REQ[lv]
+        player_data['等级'] += 1
+        player_data['体质'] += 1
+        player_data['魔力'] += 1
+        player_data['力量'] += 1
+        player_data['耐力'] += 1
+        player_data['敏捷'] += 1
+        player_data['潜力'] += 5
+        player_data['最大活力'] += 10
+        player_data['最大体力'] += 10
+        rset(pid, CHAR, player_data)
+        refresh_player_attr(pid, send_data=True, recover=2)
+        send2pid_hero_data(pid)
+    else:
+        send2pid_game_msg(pid, '你没有那么多经验')

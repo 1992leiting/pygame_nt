@@ -59,13 +59,13 @@ class ObjectBlock(Node):
         self.child('disable_box').enable = not self.is_enabled
         self.child('number').enable = self.is_stacked
 
-    def check_event(self):
-        super(ObjectBlock, self).check_event()
-        if self.is_hover:
-            if not self.is_checked and game.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
-                self.is_checked = True
-                if self.block_group:
-                    self.block_group.set_block_checked(self)
+    # def check_event(self):
+    #     super(ObjectBlock, self).check_event()
+    #     if self.is_hover:
+    #         if not self.is_checked and game.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+    #             self.is_checked = True
+    #             if self.block_group:
+    #                 self.block_group.set_block_checked(self)
 
 
 class ItemBlock(ObjectBlock):
@@ -78,12 +78,14 @@ class ItemBlock(ObjectBlock):
         self.icon_hash = 0
         self.callback_func = None
         self._event = None
+        self.index = -1  # 序号,用于定位物品
 
-    def setup(self, item_name):
+    def setup(self, item_name, data):
         if item_name not in BH_ITEM_DATA:
             print('物品不存在:', item_name)
             return
         self.item_name = item_name
+        self.item_data = data
         # 图标
         self.icon_rsp = BH_ITEM_DATA[item_name]['文件']
         self.icon_hash = BH_ITEM_DATA[item_name]['小图标']
@@ -96,16 +98,26 @@ class ItemBlock(ObjectBlock):
         super(ItemBlock, self).update()
         self.child('number').enable = (not self.is_grasped) and self.is_stacked
         self.child('icon').enable = not self.is_grasped
+        # 显示详情
+        if self.item_name and self.is_hover:
+            big_icon_hash = BH_ITEM_DATA[self.item_name]['大图标']
+            text = BH_ITEM_DATA[self.item_name]['说明']
+            game.rp.show(self.icon_rsp, big_icon_hash, self.item_name, text)
 
     def check_event(self):
         super(ItemBlock, self).check_event()
         if self.is_hover:
+            if self.item_name and not self.is_checked and game.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+                print('item选中:', self.index, self.item_name)
+                self.is_checked = True
+                if self.block_group:
+                    self.block_group.set_block_checked(self)
             if not self.is_grasped and game.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
-                print('item右击', self.item_name)
-            if not self.is_grasped and self.is_checked and game.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+                print('item右击', self.index, self.item_name)
+            if self.item_name and not self.is_grasped and self.is_checked and game.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
                 self.is_grasped = True
                 fill_image_rect(game.mouse.child('grasp'), self.icon_rsp, self.icon_hash)
-                print('item抓住', self.item_name)
+                print('item抓住', self.index, self.item_name)
         if self.is_grasped and game.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
             self.is_grasped = False
             game.mouse.clear_grasp_icon()

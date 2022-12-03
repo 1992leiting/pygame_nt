@@ -57,7 +57,7 @@ class SocketClient:
             return
         cmd = msg['cmd']
         if cmd == S_登陆成功:
-            print('登陆成功')
+            print('登陆成功', msg)
             game.director.hero_data = msg
             game.director.start_game()
         elif cmd == S_角色数据:
