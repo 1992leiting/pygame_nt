@@ -46,23 +46,27 @@ def get_npc_in_scene(pid, map_id=0):
 
 
 def player_enter_scene(pid, map_id):
-    if not map_id:
-        map_id = rget(pid, CHAR, '地图')
-    # 发送所有npc
-    # for npc_data in get_npc_in_scene(pid, map_id):
-    #     send2pid(pid, S_NPC数据, npc_data)
     # 取其他玩家数据
     for _pid in get_players_in_scene(pid, map_id):
         player_data = rget(_pid, CHAR)
-        send2pid(pid, S_玩家数据, player_data)
-    # 通知其他玩家
+        send2pid(pid, S_添加玩家, player_data)
+    # 通知其他玩家进入新场景
     my_data = rget(pid, CHAR)
     for _pid in get_players_in_scene(pid, map_id):
-        send2pid(_pid, S_玩家数据, my_data)
+        print('通知进入:', pid, _pid)
+        send2pid(_pid, S_添加玩家, my_data)
 
 
-def player_leave_scene(pid, map_id):
-    pass
+def player_leave_scene(pid):
+    map_id = rget(pid, CHAR, '地图')
+    # 取其他玩家数据
+    for _pid in get_players_in_scene(pid, map_id):
+        player_data = rget(_pid, CHAR)
+        send2pid(pid, S_添加玩家, player_data)
+    # 通知其他玩家离开原场景
+    for _pid in get_players_in_scene(pid, map_id):
+        print('通知离开:', pid, _pid)
+        send2pid(_pid, S_删除玩家, dict(玩家=pid))
 
 
 def player_set_path_request(pid, path: list):
@@ -72,7 +76,6 @@ def player_set_path_request(pid, path: list):
     :param path:
     :return:
     """
-    print('player set path:', pid, path)
     # TODO
     send2pid(pid, S_发送路径, dict(路径=path))
     # 如果移动(path非空), 则广播给同场景玩家
@@ -91,5 +94,10 @@ def player_speak(pid, ch, text):
 
 
 def scene_transfer(pid, map_id, x, y):
+    player_leave_scene(pid)
+    rset(pid, CHAR, map_id, '地图')
+    rset(pid, CHAR, x, 'mx')
+    rset(pid, CHAR, y, 'my')
     send_data = dict(map_id=map_id, x=x, y=y)
     send2pid(pid, S_地图传送, send_data)
+    player_enter_scene(pid, map_id)

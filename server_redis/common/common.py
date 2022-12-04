@@ -350,7 +350,6 @@ def import_npc_objects():
 
 def get_all_players() -> list:
     from common.server_process import server
-    print('all players:', server.redis_conn.keys())
     keys = server.redis_conn.keys()
     if 'lock' in keys:
         keys.remove('lock')

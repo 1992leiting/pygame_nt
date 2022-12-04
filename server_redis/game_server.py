@@ -80,7 +80,7 @@ class GameServer(threading.Thread):
             player_enter_scene(pid, map_id)
         elif cmd == C_发送路径:
             path = msg['路径']
-            print('发送路径,', pid, path)
+            # print('发送路径,', pid, path)
             player_set_path_request(pid, path)
         elif cmd == C_角色发言:
             ch = msg['频道']
@@ -95,8 +95,6 @@ class GameServer(threading.Thread):
                 target_map = int(PORTALS[str(portal_id)]['目的地'])
                 target_x = int(PORTALS[str(portal_id)]['目的地x'])
                 target_y = int(PORTALS[str(portal_id)]['目的地y'])
-                # send_data = dict(map_id=target_map, x=target_x, y=target_y)
-                # send2pid(pid, S_地图传送, send_data)
                 scene_transfer(pid, target_map, target_x, target_y)
         elif cmd == C_对话选项:
             print('对话选项:', msg)

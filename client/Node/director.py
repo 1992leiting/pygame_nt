@@ -54,6 +54,8 @@ class Director(Node):
         self.pet_data = None
         self.pet_warehouse_data = None
         self.mapx = None
+        self._new_caption = None  # 游戏角色加载之后设置新的窗口标题
+        self.sound_volume = 50  # 全局音量大小
 
         self.socket = socket.socket()
         self.connect_server()
@@ -90,10 +92,7 @@ class Director(Node):
         self.add_child('rich_prompt', RichPrompt())
 
     def start_game(self):
-        # 设置窗口标题
-        # title = '梦幻西游ONLINE-{}{}'.format(self.hero_data['名称'], self.hero_data['id'])
-        # print('title:', title)
-        # pygame.display.set_caption(title)
+        self._new_caption = 1  # 先置标志位,避免在线程中修改caption
         # 关闭一些窗口
         game.window_layer.child('简易登陆').switch(False)
         game.window_layer.child('简易注册').switch(False)
@@ -185,6 +184,11 @@ class Director(Node):
             print('连接游戏服务器成功!')
     
     def update(self):
+        if self._new_caption:
+            # 设置窗口标题
+            title = '梦幻西游ONLINE(pygame) - {}[{}]'.format(self.hero_data['名称'], self.hero_data['id'])
+            pygame.display.set_caption(title)
+            self._new_caption = None
         self.node_hover = None
         if game.rp:
             game.rp.enable = False

@@ -78,6 +78,12 @@ class World(Node):
         # print('add player:', data)
         player.visible = not self.director.is_in_battle
 
+    def remove_player(self, pid):
+        for name, child in self.get_children().copy().items():
+            if name == 'player_' + str(pid):
+                if child.id == pid:
+                    self.remove_child(name)
+
     def player_set_path(self, pid, path):
         for name, child in self.get_children().items():
             if name == 'player_' + str(pid):

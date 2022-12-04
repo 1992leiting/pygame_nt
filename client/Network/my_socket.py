@@ -2,6 +2,9 @@ import json
 import numpy
 import threading
 import time
+
+import pygame.display
+
 from Common.socket_id import *
 from Common.common import show_error
 from Common.constants import *
@@ -71,7 +74,7 @@ class SocketClient:
             game.account = msg['账号']
         elif cmd == S_NPC数据:
             game.world.add_npc(msg)
-        elif cmd == S_玩家数据:
+        elif cmd == S_添加玩家:
             game.world.add_player(msg)
         elif cmd == '跳转地图':
             game.director.HERO_IN_PORTAL = 0
@@ -120,6 +123,8 @@ class SocketClient:
         elif cmd == S_人物一次性特效:
             print('人物特效:', msg)
             game.world.add_player_one_time_animation(msg['玩家'], msg['特效'])
+        elif cmd == S_删除玩家:
+            game.world.remove_player(msg['玩家'])
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd
