@@ -15,6 +15,7 @@ from Common.constants import *
 from Common.common import *
 from Node.camera import Camera
 from Common.socket_id import *
+from Database.effect_res import get_effect
 
 from Game.res_manager import read_mapx, fill_res
 # ca_mapx = read_mapx(1001)
@@ -91,6 +92,25 @@ class World(Node):
         if game.hero.id == pid:
             print('hero sp:', text)
             game.hero.child('speech_prompt').append(text)
+
+    def add_player_one_time_animation(self, pid, ani_name):
+        """
+        人物节点上添加一次性动画, 全部人可见
+        """
+        _hash, _rsp = get_effect(ani_name)
+        for name, child in self.get_children().items():
+            if name == 'player_' + str(pid):
+                if child.id == pid:
+                    add_onetime_animation(child, _rsp, _hash)
+        if game.hero.id == pid:
+            add_onetime_animation(game.hero, _rsp, _hash)
+
+    def add_scene_one_time_animation(self, ani_name, x, y):
+        """
+        world节点上添加一次性动画, 全部人可见
+        """
+        _hash, _rsp = get_effect(ani_name)
+        add_onetime_animation(self, _rsp, _hash)
 
     def change_map(self, map_id, x=None, y=None):
         print('change map:', map_id)

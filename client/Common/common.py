@@ -452,10 +452,14 @@ def get_normal_shape_res_hash(model_name, action, shapes_list):
     return _rsp, _hash
 
 
-def add_onetime_animation(node, rsp_file, hash_id, fps=None):
+def add_onetime_animation(node, rsp_file, hash_id, x=None, y=None, fps=None):
     from Node.animation import OneTimeAnimation
     from Game.res_manager import fill_animation
     ani = OneTimeAnimation()
+    if x:
+        ani.x = x
+    if y:
+        ani.y = y
     if fps:
         ani.fps = fps
     fill_animation(ani, rsp_file, hash_id)

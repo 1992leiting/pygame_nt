@@ -148,8 +148,8 @@ def send2pid_hero_data(pid):
     send2pid(pid, S_角色数据, send_data)
 
 
-def send2pid_in_scene(pid, cmd, send_data):
-    ids = get_players_in_scene(pid, None)
+def send2pid_in_scene(pid, cmd, send_data, include_self=False):
+    ids = get_players_in_scene(pid, None, include_self=include_self)
     for _id in ids:
         send2pid(_id, cmd, send_data)
 

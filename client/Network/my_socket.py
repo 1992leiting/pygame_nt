@@ -117,9 +117,9 @@ class SocketClient:
                 print('npc不存在:', npc_id)
         elif cmd == S_地图传送:
             game.world.change_map(msg['map_id'], msg['x'], msg['y'])
-        elif cmd == S_人物升级:
-            from Common.common import add_onetime_animation
-            add_onetime_animation(game.hero, 'addon.rsp', 2604332261, 15)  # 升级特效
+        elif cmd == S_人物一次性特效:
+            print('人物特效:', msg)
+            game.world.add_player_one_time_animation(msg['玩家'], msg['特效'])
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd
