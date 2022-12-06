@@ -1,5 +1,6 @@
 import math
 import os.path
+import random
 
 import pygame
 
@@ -14,10 +15,26 @@ from Common.constants import *
 from Common.common import *
 from Node.camera import Camera
 from Common.socket_id import *
+from Database.effect_res import get_effect
 
 from Game.res_manager import read_mapx, fill_res
 # ca_mapx = read_mapx(1001)
 # jy_mapx = read_mapx(1501)
+
+
+class WorldMapJpg(ImageRect):
+    def __init__(self):
+        super(WorldMapJpg, self).__init__()
+
+    # def update(self):
+    #     super(WorldMapJpg, self).update()
+    #     self.clear_children()
+    #     if game.hero_path:
+    #         for i, (x, y) in enumerate(game.hero_path):
+    #             point = ImageRect()
+    #             fill_res(point, 'wzife.rsp', 0x18E4B31B)
+    #             point.x, point.y = x, y
+    #             self.add_child(str(i), point)
 
 
 class World(Node):
@@ -25,15 +42,18 @@ class World(Node):
         super(World, self).__init__()
         self.xy_timer = 0
         self.map_id = 0
+        self.cur_npcs = []  # 当前地图的npc
         self.setup_ui()
 
     def setup_ui(self):
-        self.add_child('map_jpg', Node())
+        self.add_child('map_jpg', WorldMapJpg())
         self.add_child('hero', Node())
         self.add_child('camera', Camera())
 
     def update_hero_xy(self):
         hero = game.hero
+        if not hero:
+            return
         send_data = {
             'x': hero.game_x,
             'y': hero.game_y,
@@ -46,16 +66,23 @@ class World(Node):
         npc.type = 'npc'
         npc.set_data(data)
         self.add_child('npc_' + str(npc.id), npc)
-        # print('add npc:', npc.name)
+        # print('add npc:', data)
         npc.visible = not self.director.is_in_battle
+        self.cur_npcs.append(npc)
 
     def add_player(self, data: dict):
         player = Character()
         player.type = 'player'
         player.set_data(data)
         self.add_child('player_' + str(player.id), player)
-        print('add player:', data)
+        # print('add player:', data)
         player.visible = not self.director.is_in_battle
+
+    def remove_player(self, pid):
+        for name, child in self.get_children().copy().items():
+            if name == 'player_' + str(pid):
+                if child.id == pid:
+                    self.remove_child(name)
 
     def player_set_path(self, pid, path):
         for name, child in self.get_children().items():
@@ -69,20 +96,48 @@ class World(Node):
                 if child.id == pid:
                     child.child('speech_prompt').append(text)
         if game.hero.id == pid:
+            print('hero sp:', text)
             game.hero.child('speech_prompt').append(text)
 
-    def change_map(self, map_id):
+    def add_player_one_time_animation(self, pid, ani_name):
+        """
+        人物节点上添加一次性动画, 全部人可见
+        """
+        _hash, _rsp = get_effect(ani_name)
+        for name, child in self.get_children().items():
+            if name == 'player_' + str(pid):
+                if child.id == pid:
+                    add_onetime_animation(child, _rsp, _hash)
+        if game.hero.id == pid:
+            add_onetime_animation(game.hero, _rsp, _hash)
+
+    def add_scene_one_time_animation(self, ani_name, x, y):
+        """
+        world节点上添加一次性动画, 全部人可见
+        """
+        _hash, _rsp = get_effect(ani_name)
+        add_onetime_animation(self, _rsp, _hash)
+
+    def change_map(self, map_id, x=None, y=None):
         print('change map:', map_id)
         self.map_id = map_id
         map_file = map_dir + str(map_id) + '.mapx'
         if not os.path.exists(map_file):
             print('map不存在:', map_id)
             return
+
+        if x:
+            game.hero.game_x = x
+        if y:
+            game.hero.game_y = y
+
+        game.window_layer.child('小地图').enable = False  # 关闭小地图
+        self.cur_npcs.clear()
         self.remove_all_npcs()
-        # self.remove_all_portals()
-        # self.remove_all_players()
-        # self.remove_all_masks()
-        # self.remove_map_jpg()
+        self.remove_all_portals()
+        self.remove_all_players()
+        self.remove_all_masks()
+        self.remove_map_jpg()
         # if map_id == 1001:
         #     self.director.mapx = ca_mapx
         # elif map_id == 1501:
@@ -95,14 +150,41 @@ class World(Node):
         camera.limit = [0, 0, self.director.mapx.width - self.director.window_w, self.director.mapx.height - self.director.window_h]
         camera.move_to(hero.map_x, hero.map_y)
         # 底图
-        map_jpg = ImageRect()
+        map_jpg = WorldMapJpg()
         self.director.astar.cell = self.director.mapx.navi
         map_jpg.image = self.director.mapx.jpg
-        self.add_child('mapjpg', map_jpg)
+        self.add_child('map_jpg', map_jpg)
+        # NPC
+        # --旧版NPC配置
+        # for npc_id, npc_data in game.npcs.items():
+        #     if int(npc_data['地图']) == self.director.mapx.map_id:
+        #         npc_data['id'] = int(npc_id)
+        #         self.add_npc(npc_data)
+        # --BH NPC配置
+        for npc_id, data in game.npcs.items():
+            if data['地图'] and int(data['地图']) == self.director.mapx.map_id:
+                npc_id = int(npc_id)
+                data['id'] = npc_id
+                self.add_npc(data)
+        # TODO: test
+        # if map_id == 1001:
+        #     for _ in range(100):
+        #         npx = {}
+        #         npx['x'] = random.randint(210, 240)
+        #         npx['y'] = random.randint(110, 130)
+        #         npx['模型'] = random.sample(HERO_MODELS, 1)[0]
+        #         pal = [(0, 0, 0), (1, 1, 0), (2, 2, 0), (3, 3, 0)]
+        #         npx['染色'] = random.sample(pal, 1)[0]
+        #         _id = random.randint(10000, 99999)
+        #         npx['id'] = _id
+        #         npx['名称'] = '名字{}'.format(_id)
+        #         npx['方向'] = random.randint(0, 7)
+        #         self.add_player(npx)
+
         # 传送阵
         for pid, portal in portals.items():
-            map_id = portal['原地图']
-            if int(map_id) == self.director.mapx.map_id:
+            mapid = portal['原地图']
+            if int(mapid) == self.director.mapx.map_id:
                 p = Portal()
                 p.portal_id = pid
                 p.game_x, p.game_y = int(float(portal['原地图x'])), int(float(portal['原地图y']))
@@ -112,9 +194,10 @@ class World(Node):
             self.add_child('mapmask_' + str(mask.id), mask)
 
         self.change_state(self.director.is_in_battle)
+        self.director.is_hero_in_portal = False
 
     def remove_map_jpg(self):
-        self.remove_child('mapjpg')
+        self.remove_child('map_jpg')
 
     def remove_all_npcs(self):
         for child_name, child in self.get_children().copy().items():
@@ -128,7 +211,7 @@ class World(Node):
 
     def remove_all_players(self):
         for child_name, child in self.get_children().copy().items():
-            if type(child) == Character and child.type == 'player':
+            if 'player_' in child_name:
                 self.remove_child(child_name)
 
     def remove_all_masks(self):
@@ -214,14 +297,20 @@ class World(Node):
             self.update_hero_xy()
             self.xy_timer = time.time()
         # 距离主角一定范围内才显示
-        hero = self.director.get_node('scene/world_scene/hero')
+        hero = game.hero
+
         for child_name in self.get_children().copy().keys():
             child = self.child(child_name)
-            if type(child) == NPC or type(child) == Character or type(child) == MapMask:
-                if child == game.hero:
-                    break
-                dis = math.dist((child.map_x, child.map_y), (hero.map_x, hero.map_y))
-                if dis < 600:
-                    child.visible = True
-                if dis > 650:
-                    child.visible = False
+            if child != hero:
+                if 'player_' in child_name or 'npc_' in child_name:
+                    dis = math.dist((child.map_x, child.map_y), (hero.map_x, hero.map_y))
+                    if dis < 600:
+                        child.enable = True
+                    if dis > 650:
+                        child.enable = False
+                if 'mask_' in child_name:
+                    dis = math.dist((child.map_x + child.width//2, child.map_y + child.height//2), (hero.map_x, hero.map_y))
+                    if dis < 600:
+                        child.enable = True
+                    if dis > 650:
+                        child.enable = False

@@ -9,10 +9,10 @@ from Node.emoji import Emoji
 
 
 class Word:
-    def __init__(self, char, color=(255, 255, 255), size=14, italic=False, shadow=False, anti_aliased=False, underline=False, bold=False, twinkle=False, font_name=DEFAULT_FONT):
+    def __init__(self, char, color=(255, 255, 255), size=14, italic=False, shadow=False, anti_aliased=False, underline=False, bold=False, twinkle=False, font_name=DEFAULT_FONT, h_center=False):
         self.font_name = font_name
         self.font = None
-        self.char = char
+        self.char = str(char)
         self.size = size
         self.shadow = shadow  # 阴影
         self.anti_aliased = anti_aliased  # 抗锯齿
@@ -24,7 +24,9 @@ class Word:
         self.shadow_surface = None
         self.color = color
         self.width_offset = 0
+        self.height_offset = 0
         self.x, self.y = 0, 0  # 要显示的位置
+        self.h_center_aligned = h_center  # 上下居中(只针对数字)
 
         # print('word:size:', self.size, self.char)
         self.font = pygame.freetype.Font(font_dir + self.font_name, size=self.size)
@@ -39,17 +41,25 @@ class Word:
         # 直接render单个文字其宽度高度会是实际字形的宽高, 所以render时加一个空格, 计算宽度时补偿一下空格的宽度
         _, (_, _, self.width_offset, _) = self.font.render(' ', fgcolor=self.color, size=self.size)
         self.font_surface, (_, _, self.width, self.height) = self.font.render(' ' + self.char, fgcolor=self.color, size=self.size)
-        self.width -= self.width_offset
+        self.width -= self.width_offset  # 补偿一个空格的宽度
+        # 数字垂直居中显示, 要计算高度并补偿
+        if self.h_center_aligned and self.char.isdigit():
+            _, (_, _, _, word_height) = self.font.render(self.char, fgcolor=self.color, size=self.size)
+            self.height_offset += (self.size - word_height)//2  # 上下居中
+        # 不垂直居中显示的话字母和数字上抬
+        else:
+            if self.char.isdigit() or self.char in ALPHABET:
+                self.height_offset += int(self.size/10)
         # 阴影效果其实是绘制两层文字, 底层会黑色且有一定位置偏移
         if self.shadow:
             self.shadow_surface, (_, _, self.width, self.height) = self.font.render(' ' + self.char, fgcolor=(0, 0, 0), size=self.size)
 
     def render_to(self, surf: pygame.Surface, x, y):
-        surf.blit(self.font_surface, (x - self.width_offset, y))
+        surf.blit(self.font_surface, (x - self.width_offset, y - self.height_offset))
 
 
 class RichText(Node):
-    def __init__(self, text='', width=200, height=200, font_size=14, font_name=DEFAULT_FONT):
+    def __init__(self, text='', width=200, height=200, font_size=14, font_name=DEFAULT_FONT, h_center=False):
         super(RichText, self).__init__()
         self.text = text  # 所有文本内容
         self.word_list = []  # 文本内容会转换为单个字符
@@ -60,12 +70,14 @@ class RichText(Node):
         self.font_name = font_name  # 字体名称
         self.dx, self.dy = 0, 0  # 文本基于surface左上角偏移的坐标
         self.width, self.height = width, height
+        self.actual_width = 0  # 实际宽度,如果没满一行,实际宽度可能<self.width,如果多余一行则=self.width
         self.max_height = self.height  # 解析之后获得的最大高度值(用于调整dynamic/static_surface大小)
         self.surface = pygame.Surface((self.width, self.height), flags=pygame.SRCALPHA)  # 显示内容的surface
         self.static_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示静态元素的surface，如文字
         self.dynamic_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示动态元素的surface，如emoji
         self._cnt = 0
         self.scroll = 0  # 纵向滚动的像素数量
+        self.h_center_aligned = h_center # 上下居中,只针对数字
         self._parse()
         
     @property
@@ -154,17 +166,19 @@ class RichText(Node):
                 elif i < len(char_list) - 2 and (char_list[i + 1] + char_list[i + 2]) == 'dw':
                     chl_name = 'dw'
                 if chl_name is not None:
+                    print('频道emoji:', chl_name)
                     skip = 2
                     from Game.res_manager import fill_res
                     emoji = Emoji()
                     emoji.surface = self.dynamic_surface
                     fill_res(emoji, 'wzife.rsp', CHL_EMOJI[chl_name])
+                    emoji.shift_y = 1
                     self.word_list.append(emoji)
             else:
                 char = char_list[i]
                 if char == '\n':  # 换行符替换一下避免一些错误
                     char = '#n'
-                self.word_list.append(Word(char, color=color, underline=ul_flag, bold=bd_flag, twinkle=tk_flag, size=self.font_size, font_name=self.font_name))
+                self.word_list.append(Word(char, color=color, underline=ul_flag, bold=bd_flag, twinkle=tk_flag, size=self.font_size, font_name=self.font_name, h_center=self.h_center_aligned))
         self.compose()
 
     def compose(self):
@@ -240,6 +254,12 @@ class RichText(Node):
             self.dynamic_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)
             self.compose()
 
+        # 实际宽度
+        if self.total_line_num < 2:
+            self.actual_width = cur_width
+        else:
+            self.actual_width = self.width
+
     def draw(self):
         self.surface.fill((0, 0, 0, 0))
         self.dynamic_surface.fill((0, 0, 0, 0))
@@ -249,7 +269,7 @@ class RichText(Node):
                 word.update()
                 if word.cur_frame:
                     _frame = word.cur_frame.copy()
-                    self.dynamic_surface.blit(_frame, (word.x, word.y - word.ky))
+                    self.dynamic_surface.blit(_frame, (word.x, word.y - word.ky + word.shift_y))
         self.surface.blit(self.dynamic_surface, (0, self.scroll))
         self.surface.blit(self.static_surface, (0, self.scroll))
         self.director.screen.blit(self.surface, (self.x, self.y))

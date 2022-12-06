@@ -26,7 +26,7 @@ class HeroSkill(Window):
         self.setup_win_config(given_node=self.child('info_area'))
 
     def switch(self, visible):
-        self.visible = visible
+        self.enable = visible
         self.child('info_area').clear_children()
         # self.setup()
         self.setup_win_config(given_node=self.child('info_area'))

@@ -9,6 +9,8 @@ import sys
 import logging
 import traceback
 from scene.scene_handler import *
+from scene.dialog_handler import *
+from player.player_handler import *
 
 
 uuidChars = ("a", "b", "c", "d", "e", "f",
@@ -48,7 +50,7 @@ class GameServer(threading.Thread):
         sprint('game server进程启动...')
         while True:
             try:
-                _bytes = self.socket.recv(2)  # 阻塞获取2字节, 如果有则是消息长度
+                _bytes = self.socket.recv(4)  # 阻塞获取2字节, 如果有则是消息长度
                 msg_len = int.from_bytes(_bytes, byteorder='big')  # 消息长度, 2字节
                 msg = b''
                 while len(msg) < msg_len:
@@ -69,20 +71,42 @@ class GameServer(threading.Thread):
         # print('game server recv:', msg)
 
         if cmd == C_更新坐标:
-            x, y = msg['x'], msg['y']
+            x, y, map_id = msg['x'], msg['y'], msg['mapid']
             rset(pid, CHAR, x, 'mx')
             rset(pid, CHAR, y, 'my')
+            rset(pid, CHAR, int(map_id), '地图')
         elif cmd == C_进入场景:
             map_id = msg['map_id']
             player_enter_scene(pid, map_id)
         elif cmd == C_发送路径:
             path = msg['路径']
-            print('发送路径,', pid, path)
+            # print('发送路径,', pid, path)
             player_set_path_request(pid, path)
         elif cmd == C_角色发言:
             ch = msg['频道']
             text = msg['内容']
             player_speak(pid, ch, text)
+        elif cmd == C_点击NPC:
+            npc_id = msg['id']
+            trigger_npc_dialog(pid, npc_id)
+        elif cmd == C_传送点传送:
+            portal_id = msg['portal_id']
+            if str(portal_id) in PORTALS:
+                target_map = int(PORTALS[str(portal_id)]['目的地'])
+                target_x = int(PORTALS[str(portal_id)]['目的地x'])
+                target_y = int(PORTALS[str(portal_id)]['目的地y'])
+                scene_transfer(pid, target_map, target_x, target_y)
+        elif cmd == C_对话选项:
+            print('对话选项:', msg)
+            map_id = msg['map_id']  # 对话发生时的地图id
+            name = msg['name']  # 对话对象的名称
+            option = msg['option']
+            id = msg['id']
+            dialog_type = msg['type']
+            if dialog_type == 'npc':
+                trigger_npc_response(pid, id, option)
+        elif cmd == C_角色升级:
+            player_level_up(pid)
 
 
 def start_game_server():
@@ -95,7 +119,8 @@ def start_game_server():
     game_server.start()
 
     send2gw(GAME_SERVER_REGISTER_CMD, dict(uuid=game_server.uuid))
-    # import_npcs()
+    load_npc_objects()
+    # import_npc_objects()
 
 
 start_game_server()

@@ -6,9 +6,9 @@ import tkinter.messagebox as mb
 import time
 import pygame
 from Node.node import Node
-from Nt.nt_item import ConfigItem
+# from Nt.nt_item import ConfigItem
 import csv
-from Common.constants import game
+from Common.constants import *
 
 
 def send(cmd: str, msg: dict):
@@ -101,6 +101,12 @@ def new_node(node_type, *args):
     elif node_type == 'ButtonClassicRed':
         from Node.button import ButtonClassicRed
         return ButtonClassicRed()
+    elif node_type == 'ButtonClassicBlue':
+        from Node.button import ButtonClassicBlue
+        return ButtonClassicBlue()
+    elif node_type == 'ButtonClassicRedToggle':
+        from Node.button import ButtonClassicRedToggle
+        return ButtonClassicRedToggle()
     elif node_type == 'LineEditWithBg':
         from Node.text_edit import LineEditWithBg
         return LineEditWithBg()
@@ -108,16 +114,16 @@ def new_node(node_type, *args):
         raise KeyError('未知节点类型:{}'.format(node_type))
 
 
-def traverse_config_item(config_item: ConfigItem, node: Node):
-    node.node_name = config_item.node_name
-    node.uuid = config_item.node_uuid
-    if config_item.children:
-        for name, child_config_item in config_item.children.items():
-            child_node = new_node(child_config_item.node_type)
-            child_node.node_name = child_config_item.node_name
-            child_node.uuid = child_config_item.node_uuid
-            node.add_child(child_config_item.node_name, child_node)
-            traverse_config_item(child_config_item, child_node)
+# def traverse_config_item(config_item: ConfigItem, node: Node):
+#     node.node_name = config_item.node_name
+#     node.uuid = config_item.node_uuid
+#     if config_item.children:
+#         for name, child_config_item in config_item.children.items():
+#             child_node = new_node(child_config_item.node_type)
+#             child_node.node_name = child_config_item.node_name
+#             child_node.uuid = child_config_item.node_uuid
+#             node.add_child(child_config_item.node_name, child_node)
+#             traverse_config_item(child_config_item, child_node)
 
 
 def traverse_node(node):
@@ -137,14 +143,18 @@ def traverse_node(node):
     if len(children) > 0:
         # 遍历所有子节点并绘制
         for child in children.values():
-            if not child.enable:
-                break
-            child.update()
-            if child.visible:
-                child.draw()
-                if child.ysort:
-                    child.process_ysort()
-            traverse_node(child)
+            if child.enable:
+                child.update()
+                if child.visible:
+                    child.draw()
+                    if child.ysort:
+                        child.process_ysort()
+
+                    # t = time.time()
+                    traverse_node(child)
+                    # dt = int((time.time() - t) * 100000)
+                    # _str = ' '.join(' - ' for _ in range(child.level)) + ' ' + child.node_name + ' ' + str(dt) + 'ms'
+                    # print(_str)
 
 
 def traverse_node_reverse(node):
@@ -331,7 +341,7 @@ def auto_sizing(image: pygame.image, width, height, margin=0):
 
 
 def get_color(name: str):
-    from Common.constants import colors, MY_COLOR
+    # from Common.constants import colors, MY_COLOR
     if name in MY_COLOR:
         name = MY_COLOR[name]
     if name not in colors:
@@ -367,7 +377,7 @@ def play_scene_bgm(mapid: int):
   :      param mapid: 地图id
   :      return:
     """
-    from Common.constants import music_dir
+    # from Common.constants import music_dir
     file = music_dir + str(mapid) + '.mp3'
     if not os.path.exists(file):
         print('BGM文件丢失:', file)
@@ -377,7 +387,7 @@ def play_scene_bgm(mapid: int):
 
 
 def play_battle_music(name):
-    from Common.constants import music_dir
+    # from Common.constants import music_dir
     file = music_dir + name + '.mp3'
     if not os.path.exists(file):
         print('BGM文件丢失:', file)
@@ -392,7 +402,7 @@ def play_skill_effect_sound(name):
     if res:
         folder = res['资源'].replace('.dll', '')
         file = res['文件源']
-        path = constants.sound_dir + folder + '/' + int2hex(file) + '.ogg'
+        path = sound_dir + folder + '/' + int2hex(file) + '.ogg'
         if os.path.exists(path):
             sd = pygame.mixer.Sound(path)
             sd.play()
@@ -409,7 +419,7 @@ def play_char_sound(char, action):
         if action in res:
             folder = res['资源'].replace('.dll', '')
             file = res[action]
-            path = constants.sound_dir + folder + '/' + int2hex(file) + '.ogg'
+            path = sound_dir + folder + '/' + int2hex(file) + '.ogg'
             if os.path.exists(path):
                 sd = pygame.mixer.Sound(path)
                 sd.play()
@@ -419,6 +429,42 @@ def play_char_sound(char, action):
             print('model音效未找到:', char, action)
     else:
         print('model音效未找到:', char, action)
+
+
+def get_normal_shape_res_hash(model_name, action, shapes_list):
+    _rsp, _hash = 'wzife.rsp', 0x20F3E242  # 问号
+    if model_name in shapes_list and action in shapes_list[model_name]:
+        _rsp = shapes_list[model_name]['资源']
+        _hash = shapes_list[model_name][action]
+    else:
+        # 兼容BH模型列表
+        if model_name in bh_shapes:
+            _rsp = bh_shapes[model_name]['资源']
+            _hash = bh_shapes[model_name][action]
+            # max.rsp需要转换一下hash列表
+            if _rsp == 'max.rsp':
+                if _hash in max_shape_list:
+                    _hash = max_shape_list[_hash]['new_hash']
+                else:
+                    print('max shape不存在:', model_name, action)
+        else:
+            print('shape不存在1:', model_name, action)
+    return _rsp, _hash
+
+
+def add_onetime_animation(node, rsp_file, hash_id, x=None, y=None, fps=None):
+    from Node.animation import OneTimeAnimation
+    from Game.res_manager import fill_animation
+    ani = OneTimeAnimation()
+    if x:
+        ani.x = x
+    if y:
+        ani.y = y
+    if fps:
+        ani.fps = fps
+    fill_animation(ani, rsp_file, hash_id)
+    node.add_child('onetime', ani)
+    ani.play()
 
 
 def get_weapon_type(w_name):

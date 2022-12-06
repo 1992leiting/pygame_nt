@@ -23,6 +23,7 @@ class Window(Node):
         self.last_x, self.last_y = self.x, self.y  # 拖拽时使用, 上一次的xy坐标
         self.config_file = ''
         self.is_draggable = True
+        self.has_title_ui = True  # 是否有标题栏UI
 
     @property
     def window_name(self):
@@ -46,8 +47,7 @@ class Window(Node):
         :param visible:
         :return:
         """
-        print('switch:', self.window_name, visible)
-        self._parent.switch_window(self, visible)
+        self.enable = visible
 
     def setup_win_config(self, file=None, given_node=None):
         """
@@ -65,6 +65,8 @@ class Window(Node):
         if not os.path.exists(file):
             print('窗口配置文件不存在:', file)
             return
+        given_node.clear_children()
+        self.setup()
         nodes = read_csv(file)
         for node_info in nodes:
             tp = node_info['\ufefftype']
@@ -97,33 +99,35 @@ class Window(Node):
         背景.image = auto_sizing(背景.image, self.width, self.height, margin=1)
         背景.width, 背景.height = self.width, self.height
         self.add_child('背景', 背景)
-        # 标题栏裁切, 居左
-        标题栏 = set_node_attr(ImageRect(), {'rsp_file': 'wzife4.rsp', 'hash_id': 0x12989E68})
-        标题栏.image = auto_sizing(标题栏.image, self.width - 29, 标题栏.height)
-        标题栏.width, 标题栏.height = self.width, 标题栏.height
-        标题栏.x += 4
-        标题栏.y += 2
-        self.add_child('标题栏', 标题栏)
-        # 标题背景裁切, 标题文字, 居中
-        标题背景 = set_node_attr(ImageRect(), {'rsp_file': 'wzife1.rsp', 'hash_id': 0x446087F2})
-        self.add_child('标题背景', Node())  # 先占位, 后添加实际的标题背景节点
 
-        from Node.label import Label
-        标题 = Label(text=self.window_title, outline=True)
-        标题.x = self.width // 2 - 标题.width // 2
-        标题.y += 2
-        self.add_child('标题', 标题)
+        if self.has_title_ui:
+            # 标题栏裁切, 居左
+            标题栏 = set_node_attr(ImageRect(), {'rsp_file': 'wzife4.rsp', 'hash_id': 0x12989E68})
+            标题栏.image = auto_sizing(标题栏.image, self.width - 29, 标题栏.height)
+            标题栏.width, 标题栏.height = self.width, 标题栏.height
+            标题栏.x += 4
+            标题栏.y += 2
+            self.add_child('标题栏', 标题栏)
+            # 标题背景裁切, 标题文字, 居中
+            标题背景 = set_node_attr(ImageRect(), {'rsp_file': 'wzife1.rsp', 'hash_id': 0x446087F2})
+            self.add_child('标题背景', Node())  # 先占位, 后添加实际的标题背景节点
 
-        width = max(80, 标题.width + 20)
-        标题背景.auto_sizing(w=width)
-        标题背景.x = self.width // 2 - 标题背景.width // 2
-        标题背景.y += 3
-        self.add_child('标题背景', 标题背景)
-        # 关闭按钮, 居右
-        关闭按钮 = ButtonClassicClose()
-        关闭按钮.x = self.width - 25
-        关闭按钮.y += 4
-        self.add_child('关闭按钮', 关闭按钮)
+            from Node.label import Label
+            标题 = Label(text=self.window_title, outline=True)
+            标题.x = self.width // 2 - 标题.width // 2
+            标题.y += 2
+            self.add_child('标题', 标题)
+
+            width = max(80, 标题.width + 20)
+            标题背景.auto_sizing(w=width)
+            标题背景.x = self.width // 2 - 标题背景.width // 2
+            标题背景.y += 3
+            self.add_child('标题背景', 标题背景)
+            # 关闭按钮, 居右
+            关闭按钮 = ButtonClassicClose()
+            关闭按钮.x = self.width - 21
+            关闭按钮.y += 4
+            self.add_child('关闭按钮', 关闭按钮)
 
         # 窗口默认居中显示
         self.x = self.director.window_w // 2 - self.width // 2
@@ -153,16 +157,17 @@ class Window(Node):
             self.is_pressed = False
             self.last_x, self.last_y = self.x, self.y
         # 按住拖动
-        if self.is_pressed:
-            mpos = pygame.mouse.get_pos()
-            dx = self.press_x - mpos[0]
-            dy = self.press_y - mpos[1]
-            self.x = self.last_x - dx
-            self.y = self.last_y - dy
+        if self.is_draggable:
+            if self.is_pressed:
+                mpos = pygame.mouse.get_pos()
+                dx = self.press_x - mpos[0]
+                dy = self.press_y - mpos[1]
+                self.x = self.last_x - dx
+                self.y = self.last_y - dy
         # 右键点击关闭
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
-                self.visible = False
+                self.enable = False
 
         for child in self.get_children().values():
             # 点击子节点也激活自身
@@ -217,11 +222,11 @@ class WindowLayer(Node):
             win = self.child(win)
         # visible为None时切换可视状态, 指定visible可以指定可视状态
         if visible is None:
-            visible = not win.visible
-        win.visible = visible
+            visible = not win.enable
+        win.switch(visible)
 
         # 若窗口变为可视则加入队列, 且提升到最高层级
-        if win.visible:
+        if win.enable:
             self.set_active_window(win.window_name)
 
     def check_event(self):
@@ -230,3 +235,13 @@ class WindowLayer(Node):
         # alt W
         if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_w):
             self.switch_window(self.child('人物属性'))
+        # alt E
+        if self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_e):
+            self.switch_window(self.child('道具行囊'))
+        # Tab
+        if self.director.match_kb_event(STOP, pygame.K_TAB) and game.director.mapx:
+            smap_hash = BH_MAP_DATA[game.world.map_id]['小地图']
+            if not smap_hash:
+                game.director.gp_manager.append('当前场景无法查看小地图')
+            else:
+                self.switch_window(self.child('小地图'))

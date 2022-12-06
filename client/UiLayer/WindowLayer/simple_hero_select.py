@@ -13,7 +13,7 @@ pos = [(100, 160), (250, 160), (400, 160), (100, 350), (250, 350), (400, 350)]
 class SimpleHeroSelect(Window):
     def __init__(self):
         super(SimpleHeroSelect, self).__init__()
-        self.visible = False
+        self.enable = False
         self.window_title = '简易角色选择'
         self.width, self.height = 600, 400
         self.hero_data = []  # 角色数据

@@ -2,6 +2,9 @@ import json
 import numpy
 import threading
 import time
+
+import pygame.display
+
 from Common.socket_id import *
 from Common.common import show_error
 from Common.constants import *
@@ -37,7 +40,7 @@ class SocketClient:
         """
         while True:
             try:
-                _bytes = self.socket.recv(2)  # 阻塞获取2字节, 如果有则是消息长度
+                _bytes = self.socket.recv(4)  # 获取4字节, 如果有则是消息长度
                 msg_len = int.from_bytes(_bytes, byteorder='big')  # 消息长度, 2字节
                 msg = b''
                 while len(msg) < msg_len:
@@ -57,7 +60,7 @@ class SocketClient:
             return
         cmd = msg['cmd']
         if cmd == S_登陆成功:
-            print('登陆成功')
+            print('登陆成功', msg)
             game.director.hero_data = msg
             game.director.start_game()
         elif cmd == S_角色数据:
@@ -66,11 +69,12 @@ class SocketClient:
         elif cmd == S_账号所有人物:
             win = game.director.get_node('window_layer/简易选择角色')
             win.switch(True)
+            game.window_layer.child('简易登陆').enable = False
             win.load_hero_data(msg['内容'])
             game.account = msg['账号']
         elif cmd == S_NPC数据:
             game.world.add_npc(msg)
-        elif cmd == S_玩家数据:
+        elif cmd == S_添加玩家:
             game.world.add_player(msg)
         elif cmd == '跳转地图':
             game.director.HERO_IN_PORTAL = 0
@@ -101,6 +105,26 @@ class SocketClient:
             pid = msg['player']
             text = msg['内容']
             game.world.player_add_speech_prompt(pid, text)
+        elif cmd == S_所有NPC数据:
+            game.npcs = msg['内容']
+            # print('所有NPC:', game.npcs)
+        elif cmd == S_发送NPC对话:
+            # print('npc对话:', msg)
+            npc_id = msg['npc_id']
+            if not msg['对话']:
+                msg['对话'] = ['...']
+            if str(npc_id) in game.npcs:
+                npc = game.npcs[str(npc_id)]
+                game.director.dialog_window.show(npc['模型'], npc['名称'], npc_id, msg['对话'][0], msg['选项'], msg['类型'])
+            else:
+                print('npc不存在:', npc_id)
+        elif cmd == S_地图传送:
+            game.world.change_map(msg['map_id'], msg['x'], msg['y'])
+        elif cmd == S_人物一次性特效:
+            print('人物特效:', msg)
+            game.world.add_player_one_time_animation(msg['玩家'], msg['特效'])
+        elif cmd == S_删除玩家:
+            game.world.remove_player(msg['玩家'])
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd
@@ -110,7 +134,7 @@ class SocketClient:
             print('发送数据解析错误:', send_data, str(e))
             return
         json_str_len = len(json_str)
-        len_bytes = json_str_len.to_bytes(2, byteorder='big')
+        len_bytes = json_str_len.to_bytes(4, byteorder='big')
         send_bytes = len_bytes + json_str.encode(encoding='utf-8')
         try:
             self.socket.sendall(send_bytes)

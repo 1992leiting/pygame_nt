@@ -20,54 +20,18 @@ class Rs:
         self.width = 0
         self.height = 0
         self.dir_cnt = 0
-        self.palette16_data = None  # 565调色板原始数据
+        self.palette16_data = []  # 565调色板原始数据, 256*2字节
         self.palette16 = []  # 565调色板, 256个RGB
-        self.palette32_data = None  # 888调色板原始数据
         self.palette32 = []  # 888调色板, 256个RGBA
         self.frames = {}  # 帧队列,最多8个方向,内容为pygame.image
 
     def get_palette(self):
         # 565
         if self.palette16_data:
-            i = 0
             for _byte in self.palette16_data:
-                if i == 0:
-                    self.palette16.append(dict(
-                        R=-1,
-                        G=-1,
-                        B=-1,
-                    ))
-                if i == 0:
-                    self.palette16[-1]['R'] = int(_byte)
-                if i == 1:
-                    self.palette16[-1]['G'] = int(_byte)
-                if i == 2:
-                    self.palette16[-1]['B'] = int(_byte)
-                i += 1
-                if i > 2:
-                    i = 0
+                self.palette16.append(rgb565(int.from_bytes(_byte, 'little')))
         # 888
-        if self.palette32_data:
-            i = 0
-            for _byte in self.palette32_data:
-                if i == 0:
-                    self.palette32.append(dict(
-                        R=-1,
-                        G=-1,
-                        B=-1,
-                        A=-1
-                    ))
-                if i == 0:
-                    self.palette32[-1]['R'] = int(_byte)
-                if i == 1:
-                    self.palette32[-1]['G'] = int(_byte)
-                if i == 2:
-                    self.palette32[-1]['B'] = int(_byte)
-                if i == 3:
-                    self.palette32[-1]['A'] = int(_byte)
-                i += 1
-                if i > 3:
-                    i = 0
+        self.palette32 = palette16_to_palette32(self.palette16)
 
 
 class Mask:
@@ -114,6 +78,14 @@ class Wpal:
             for n in range(len(self.seg_data[m])):
                 print(self.seg_data[m][n][0], self.seg_data[m][n][1], self.seg_data[m][n][2])
             print(' ')
+
+
+def rgb565(color):
+    r = (color >> 11) & 0x1F
+    g = (color >> 5) & 0x3F
+    b = color & 0x1F
+    pixel = {'R': r, 'G': g, 'B': b}
+    return pixel
 
 
 def palette16_to_palette32(pal16: list):
@@ -187,15 +159,6 @@ def palette_modulate(ori_pal16: list, wpal_file, segment, solution):
     C21, C22, C23 = pal.seg_data[segment][solution][1]
     C31, C32, C33 = pal.seg_data[segment][solution][2]
 
-    # if segment == 0:
-    #     r = range(0, 40)
-    # elif segment == 1:
-    #     r = range(40, 80)
-    # elif segment == 2:
-    #     r = range(80, 120)
-    # else:
-    #     r = range(120, 256)
-
     for i in range(pal.seg_index[segment], pal.seg_index[segment + 1]):
         R = ori_pal16[i]['R']
         G = ori_pal16[i]['G']
@@ -220,8 +183,8 @@ def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
     """
     pygame image染色
     """
-    w, h = img.get_size()
     # ---暴力循环法1---
+    # w, h = img.get_size()
     # pix_array = {}
     # for x in range(w):
     #     for y in range(h):
@@ -240,6 +203,7 @@ def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
     #                 img.set_at(pos, (r, g, b, 255))
 
     # ---暴力循环法2---
+    # w, h = img.get_size()
     # for x in range(w):
     #     for y in range(h):
     #         img_pix = img.get_at((x, y))
@@ -252,12 +216,15 @@ def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
     #                     break
 
     # ---pixelarray替换法---
-    pa = pygame.PixelArray(img)
+    new_img = img.copy()
+    pa = pygame.PixelArray(new_img)
     for index in range(256):
         ori_color = ori_pal32[index]['R'], ori_pal32[index]['G'], ori_pal32[index]['B'], 255
         new_color = new_pal32[index]['R'], new_pal32[index]['G'], new_pal32[index]['B'], 255
-        pa.replace(ori_color, new_color, 0)
+        if ori_color != new_color:
+            pa.replace(ori_color, new_color)
     pa.close()
+    return new_img
 
     # ---PIL-numpy法---
     # img_bytes = img.get_buffer().raw
@@ -274,31 +241,6 @@ def modulate_img_by_palette(img, ori_pal32: list, new_pal32: list):
     # img = pygame.image.frombuffer(img_data, (w, h), 'RGBA')
     # # img.show()
 
-    return img
-
-
-def modulate_animation8d_by_palette(ani8d, wpal_file, segment, solution):
-    t = time.time()
-    ori_pal16 = ani8d.palette16
-    new_pal16, pal_range = palette_modulate(ori_pal16, wpal_file, segment, solution)
-    ori_pal32 = palette16_to_palette32(ori_pal16)
-    new_pal32 = palette16_to_palette32(new_pal16)
-    for ani in ani8d.get_children().values():
-        new_frames = []
-        for frame in ani.frames:
-            new_frames.append(modulate_img_by_palette(frame, ori_pal32, new_pal32))
-        ani.frames = new_frames
-    dt = time.time() - t
-    print('img调色耗时: {}ms'.format(int(dt * 1000)))
-
-
-def palette_swap(surf, old_c, new_c):
-    img_copy = pygame.Surface(surf.get_size())
-    img_copy.fill(new_c)
-    surf.set_colorkey(old_c)
-    img_copy.blit(surf, (0, 0))
-    return img_copy
-
 
 def modulate_animation_by_palette(ani, wpal_file, ori_pal16, recipe):
     """
@@ -311,45 +253,10 @@ def modulate_animation_by_palette(ani, wpal_file, ori_pal16, recipe):
     new_pal16, _ = palette_modulate(new_pal16, wpal_file, 2, recipe[0])
     new_pal32 = palette16_to_palette32(new_pal16)
     for j in range(len(ani.frames)):
-        # ---set_colorkey法---
-        # bg_color = None
-        # for i in range(256):
-        #     ori_color = (ori_pal32[i]['R'], ori_pal32[i]['G'], ori_pal32[i]['B'])
-        #     new_color = (new_pal32[i]['R'], new_pal32[i]['G'], new_pal32[i]['B'])
-        #     if not bg_color:
-        #         bg_color = new_color
-        #     ani.frames[j] = palette_swap(ani.frames[j], ori_color, new_color)
-        # img_bg = pygame.Surface(ani.frames[j].get_size(), pygame.SRCALPHA)
-        # ani.frames[j].set_colorkey(bg_color)
-        # img_bg.blit(ani.frames[j], (0, 0))
-        # ani.frames[j] = img_bg
-        # ---循环置像素法---
-        modulate_img_by_palette(ani.frames[j], ori_pal32, new_pal32)
+        ani.frames[j] = modulate_img_by_palette(ani.frames[j], ori_pal32, new_pal32)
     ani.is_modulated = True
     dt = time.time() - t
-    print('animation染色时间:{}ms'.format(int(dt*1000)))
-
-
-def modulate_animation_by_palette2(ani, wpal_file, ori_pal16, recipe):
-    ani.is_modulated = True
-    th = Thread(target=thread_modulate_animation_by_palette, args=(ani, wpal_file, ori_pal16, recipe))
-    th.start()
-
-
-def modulate_pil_image_by_palette(img, ori_pal32, new_pal32):
-    """
-    pil image染色
-    """
-    data = np.array(img)
-    for i in range(len(ori_pal32)):
-        ori_color = (ori_pal32[i]['R'], ori_pal32[i]['G'], ori_pal32[i]['B'], 255)
-        new_color = (new_pal32[i]['R'], new_pal32[i]['G'], new_pal32[i]['B'], 255)
-        if ori_color != new_color:
-            data[(data == ori_color).all(axis=-1)] = new_color
-    pil_image = Image.fromarray(data, 'RGBA')
-    img_bytes = pil_image.tobytes()
-    img = pygame.image.frombuffer(img_bytes, pil_image.size, 'RGBA')
-    return img
+    # print('animation染色时间:{}ms'.format(int(dt*1000)))
 
 
 def bytes_to_image(bytes_data):
@@ -409,6 +316,21 @@ def fill_button(btn, rsp_file, hash_id):
     btn.kx, btn.ky = res.kx, res.ky
 
 
+def fill_animation(ani, rsp_file, hash_id):
+    res = read_rsp(rsp_file, hash_id)
+    for i in range(res.dir_cnt):
+        frames = res.frames[i]
+        ani.frames = []
+        ani.kx, ani.ky = res.kx, res.ky
+        ani.width, ani.height = res.width, res.height
+        for img in frames:
+            ani.frames.append(img)
+        break  # 只读第一个方向
+    ani.width, ani.height = res.width, res.height
+    ani.kx, ani.ky = res.kx, res.ky
+    return ani
+
+
 def fill_animation8d(ani8d, rsp_file, hash_id):
     from Node.animation import Animation
     ani8d.clear_children()
@@ -425,11 +347,13 @@ def fill_animation8d(ani8d, rsp_file, hash_id):
     ani8d.palette16 = res.palette16
     ani8d.palette32 = res.palette32
     ani8d.width, ani8d.height = res.width, res.height
+    return ani8d
 
 
 def fill_image_rect(img, rsp_file, hash_id):
     res = read_rsp(rsp_file, hash_id)
     img.image = res.frames[0][0]
+    img.raw_image = img.image.copy()
     img.kx, img.ky = res.kx, res.ky
     # 没有指定宽高则取素材宽高, 否则进行裁切
     crop = False
@@ -447,6 +371,7 @@ def fill_image_rect(img, rsp_file, hash_id):
         h = img.height
     if crop:
         img.auto_sizing(w, h)
+    return img
 
 
 def fill_magic_effect(eff, name):
@@ -516,9 +441,9 @@ def read_rsp(rsp_file, hash_id):
             res.width = read_int(rspf, 2)
             res.height = read_int(rspf, 2)
             res.dir_cnt = read_int(rspf, 2)
-            if 'shape.rsp' in file_path:
-                res.palette16_data = rspf.read(768)  # 565调色板原始数据
-            res.palette32_data = rspf.read(1024)  # 888调色板原始数据
+
+            for _ in range(256):
+                res.palette16_data.append(rspf.read(2))  # 565调色板原始数据, 256*2字节
             res.get_palette()
             for dir_num in range(res.dir_cnt):
                 res.frames[dir_num] = []
@@ -528,7 +453,7 @@ def read_rsp(rsp_file, hash_id):
                     fr_data = rspf.read(fr_size)
                     img = bytes_to_image(fr_data)
                     res.frames[dir_num].append(img)
-        # rsp_cache[key] = {'time': time.time(), 'res': res}
+        rsp_cache[key] = {'time': time.time(), 'res': res}
     return res
 
 

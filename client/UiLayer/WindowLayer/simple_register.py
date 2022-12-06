@@ -8,7 +8,7 @@ from Common.socket_id import *
 class SimpleRegister(Window):
     def __init__(self):
         super(SimpleRegister, self).__init__()
-        self.visible = False
+        self.enable = False
         self.window_title = '简易注册'
         self.width, self.height = 300, 300
         self.x = 50

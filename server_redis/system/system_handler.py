@@ -47,7 +47,11 @@ def account_login(account, passwd) -> bool:
         send(server.tmp_client_socket[account], S_系统提示, dict(内容='账号/密码错误!'))
         return False
     else:
+        # 发送所有角色数据
         send_hero_data_by_account(account)
+        # 发送所有NPC数据
+        # send(server.tmp_client_socket[account], S_所有NPC数据, dict(内容=NPCS))
+        send(server.tmp_client_socket[account], S_所有NPC数据, dict(内容=BH_NPC_DATA))
         return True
 
 

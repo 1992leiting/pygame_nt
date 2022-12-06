@@ -9,8 +9,9 @@ from Node.prompt import PromptManager
 from Network.my_socket import SocketClient
 from Common.socket_id import *
 from Node.world import World
-from Node.character import Character
+from Node.character import Character, Hero
 from UiLayer.FunctionLayer.function_layer import FunctionLayer
+from Node.prompt import SimplePrompt, RichPrompt
 
 
 pygame.init()
@@ -24,7 +25,7 @@ class Director(Node):
     """
     def __init__(self):
         super(Director, self).__init__()
-        self.game_fps = 60
+        self.game_fps = 30
         self.window_w = 800
         self.window_h = 600
         self.screen = pygame.display.set_mode(self.window_size, 0, 32)
@@ -52,6 +53,9 @@ class Director(Node):
         self.item_warehouse_data = None
         self.pet_data = None
         self.pet_warehouse_data = None
+        self.mapx = None
+        self._new_caption = None  # 游戏角色加载之后设置新的窗口标题
+        self.sound_volume = 50  # 全局音量大小
 
         self.socket = socket.socket()
         self.connect_server()
@@ -73,6 +77,10 @@ class Director(Node):
         self.window_w, self.window_h = arg
         self.screen = pygame.display.set_mode(self.window_size, 0, 32)
 
+    @property
+    def dialog_window(self):
+        return self.get_node('window_layer/对话栏')
+
     def setup_ui(self):
         game.director = self
         self.add_child('scene', Node())
@@ -80,12 +88,11 @@ class Director(Node):
         self.add_child('window_layer', Node())
         self.add_child('floating_layer', Node())
         self.add_child('mouse', new_node('Mouse'))
+        self.add_child('simple_prompt', SimplePrompt())
+        self.add_child('rich_prompt', RichPrompt())
 
     def start_game(self):
-        # 设置窗口标题
-        # title = '梦幻西游ONLINE-{}{}'.format(self.hero_data['名称'], self.hero_data['id'])
-        # print('title:', title)
-        # pygame.display.set_caption(title)
+        self._new_caption = 1  # 先置标志位,避免在线程中修改caption
         # 关闭一些窗口
         game.window_layer.child('简易登陆').switch(False)
         game.window_layer.child('简易注册').switch(False)
@@ -95,7 +102,7 @@ class Director(Node):
         fl = FunctionLayer()
         self.add_child('function_layer', fl)
         # 初始化英雄和world
-        hero = Character()
+        hero = Hero()
         hero.set_data(self.hero_data)
         world = World()
         world.add_child('hero', hero)
@@ -177,8 +184,16 @@ class Director(Node):
             print('连接游戏服务器成功!')
     
     def update(self):
-        # print('--------')
+        if self._new_caption:
+            # 设置窗口标题
+            title = '梦幻西游ONLINE(pygame) - {}[{}]'.format(self.hero_data['名称'], self.hero_data['id'])
+            pygame.display.set_caption(title)
+            self._new_caption = None
         self.node_hover = None
+        if game.rp:
+            game.rp.enable = False
+        if game.sp:
+            game.sp.enable = False
         self.mouse_pos = pygame.mouse.get_pos()
         # 移动镜头, 远快近慢优化镜头视觉效果
         hero = game.hero

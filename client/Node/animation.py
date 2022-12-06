@@ -46,17 +46,29 @@ class Animation(Node):
             else:
                 self.fps_cnt += 1
 
-            # 利用时间间隔(不准确, 不同步)
-            # if time.time() - self.timer > self.duration:
-            #     self.timer = time.time()
-            #     self.frame_index = (self.frame_index + 1) % self.frame_num
-
     def draw(self):
         if self.cur_frame:
             _frame = self.cur_frame.copy()
             if self.highlight:
                 _frame.fill((60, 60, 60), special_flags=pygame.BLEND_RGB_ADD)
             self.director.screen.blit(_frame, (self.x - self.kx, self.y - self.ky))
+
+
+class OneTimeAnimation(Animation):
+    """
+    播放完自动删除
+    """
+    def __init__(self):
+        super(OneTimeAnimation, self).__init__()
+        self.is_playing = False
+
+    def play(self):
+        self.is_playing = True
+
+    def update(self):
+        super(OneTimeAnimation, self).update()
+        if self.frame_index == self.frame_num - 1:
+            self.remove_self()
 
 
 class Animation8D(Node):
@@ -113,6 +125,6 @@ class Animation8D(Node):
                 self.cur_animation.is_playing = self.is_playing
                 self.width = self.cur_animation.width
                 self.height = self.cur_animation.height
-                child.visible = True
+                child.enable = True
             else:
-                child.visible = False
+                child.enable = False

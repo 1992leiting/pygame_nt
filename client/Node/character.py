@@ -10,6 +10,7 @@ from Node.label import Label
 from Node.magic_effect import MagicEffect, BuffEffect
 from Node.node import Node
 from Node.prompt import GamePrompt, PromptManager
+from Common.socket_id import *
 
 
 class BasicCharacter(Node):
@@ -48,10 +49,13 @@ class BasicCharacter(Node):
         if self.director.node_hover == self:
             self.director.node_hover = None
         if self.director.node_hover is None and self.mask_rect.collidepoint(pos):
-            color = self.cur_char_animation.cur_frame.get_at(rect_pos)
-            if color != (0, 0, 0, 0):
-                self.is_hover = True
-                self.director.node_hover = self
+            if self.cur_char_animation:
+                color = self.cur_char_animation.cur_frame.get_at(rect_pos)
+                if color != (0, 0, 0, 0):
+                    self.is_hover = True
+                    self.director.node_hover = self
+                else:
+                    self.is_hover = False
             else:
                 self.is_hover = False
         else:
@@ -88,13 +92,25 @@ class BasicCharacter(Node):
             self.game_x = int(data['地图数据']['x'])
             self.game_y = int(data['地图数据']['y'])
         if 'x' in data:
-            if '.' in data['x']:
-                data['x'] = data['x'].split('.')[0]
+            if type(data['x']) == str:
+                if '.' in data['x']:
+                    data['x'] = data['x'].split('.')[0]
             self.game_x = int(data['x'])
         if 'y' in data:
-            if '.' in data['y']:
-                data['y'] = data['y'].split('.')[0]
+            if type(data['y']) == str:
+                if '.' in data['y']:
+                    data['y'] = data['y'].split('.')[0]
             self.game_y = int(data['y'])
+        if 'X' in data:
+            if type(data['X']) == str:
+                if '.' in data['X']:
+                    data['X'] = data['X'].split('.')[0]
+            self.game_x = int(data['X'])
+        if 'Y' in data:
+            if type(data['Y']) == str:
+                if '.' in data['Y']:
+                    data['Y'] = data['Y'].split('.')[0]
+            self.game_y = int(data['Y'])
         if 'mx' in data:
             # if '.' in data['mx']:
             #     data['mx'] = data['mx'].split('.')[0]
@@ -107,11 +123,14 @@ class BasicCharacter(Node):
             self.direction = int(data['方向'])
         if 'id' in data:
             self.id = int(data['id'])
+        if '染色' in data:
+            self.color_recipe = data['染色']
         # if '类型' in data:
         #     self.type = data['类型']
         self.setup()
 
     def setup(self):
+        print('setup char:', self.name)
         self.setup_basic()
 
     def set_fps(self, v):
@@ -124,13 +143,16 @@ class BasicCharacter(Node):
         """
         设置人物路径
         """
+        self.path = p
         if p:
-            self.path = p
+            pass
             # self.x, self.y = p[0]  # 直接移动到第一个路径坐标
+        else:
+            self.is_moving = False
 
     def setup_basic(self):
         if self.name == '大鹌鹑二号' or '风' in self.name:
-            self.color_recipe = (3, 3, 0)
+            self.color_recipe = (4, 4, 0)
         from Game.res_manager import fill_animation8d, fill_image_rect
         self.setup_ui()
         model_index = self.model
@@ -139,36 +161,38 @@ class BasicCharacter(Node):
             weapon_index = self.weapon + "_" + self.model
 
         self.setup_ui()
-        if model_index in self.shapes:
-            ani_char = Animation8D()
-            fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['静立']))
-            ani_char.set_fps(7)
-            self.add_child('char_stand', ani_char)
-        else:
-            print('shapes不存在1: ', model_index)
+        ani_char = Animation8D()
+        # fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['静立']))
+        _rsp, _hash = get_normal_shape_res_hash(model_index, '静立', self.shapes)
+        fill_animation8d(ani_char, _rsp, _hash)
+        ani_char.set_fps(7)
+        self.add_child('char_stand', ani_char)
+
+        self.width = self.child('char_stand').width
+        self.height = self.child('char_stand').height
+
         if weapon_index and weapon_index != '':
-            if weapon_index in self.shapes:
-                ani_weapon = Animation8D()
-                fill_animation8d(ani_weapon, self.shapes[weapon_index]['资源'], int(self.shapes[weapon_index]['静立']))
-                ani_weapon.set_fps(7)
-                self.add_child('weapon_stand', ani_weapon)
-            else:
-                print('shapes不存在2: ', model_index)
-        if model_index in self.shapes:
-            ani_char = Animation8D()
-            fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['行走']))
-            ani_char.set_fps(18)
-            self.add_child('char_walk', ani_char)
-        else:
-            print('shapes不存在3: ', model_index)
+            ani_weapon = Animation8D()
+            # fill_animation8d(ani_weapon, self.shapes[weapon_index]['资源'], int(self.shapes[weapon_index]['静立']))
+            _rsp, _hash = get_normal_shape_res_hash(weapon_index, '静立', self.shapes)
+            fill_animation8d(ani_weapon, _rsp, _hash)
+            ani_weapon.set_fps(7)
+            self.add_child('weapon_stand', ani_weapon)
+
+        ani_char = Animation8D()
+        # fill_animation8d(ani_char, self.shapes[model_index]['资源'], int(self.shapes[model_index]['行走']))
+        _rsp, _hash = get_normal_shape_res_hash(model_index, '行走', self.shapes)
+        fill_animation8d(ani_char, _rsp, _hash)
+        ani_char.set_fps(18)
+        self.add_child('char_walk', ani_char)
+
         if weapon_index and weapon_index != '':
-            if weapon_index in self.shapes:
-                ani_weapon = Animation8D()
-                fill_animation8d(ani_weapon, self.shapes[weapon_index]['资源'], int(self.shapes[weapon_index]['行走']))
-                ani_weapon.set_fps(18)
-                self.add_child('weapon_walk', ani_weapon)
-            else:
-                print('shapes不存在4: ', model_index)
+            ani_weapon = Animation8D()
+            # fill_animation8d(ani_weapon, self.shapes[weapon_index]['资源'], int(self.shapes[weapon_index]['行走']))
+            _rsp, _hash = get_normal_shape_res_hash(weapon_index, '行走', self.shapes)
+            fill_animation8d(ani_weapon, _rsp, _hash)
+            ani_weapon.set_fps(18)
+            self.add_child('weapon_walk', ani_weapon)
 
         shadow = ImageRect()
         fill_image_rect(shadow, 'shape.rsp', 3705976162)
@@ -187,9 +211,10 @@ class BasicCharacter(Node):
         self.ori_y += vector.y
 
     def update(self):
+        self.update_path()
         self.update_basic()
 
-    def update_basic(self):
+    def update_path(self):
         if len(self.path) > 0:
             if self.clear_path:
                 self.path = []
@@ -206,35 +231,35 @@ class BasicCharacter(Node):
         else:
             self.is_moving = False
 
+    def update_basic(self):
         if self.is_moving:
             if self.child('char_stand'):
-                self.child('char_stand').visible = False
+                self.child('char_stand').enable = False
             if self.child('weapon_stand'):
-                self.child('weapon_stand').visible = False
+                self.child('weapon_stand').enable = False
             if self.child('char_walk'):
-                self.child('char_walk').visible = True
+                self.child('char_walk').enable = True
                 self.cur_char_animation = self.child('char_walk').cur_animation
             if self.child('weapon_walk'):
-                self.child('weapon_walk').visible = True
+                self.child('weapon_walk').enable = True
                 self.cur_weapon_animation = self.child('weapon_walk').cur_animation
         else:
             if self.child('char_stand'):
-                self.child('char_stand').visible = True
+                self.child('char_stand').enable = True
                 self.cur_char_animation = self.child('char_stand').cur_animation
             if self.child('weapon_stand'):
-                self.child('weapon_stand').visible = True
+                self.child('weapon_stand').enable = True
                 self.cur_weapon_animation = self.child('weapon_stand').cur_animation
             if self.child('char_walk'):
-                self.child('char_walk').visible = False
+                self.child('char_walk').enable = False
             if self.child('weapon_walk'):
-                self.child('weapon_walk').visible = False
+                self.child('weapon_walk').enable = False
 
         # 染色
         if self.color_recipe != (0, 0, 0) and not self.cur_char_animation.is_modulated:
             from Game.res_manager import modulate_animation_by_palette
             wpal_file = '{}{}.wpal'.format(wpal_dir, self.model)
             if os.path.exists(wpal_file):
-                print('染色:', self.name)
                 if self.is_moving:
                     pal16 = self.child('char_walk').palette16
                 else:
@@ -258,8 +283,6 @@ class BasicCharacter(Node):
             self.mask_rect = mask.get_rect()
             self.mask_rect.x = self.x - self.cur_char_animation.kx
             self.mask_rect.y = self.y - self.cur_char_animation.ky
-            # if self.name == '大鹌鹑二号':
-            #     print('maskrect:', mask, self.mask_rect)
 
         if self.cur_char_animation:
             self.cur_char_animation.highlight = self.is_hover
@@ -278,15 +301,21 @@ class BasicCharacter(Node):
                 if self.type == 'npc':
                     self.director.child('mouse').set_last_state()
 
+        # 发言框
+        self.child('speech_prompt').x = self.x - self.width//2 - (CHAR_SPEECH_PROMPT_WIDTH - self.width)//2
+        self.child('speech_prompt').y = self.y - self.height + 10
+
     def check_event(self):
-        super(BasicCharacter, self).check_event()
+        # super(BasicCharacter, self).check_event()
         if self.is_hover:
             # 左键按下事件要吸收掉
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
                 pass
             # 左键弹起则触发点击事件
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
-                print('点击人物:', self.name)
+                # print('点击人物:', self.name, self.id)
+                if self.type == 'npc':
+                    send(C_点击NPC, dict(id=self.id))
 
 
 class Character(BasicCharacter):
@@ -331,6 +360,7 @@ class Character(BasicCharacter):
                 self.child('name').center_y = self.y + 20
 
     def update(self):
+        self.update_path()
         self.update_basic()
         self.update_character()
 
@@ -338,13 +368,38 @@ class Character(BasicCharacter):
         #     pygame.draw.rect(self.director.screen, (255, 255, 255), self.cur_char_animation.rect, 2)
 
 
+class Hero(Character):
+    def __init__(self):
+        super(Hero, self).__init__()
+        self.type = 'hero'
+
+    def set_path(self, p: list):
+        super(Hero, self).set_path(p)
+        # from Game.res_manager import fill_res
+        # points_canvas = game.world.child('map_jpg').child('hero_path_points')
+        # points_canvas.clear_children()
+        # for i, (x, y) in enumerate(p):
+        #     point = ImageRect()
+        #     fill_res(point, 'wzife.rsp', 0x18E4B31B)
+        #     point.x, point.y = x, y
+        #     points_canvas.add_child(str(i), point)
+
+    # def update(self):
+    #     super(Hero, self).update()
+    #     # 寻路结束时清除寻路标记点
+    #     if not self.path and game.world.child('map_jpg'):
+    #         points_canvas = game.world.child('map_jpg').child('hero_path_points')
+    #         points_canvas.clear_children()
+
+
 class NPC(BasicCharacter):
     def __init__(self):
         super(NPC, self).__init__()
         self.type = 'npc'
+        self.npc_type = '普通'
         self.shapes = shapes
 
-    def setup_hero(self):
+    def setup_npc(self):
         name = Label()
         name.text = self.name
         name.font_name = 'mod_AdobeSong.ttf'
@@ -366,9 +421,16 @@ class NPC(BasicCharacter):
 
     def setup(self):
         self.setup_basic()
-        self.setup_hero()
+        self.setup_npc()
 
-    def update_hero(self):
+    def set_data(self, data):
+        super(NPC, self).set_data(data)
+        if '事件' in data:
+            self.npc_type = data['事件']
+        if '类型' in data:
+            self.npc_type = data['类型']
+
+    def update_npc(self):
         if self.title:
             self.child('title').center_x = self.x
             self.child('title').center_y = self.y + 20
@@ -381,8 +443,9 @@ class NPC(BasicCharacter):
                 self.child('name').center_y = self.y + 20
 
     def update(self):
+        self.update_path()
         self.update_basic()
-        self.update_hero()
+        self.update_npc()
 
 
 class BattleUnit(BasicCharacter):
@@ -394,7 +457,6 @@ class BattleUnit(BasicCharacter):
         self.shapes = bshapes
         self.h_speed = MOVING_SPEED * (60 // self.director.game_fps) * 15  # 保证速度不会因为fps变化而变化
         self.l_speed = self.h_speed / 10  # 高速/低速, 用于不同动作
-        self.speed = self.h_speed
         self.cur_action = '待战'
         self.is_ani_playing = True  # 动画是否在播放
         self.is_shaking = False  # 抖动
@@ -501,7 +563,7 @@ class BattleUnit(BasicCharacter):
                 print('shapes不存在6: ', model_index, weapon_index)
 
         shadow = ImageRect()
-        fill_image_rect(shadow, 'shape.rsp', 3705976162)
+        fill_image_rect(shadow, 'shape.rsp', 0xDCE4B562)  # 3705976162
         self.add_child('shadow', shadow)
 
         self.attack_acc = get_model_attack_frame(self.model, get_weapon_type(self.weapon))[1]
@@ -517,23 +579,6 @@ class BattleUnit(BasicCharacter):
             self.child('name').center_y = self.y + 20
 
     def update_basic(self):
-        if len(self.path) > 0:
-            if self.clear_path:
-                self.path = []
-                self.clear_path = False
-                self.is_moving = False
-            else:
-                self.is_moving = True
-                _target = self.path[0]
-                th = self.speed // 2 + 1
-                if abs(self.x - int(_target[0])) <= th and abs(self.y - int(_target[1])) <= th:
-                    self.x, self.y = self.path[0][0], self.path[0][1]
-                    self.path.pop(0)
-                else:
-                    self.move()
-        else:
-            self.is_moving = False
-
         if self.child('char'):
             self.child('char').direction = self.direction
         if self.child('weapon'):
@@ -751,5 +796,6 @@ class BattleUnit(BasicCharacter):
         self.child('behind_buff').remove_child(name)
 
     def update(self):
+        self.update_path()
         self.update_basic()
         self.update_battle_unit()

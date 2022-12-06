@@ -58,13 +58,13 @@ class MessageArea(Node):
         表情开关.is_playing = False
         self.add_child('表情开关', 表情开关)
 
-        btn_语音 = set_node_attr(Button(), {'rsp_file': 'other.rsp',
+        btn_语音 = set_node_attr(Button(), {'rsp_file': 'other2.rsp',
                                             'hash_id': 65874,
                                             'bottom_left_x': 44,
                                             'bottom_left_y': self.director.window_h - 3})
         self.add_child('btn_语音', btn_语音)
 
-        btn_冒泡 = set_node_attr(Button(), {'rsp_file': 'other.rsp',
+        btn_冒泡 = set_node_attr(Button(), {'rsp_file': 'other2.rsp',
                                             'hash_id': 65875,
                                             'bottom_left_x': 62,
                                             'bottom_left_y': self.director.window_h - 3})
@@ -98,7 +98,7 @@ class MessageArea(Node):
             self.child('表情开关').is_playing = True
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
                 emoji_window = self.director.get_node('function_layer/emoji_window')
-                emoji_window.visible = not emoji_window.visible
+                emoji_window.enable = not emoji_window.enable
         else:
             self.child('表情开关').is_playing = False
             self.child('表情开关').cur_animation.frame_index = 0

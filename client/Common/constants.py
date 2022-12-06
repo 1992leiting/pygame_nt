@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 
 class Game:
@@ -9,6 +10,7 @@ class Game:
         self.director = None
         self.account = ''  # 当前游戏处理的账号
         self.window_layer = None
+        self.npcs = {}  # 所有NPC数据,key:npc_id, value:NPC数据
 
     @property
     def world(self):
@@ -25,6 +27,24 @@ class Game:
     @property
     def world_msg_flow(self):
         return self.director.get_node('function_layer/message_area/聊天区背景/信息流文本')
+
+    @property
+    def mouse(self):
+        return self.director.child('mouse')
+
+    @property
+    def sp(self):
+        return self.director.child('simple_prompt')
+
+    @property
+    def rp(self):
+        return self.director.child('rich_prompt')
+
+    @property
+    def hero_path(self):
+        if self.hero:
+            return self.hero.path
+        return None
 
 
 game = Game()
@@ -58,7 +78,7 @@ if not os.path.exists(res_dir):
 if not os.path.exists(res_dir):
     res_dir = 'D:/pygame/Res/'
 
-rsp_dir = res_dir + 'rsp_new/'
+rsp_dir = res_dir + 'rsp_new2/'
 data_dir = res_dir + 'data/'
 map_dir = res_dir + 'mapx/'
 font_dir = res_dir + 'font/'
@@ -74,7 +94,17 @@ portals = csv2dict(data_dir + 'XA_portals.csv')
 colors = csv2dict(data_dir + 'color.csv')
 effects = csv2dict(data_dir + 'XA_effects.csv')
 head_image = csv2dict(data_dir + 'head_image.csv')
+bh_shapes = pd.read_excel(data_dir + 'BH_模型数据.xlsx', index_col='名称').fillna('').T.to_dict()
+max_shape_list = pd.read_excel(data_dir + 'max_hash对应表.xlsx', index_col='max_hash').T.to_dict()
+BH_NPC_FILE = data_dir + 'BH_NPC数据.xlsx'
+BH_MAP_FILE = data_dir + 'BH_地图数据.xlsx'
+BH_ITEM_FILE = data_dir + 'BH_物品数据.xlsx'
+BH_NPC_DATA = pd.read_excel(BH_NPC_FILE, index_col='地图编号').fillna('').T.to_dict()
+BH_MAP_DATA = pd.read_excel(BH_MAP_FILE, index_col='地图编号').fillna('').T.to_dict()
+BH_ITEM_DATA = pd.read_excel(BH_ITEM_FILE, index_col='名称').fillna('').T.to_dict()
 # ashapes = pd.read_csv(data_dir + 'ashapes.csv', index_col='名称').T.to_dict()
+
+ALPHABET = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz'
 
 # 血量类型
 HP_DROP = 1  # 掉血
@@ -87,6 +117,7 @@ SERVER_PORT = 9093  # 8001
 # 默认字体
 DEFAULT_FONT = 'simsun.ttf'
 SIM_HEI = 'simhei.ttf'
+ADOBE_SONG = 'mod_AdobeSong.ttf'
 
 # 阵营
 OUR = 1  # 我方
@@ -161,6 +192,59 @@ NODE_LIST = [
     'BuffEffect', 'MagicEffect', 'FullScreenEffect', 'MapMask', 'Mouse', 'Portal', 'World'
 ]
 
-# Prompt风格
-GAME_PROMPT = 0  # 系统提示
-CHAR_SPEECH = 1  # 玩家发言
+# Prompt相关
+GAME_PROMPT = 0  # 系统提示风格
+CHAR_SPEECH = 1  # 玩家发言风格
+FLOATING_PROMPT = 2  # 悬浮提示
+PROMPT_MARGIN_X = 5  # 系统提示文字距离边框的距离
+PROMPT_MARGIN_Y = 5
+CHAR_SPEECH_PROMPT_WIDTH = 106
+PROMPT_WIDTH = {
+    CHAR_SPEECH: CHAR_SPEECH_PROMPT_WIDTH,
+    GAME_PROMPT: 300,
+    FLOATING_PROMPT: 10
+}
+PROMPT_Y_SPACE = {
+    CHAR_SPEECH: 4,
+    GAME_PROMPT: 7,
+}  # 提示之间的间距
+PROMPT_TIMEOUT = {
+    CHAR_SPEECH: 10,
+    GAME_PROMPT: 5
+}  # 超时消失的时间
+
+HERO_MODELS = ["飞燕女", "英女侠", "逍遥生", "剑侠客", "狐美人", "骨精灵", "巨魔王", "虎头怪", "舞天姬", "玄彩娥", "神天兵", "龙太子"]
+
+
+# 小地图相关
+SMAP_NPC_COLOR = dict(
+    全部='深青',
+    普通='白',
+    商业='金',
+    特殊='橙红',
+    传送='酸橙',
+    任务='深天蓝',
+    出口='紫'
+)
+
+
+# 人物升级经验
+CHAR_LEVEL_EXP_REQ = [40, 110, 237, 450, 779, 1252, 1898, 2745, 3822, 5159, 6784, 8726, 11013, 13674, 16739, 20236,
+                      24194, 28641, 33606, 39119, 45208, 51902, 55229, 67218, 75899, 85300, 95450, 106377, 118110,
+                      130679, 144112, 158438, 173685, 189882, 207059, 225244, 244466, 264753, 286134, 308639, 332296,
+                      357134, 383181, 410466, 439019, 468868, 500042, 532569, 566478, 601799, 638560, 676790, 716517,
+                      757770, 800579, 844972, 890978, 938625, 987942, 1038959, 1091704, 1146206, 1202493, 1260594,
+                      1320539, 1382356, 1446074, 1511721, 1579326, 1648919, 1720528, 1794182, 1869909, 1947738, 2027699,
+                      2109820, 2194130, 2280657, 2369431, 2460479, 2553832, 2649518, 2747565, 2848003, 2950859, 3056164,
+                      3163946, 3274233, 3387055, 3502439, 3620416, 3741014, 3864261, 3990187, 4118819, 4250188, 4384322,
+                      4521249, 4660999, 4803599, 4998571, 5199419, 5406260, 5619213, 5838397, 6063933, 6295941, 6534544,
+                      6779867, 7032035, 7291172, 7557407, 7830869, 8111686, 8399990, 8695912, 8999586, 9311145, 9630726,
+                      9958463, 10294496, 10638964, 10992005, 11353761, 11724374, 12103988, 12492748, 12890799, 13298287,
+                      13715362, 14142172, 14578867, 15025600, 15482522, 15949788, 16427552, 16915970, 17415202,
+                      17925402, 18446732, 18979354, 19523428, 20079116, 20646584, 21225998, 43635044, 44842648,
+                      46075148, 47332886, 48616200, 74888148,
+                      76891401, 78934581, 81018219, 83142835, 85308969, 87977421, 89767944, 92061870, 146148764,
+                      150094780, 154147340, 158309318,
+                      162583669, 166973428, 171481711, 176111717, 180866734, 185780135, 240602904, 533679362, 819407100,
+                      1118169947, 1430306664,
+                      1756161225, 2096082853]
