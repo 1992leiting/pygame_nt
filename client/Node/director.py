@@ -12,6 +12,8 @@ from Node.world import World
 from Node.character import Character, Hero
 from UiLayer.FunctionLayer.function_layer import FunctionLayer
 from Node.prompt import SimplePrompt, RichPrompt
+from Battle.battle_scene import BattleScene
+from Node.game_scene import GameScene
 
 
 pygame.init()
@@ -83,7 +85,7 @@ class Director(Node):
 
     def setup_ui(self):
         game.director = self
-        self.add_child('scene', Node())
+        self.add_child('scene', GameScene())
         self.add_child('function_layer', Node())
         self.add_child('window_layer', Node())
         self.add_child('floating_layer', Node())
@@ -101,16 +103,30 @@ class Director(Node):
         # 初始化function layer
         fl = FunctionLayer()
         self.add_child('function_layer', fl)
-        # 初始化英雄和world
+        # 初始化英雄和scene
         hero = Hero()
         hero.set_data(self.hero_data)
+        # world_scene
         world = World()
         world.add_child('hero', hero)
         world.child('hero').visible = False
         self.child('scene').add_child('world_scene', world)
+        # battle_scene
+        bs = BattleScene()
+        bs.enable = False
+        self.child('scene').add_child('battle_scene', bs)
         world.change_map(int(self.hero_data['地图']))
         world.child('hero').visible = True
         self.director.client.send(C_进入场景, dict(map_id=game.world.map_id))
+
+    def change_scene(self, s):
+        if s == WORLD_SCENE:
+            self.child('scene').child('world_scene').enable = True
+            self.child('scene').child('battle_scene').enable = False
+        elif s == BATTLE_SCENE:
+            self.child('scene').child('world_scene').enable = False
+            self.child('scene').child('battle_scene').enable = True
+            self.child('scene').child('battle_scene').enter_battle_scene()
 
     def match_mouse_event(self, mode, event):
         """

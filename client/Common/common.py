@@ -261,43 +261,6 @@ def exit_game():
     sys.exit()
 
 
-def game_start(gl):
-    print('game start...')
-    from Node.character import Character
-    from Node.world import World
-    from Node.camera import Camera
-    from UiLayer.FunctionLayer.function_layer import FunctionLayer
-    from UiLayer.WindowLayer.window_layer import WindowLayer
-
-    GL = gl
-    # 英雄节点
-    char = Character()
-    char.type = 'hero'
-    char.set_data(GL.HERO_DATA)
-
-    # 镜头节点
-    camera = Camera()
-    GL.root.add_child('camera', camera)
-
-    # world节点
-    world = World()
-    world.ysort = True
-    GL.root.add_child('world', world)
-    world.add_child('hero', char)
-    GL.root.child('world').change_map(int(GL.HERO_DATA['地图数据']['编号']))
-
-    # FunctionLayer
-    function_layer = FunctionLayer()
-    GL.root.add_child('function_layer', function_layer)
-
-    # WindowLayer
-    window_layer = WindowLayer()
-    GL.root.add_child('window_layer', window_layer)
-
-    GL.STARTED = True
-    GL.client.send('进入游戏', {})
-
-
 def crop_image(image: pygame.image, x, y, w, h):
     # from PIL import Image
     # img_bytes = image.get_buffer()

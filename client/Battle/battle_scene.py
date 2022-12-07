@@ -10,6 +10,9 @@ from Node.label import Label
 import time
 from Node.magic_effect import MagicEffect
 from Node.hp_effect import HpEffect
+from Node.animation import Animation8D
+from Node.image_rect import ImageRect
+from Game.res_manager import fill_res
 
 
 敌方位置 = {1: {"y": 188, "x": 347}, 3: {"y": 158, "x": 407}, 2: {"y": 218, "x": 287}, 4: {"y": 128, "x": 467}, 5: {"y": 248, "x": 227}, 6: {"y": 233, "x": 396}, 7: {"y": 263, "x": 341}, 8: {"y": 203, "x": 456}, 9: {"y": 173, "x": 516}, 10: {"y": 293, "x": 281}}
@@ -59,6 +62,25 @@ class BattleScene(Node):
         self.process = 0  # 当前战斗流程序号
         self.aunits = []  # 主动方, 第一个单位为攻击/施法者
         self.punits = []  # 被动方, 第一个单位为被动主要单位, 比如群法点选单位
+        self.setup_ui()
+
+    def setup_ui(self):
+        # 地图背景
+        self.add_child('map_jpg', ImageRect())
+        # 纯色背景(战斗)
+        node = ImageRect().from_color((15, 25, 60, 190))
+        # node.x, node.y = game.camera.x, game.camera.y
+        self.add_child('grey_mask', node)
+        # 黑色背景(战斗)
+        node = ImageRect().from_color((0, 0, 0, 255))
+        # node.x, node.y = game.camera.x, game.camera.y
+        node.visible = False
+        self.add_child('black_mask', node)
+        # 法阵圆圈(战斗)
+        node = Animation8D()
+        fill_res(node, 'addon.rsp', 0xE3B87E0F)
+        # node.x, node.y = 0, 200
+        self.add_child('circle_mask', node)
 
         # units子节点和特效子节点, 设定好顺序防止覆盖关系错误
         self.add_child('units', Node())
@@ -78,6 +100,10 @@ class BattleScene(Node):
         self.add_child('spelling_tip', tip)
 
         self.setup_units()
+
+    def enter_battle_scene(self):
+        self.add_child('map_jpg', game.world.child('map_jpg'))
+        self.child('map_jpg').x, self.child('map_jpg').y = -game.camera.x, -game.camera.y
 
     def play_effect(self, skill, x, y, name='effect'):
         """
@@ -114,7 +140,7 @@ class BattleScene(Node):
         self.child('full_screen_effect').visible = True
         feff = FullScreenEffect(name)
         if feff.black_bg:
-            self.get_parent().child('black_mask').visible = True
+            self.child('black_mask').visible = True
         self.child('full_screen_effect').add_child('effect', feff)
         play_skill_effect_sound(name)
 
@@ -127,6 +153,7 @@ class BattleScene(Node):
         self.child('spelling_tip').time = time.time()
 
     def setup_units(self):
+        self.child('units').clear_children()
         self.my_units = my_units
         self.enemy_units = enemy_units
         for i, unit in enumerate(self.my_units):
@@ -215,7 +242,7 @@ class BattleScene(Node):
             self.aunits = [self.child('units').child('my_4')]
             self.plist = [
                 {'流程': 150, '返回': False, '技能名称': '推气过宫', '目标单位': [1, 2, 3, 5], '目标阵营': 0},
-                {'流程': 50, '返回': False, '技能名称': '唧唧歪歪', '目标单位': [1, 2, 3, 5], '目标阵营': 1},
+                {'流程': 50, '返回': False, '技能名 称': '唧唧歪歪', '目标单位': [1, 2, 3, 5], '目标阵营': 1},
                 {'流程': 1, '返回': False, '技能名称': '破血狂攻', '目标单位': [1]},
                 {'流程': 1, '返回': True, '技能名称': '破血狂攻', '目标单位': [1]},
             ]
@@ -388,7 +415,7 @@ class BattleScene(Node):
             feff = self.child('full_screen_effect').child('effect')
             if feff and feff.is_ended:
                 self.child('full_screen_effect').visible = False
-                self.get_parent().child('black_mask').visible = False
+                self.child('black_mask').visible = False
                 self.process = 0
 
         # 法术恢复/BUFF/道具流程

@@ -4,7 +4,7 @@ from UiLayer.WindowLayer.window_layer import Window
 from UiLayer.WindowLayer.win_config import WinHeroAttr
 from Common.constants import *
 from Node.button import ToggleButtonGroup
-from Node.objectBlock import ItemBlock, BlockGroup
+from Node.object_block import ItemBlock, BlockGroup
 
 
 class HeroBag(Window):
