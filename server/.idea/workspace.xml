@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="3185f7fb-3016-4863-9357-2daa3f4108a1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_redis/battle/battle_start.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10001/item.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10006/item.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10006/item_warehouse.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10006/pet_warehouse.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/Common/socket_id.py" beforeDir="false" afterPath="$PROJECT_DIR$/../client/Common/socket_id.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/Network/my_socket.py" beforeDir="false" afterPath="$PROJECT_DIR$/../client/Network/my_socket.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/Node/character.py" beforeDir="false" afterPath="$PROJECT_DIR$/../client/Node/character.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/UiLayer/FunctionLayer/button_area.py" beforeDir="false" afterPath="$PROJECT_DIR$/../client/UiLayer/FunctionLayer/button_area.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/battle/battle_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/battle/battle_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/battle_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/battle_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/common/common.py" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/common/common.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/common/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/common/constants.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/common/server_process.py" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/common/server_process.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/common/socket_id.py" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/common/socket_id.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/account_summary.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/data/account_summary.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10002/char.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10002/item.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10002/item_warehouse.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10001/item_warehouse.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10002/pet.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10001/pet.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10002/pet_warehouse.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10001/pet_warehouse.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10003/char.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10006/char.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10003/item.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10003/item_warehouse.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10003/pet.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10006/pet.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10003/pet_warehouse.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10004/char.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/data/admin1/10001/char.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10004/item.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10004/item_warehouse.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10004/pet.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/10004/pet_warehouse.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/data/admin1/account_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/data/admin1/account_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/game_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/game_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server_redis/gateway.py" beforeDir="false" afterPath="$PROJECT_DIR$/../server_redis/gateway.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2H8Ec1YiG1zjQaWNqtEv8fTLpN4" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\SynologyDrive\pygame\pygame_nt\server\item" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.main">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="server" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="game_server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="server_redis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/game_server.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="server_redis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="D:\SynologyDrive\pygame\pygame_nt\server\main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="redis_watcher" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="server_redis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="D:\SynologyDrive\pygame\pygame_nt\server_redis\redis_watcher.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="redis_watcher" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="server_redis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="D:\SynologyDrive\pygame\pygame_nt\server_redis\redis_watcher.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="redis_watcher" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="server_redis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="D:\SynologyDrive\pygame\pygame_nt\server_redis\redis_watcher.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="server" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Docutils task">
+      <module name="server" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Sphinx task">
+      <module name="server" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Autodetect">
+      <module name="server" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <module name="server" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.main" />
+      <item itemvalue="Python.redis_watcher" />
+      <item itemvalue="Python.game_server" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.game_server" />
+        <item itemvalue="Python.redis_watcher" />
+        <item itemvalue="Python.redis_watcher" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3185f7fb-3016-4863-9357-2daa3f4108a1" name="Changes" comment="" />
+      <created>1667658386120</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1667658386120</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>
