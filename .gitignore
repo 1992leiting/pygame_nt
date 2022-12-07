@@ -14,3 +14,4 @@
 /server/Script/scene/__pycache__/*.pyc
 /server/Script/scene/npc/__pycache__/*.pyc
 /server/Script/sys/__pycache__/*.pyc
+/server/.idea/*.xml
