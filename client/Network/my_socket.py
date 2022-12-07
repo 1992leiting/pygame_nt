@@ -89,6 +89,7 @@ class SocketClient:
             text = msg['内容']
             game.director.gp_manager.append(text)
         elif cmd == S_发送路径:
+            print('S_发送路径:', msg)
             path = msg['路径']
             game.hero.set_path(path)
         elif cmd == S_玩家寻路:

@@ -316,6 +316,9 @@ class BasicCharacter(Node):
                 # print('点击人物:', self.name, self.id)
                 if self.type == 'npc':
                     send(C_点击NPC, dict(id=self.id))
+                if self.type == 'player' and game.mouse.state == '攻击':
+                    send_data = dict(target=self.id, map_id=game.world.map_id, x=self.game_x, y=self.game_y)
+                    send(C_攻击玩家, send_data)
 
 
 class Character(BasicCharacter):

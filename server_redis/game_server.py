@@ -107,6 +107,8 @@ class GameServer(threading.Thread):
                 trigger_npc_response(pid, id, option)
         elif cmd == C_角色升级:
             player_level_up(pid)
+        elif cmd == C_攻击玩家:
+            pass
 
 
 def start_game_server():

@@ -14,6 +14,7 @@ class Server:
     """
     def __init__(self):
         self.game_server = None  # game server进程
+        self.battle_server = None
         self.redis_server = None  # redis监控线程,独立运行,自动保存redis数据
         self.redis_conn = None  # 每个进程各自的redis连接
         self.gateway = None  # 网关进程

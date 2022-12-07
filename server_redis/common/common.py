@@ -123,9 +123,12 @@ def send(sk, cmd: str, send_data: dict):
         print('发送网络数据失败:', str(e), cmd, send_data)
 
 
-def send2gw(cmd: str, send_data: dict):
+def send2gw(cmd: str, send_data: dict, flag=0):
     from common.server_process import server
-    send(server.game_server.socket, cmd, send_data)
+    if flag == 0:
+        send(server.game_server.socket, cmd, send_data)
+    elif flag == 1:
+        send(server.battle_server.socket, cmd, send_data)
 
 
 def send2pid(pid, cmd: str, send_data: dict):
@@ -154,7 +157,7 @@ def send2pid_in_scene(pid, cmd, send_data, include_self=False):
         send2pid(_id, cmd, send_data)
 
 
-def empty_indexed_dict(num: int)
+def empty_indexed_dict(num: int):
     d = {}
     for i in range(num):
         d[i] = None
@@ -198,11 +201,13 @@ def dict2file(data: dict, file: str):
     data_str = json.dumps(data, indent=4, ensure_ascii=False)
     with open(tmp_file, 'w', encoding='utf-8') as f:
         f.write(data_str)
-    os.remove(file)
+    if os.path.exists(file):
+        os.remove(file)
     os.rename(tmp_file, file)
 
 
 def file2dict(file) -> dict:
+    print('file2dict:', file)
     with open(file, 'r', encoding='utf-8') as f:
         data = json.load(f)
         return data

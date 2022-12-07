@@ -86,5 +86,5 @@ class ButtonArea(Node):
 
     def check_event(self):
         if self.child('btn_攻击').event or (self.director.alt_down and self.director.match_kb_event(STOP, pygame.K_a)):
-            self.director.gp_manager.append('此功能尚未实现, 敬请期待#' + str(random.randrange(10, 20)))
+            game.mouse.change_state('攻击')
 

@@ -23,9 +23,9 @@ class Unit:
 
     def load_from_bu_data(self, data: dict):
         self.data = data
-        if '类型'  in data:
+        if '类型' in data:
             self.type = data['类型']
-        if 'type'  in data:
+        if 'type' in data:
             self.type = data['type']
         return self
 
