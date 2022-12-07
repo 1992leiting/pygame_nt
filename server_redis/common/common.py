@@ -154,6 +154,13 @@ def send2pid_in_scene(pid, cmd, send_data, include_self=False):
         send2pid(_id, cmd, send_data)
 
 
+def empty_indexed_dict(num: int)
+    d = {}
+    for i in range(num):
+        d[i] = None
+    return d
+
+
 def sprint(text: str, tp='info'):
     """
     系统打印
