@@ -27,6 +27,7 @@ class RedisServer(threading.Thread):
             if time.time() > self.timer:
                 self.timer = time.time() + REDIS_AUTO_SAVE_INTERVAL
                 self.save()
+            time.sleep(0.001)
 
     def redis_save(self, pid: int):
         """

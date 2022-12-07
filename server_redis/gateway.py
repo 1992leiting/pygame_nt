@@ -1,5 +1,5 @@
 from common.server_process import server, RedisClient
-from redis_server import RedisServer
+from redis_watcher import RedisServer
 from common.common import *
 from common.constants import *
 import threading
@@ -197,7 +197,7 @@ if __name__ == '__main__':
 
     sprint('启动子进程...')
     # os.system('start python')
-    # os.system('start python redis_server.py')
+    # os.system('start python redis_watcher.py')
     os.system('start python game_server.py')
     os.system('start python game_server.py')
     os.system('start python game_server.py')

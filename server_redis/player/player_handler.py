@@ -55,7 +55,7 @@ initial_player_data = dict(节日礼物=0, id=0, 连接ip=0, 等级=0, 名称=""
                                '8': None, '9': None, '10': None, '11': None, '12': None, '13': None, '14': None,
                                '15': None, '16': None, '17': None, '18': None, '19': None})
 
-initial_item_data = dict(道具=empty_20, 行囊=empty_20)
+initial_item_data = dict(道具=empty_20.copy(), 行囊=empty_20.copy())
 initial_itemwarehouse_data = dict(主仓库={}, 房屋仓库={})
 initial_pet_data = dict()
 initial_petwarehouse_data = dict(主仓库={}, 房屋仓库={})

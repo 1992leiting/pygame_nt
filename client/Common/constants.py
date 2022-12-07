@@ -141,6 +141,10 @@ PASS = 0  # 捕获不清空事件
 STOP = 1  # 捕获并清空事件
 IGNORE = 2  # 忽略事件
 
+# 场景代号
+WORLD_SCENE = 0
+BATTLE_SCENE= 1
+
 MY_COLOR = {
     # key: 颜色代号, 富文本中#号后面跟的字母
     # val: color.csv文件中的颜色描述

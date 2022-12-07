@@ -457,6 +457,7 @@ class BattleUnit(BasicCharacter):
         self.shapes = bshapes
         self.h_speed = MOVING_SPEED * (60 // self.director.game_fps) * 15  # 保证速度不会因为fps变化而变化
         self.l_speed = self.h_speed / 10  # 高速/低速, 用于不同动作
+        self.moving_speed = self.h_speed
         self.cur_action = '待战'
         self.is_ani_playing = True  # 动画是否在播放
         self.is_shaking = False  # 抖动
@@ -469,6 +470,7 @@ class BattleUnit(BasicCharacter):
         self.backward_acc_cnt = 0  # 累计后退的次数(多段攻击且每次都退后)
         self.attack_acc = False  # 多段击退是否累加后退距离
         self.is_dead = False  # 是否死亡状态
+        self.color_recipe = (random.randint(1, 4), random.randint(1, 4), 0)
         self.setup_ui()
 
     def setup_ui(self):
@@ -581,6 +583,7 @@ class BattleUnit(BasicCharacter):
     def update_basic(self):
         if self.child('char'):
             self.child('char').direction = self.direction
+            self.cur_char_animation = self.child('char').cur_animation
         if self.child('weapon'):
             self.child('weapon').direction = self.direction
 
@@ -601,15 +604,32 @@ class BattleUnit(BasicCharacter):
         if self.child('weapon'):
             self.child('weapon').is_playing = self.is_ani_playing
 
+        # 染色
+        if self.color_recipe != (0, 0, 0) and self.cur_char_animation and not self.cur_char_animation.is_modulated:
+            from Game.res_manager import modulate_animation_by_palette
+            wpal_file = '{}{}.wpal'.format(wpal_dir, self.model)
+            if os.path.exists(wpal_file):
+                if self.is_moving:
+                    pal16 = self.child('char').palette16
+                else:
+                    pal16 = self.child('char').palette16
+                try:
+                    modulate_animation_by_palette(self.cur_char_animation, wpal_file, pal16, self.color_recipe)
+                except:
+                    self.cur_char_animation.is_modulated = True
+            else:
+                self.cur_char_animation.is_modulated = True
+                print('染色文件不存在:', wpal_file)
+
         # 鼠标指向时指针变化
         if self.is_hover:
-            if self.director.CHAR_HOVER != self.id:
-                self.director.CHAR_HOVER = self.id
+            if self.director.char_hover != self.id:
+                self.director.char_hover = self.id
                 if self.type == 'npc':
                     self.director.child('mouse').change_state('事件')
         else:
-            if self.director.CHAR_HOVER == self.id:
-                self.director.CHAR_HOVER = None
+            if self.director.char_hover == self.id:
+                self.director.char_hover = None
                 if self.type == 'npc':
                     self.director.child('mouse').set_last_state()
 
@@ -699,10 +719,27 @@ class BattleUnit(BasicCharacter):
         if vector.length() == 0:
             return
         vector.normalize_ip()
-        vector.scale_to_length(self.speed)
+        vector.scale_to_length(self.moving_speed)
         self.x += vector.x
         self.y += vector.y
         self.tmp_x, self.tmp_y = self.x, self.y
+
+    def update_path(self):
+        if len(self.path) > 0:
+            if self.clear_path:
+                self.path = []
+                self.clear_path = False
+                self.is_moving = False
+            else:
+                self.is_moving = True
+                _target = self.path[0]
+                th = self.moving_speed // 2 + 1
+                if abs(self.ori_x - int(_target[0])) <= th and abs(self.ori_y - int(_target[1])) <= th:
+                    self.path.pop(0)
+                else:
+                    self.move()
+        else:
+            self.is_moving = False
 
     def move_backward(self, shaking=False, dis=MOVING_BACKWARD_DIS, death=False):
         """
@@ -713,7 +750,7 @@ class BattleUnit(BasicCharacter):
         :return:
         """
         self.is_moving_backward = 1
-        self.speed = self.l_speed
+        self.moving_speed = self.l_speed
         self.is_shaking = shaking
         self.is_dead = death
         if self.camp == OUR:
@@ -727,16 +764,16 @@ class BattleUnit(BasicCharacter):
         :param speed: 0:高速, 1:低速
         :return:
         """
-        # print('返回:', self.model)
+        print('返回:', self.model)
         fps_scale = 1
         self.is_moving_backward = 0  # 返回时重置击退标志位
         # self.change_action('奔跑')
         self.is_shaking = False
         self.is_moving_back = True
         if speed == 0:
-            self.speed = self.h_speed
+            self.moving_speed = self.h_speed
         else:
-            self.speed = self.l_speed * fps_scale
+            self.moving_speed = self.l_speed * fps_scale
         self.path = [(self.ori_x, self.ori_y)]
 
     def reach_attack_frame(self):
