@@ -77,6 +77,8 @@ PORTALS = csv2dict('database/XA_portals.csv')  # 地图传送点
 NPCS = csv2dict('database/npc.csv')
 
 CONFIG_DATA_PATH = 'D:/SynologyDrive/pygame/Res/data/'
+if not os.path.exists(CONFIG_DATA_PATH):
+    CONFIG_DATA_PATH = 'F:/pygame/Res/Res/data/'
 BH_NPC_FILE = CONFIG_DATA_PATH + 'BH_NPC数据.xlsx'
 BH_MAP_FILE = CONFIG_DATA_PATH + 'BH_地图数据.xlsx'
 BH_NPC_DATA = pd.read_excel(BH_NPC_FILE, index_col='地图编号').fillna('').T.to_dict()

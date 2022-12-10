@@ -174,7 +174,7 @@ class ClassicButton(Button):
 
 
 class ButtonClassicRed(ClassicButton):
-    def __init__(self, text='按钮', width=800, outline=True):
+    def __init__(self, text='按钮', width=800, outline=False):
         super(ButtonClassicRed, self).__init__()
         fill_button(self, 'wzife4.rsp', 0x0267FB16)
         self.text = text
@@ -193,7 +193,7 @@ class ButtonClassicBlue(ClassicButton):
 
 
 class ButtonClassicRedToggle(ClassicButton):
-    def __init__(self, text='按钮', width=800, outline=True):
+    def __init__(self, text='按钮', width=800, outline=False):
         super(ButtonClassicRedToggle, self).__init__()
         fill_button(self, 'wzife4.rsp', 0x1A106D6A)
         self.text = text
