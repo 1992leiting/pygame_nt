@@ -165,7 +165,7 @@ def player_login(sk, account, pid) -> bool:
 
 
 def get_5d_attr(pid):
-    player_data = rget(pid, CHAR)
+    player_data = server.players[pid][CHAR]
     体质 = player_data['体质']
     魔力 = player_data['魔力']
     力量 = player_data['力量']
@@ -217,6 +217,7 @@ def refresh_player_attr(pid, recover=None, send_data=False):
     send_data: 是否发送数据到客户端
     """
     # 钱数额取整
+    player_data = server.players[pid][CHAR]
     player_data['现金'] = int(player_data['现金'])
     player_data['存银'] = int(player_data['存银'])
     player_data['储备金'] = int(player_data['储备金'])
@@ -245,14 +246,14 @@ def refresh_player_attr(pid, recover=None, send_data=False):
             player_data['魔法'] = player_data['最大魔法']
 
     print('refresh data:', player_data)
-    rset(pid, CHAR, player_data)
+    server.players[pid][CHAR] = player_data
 
 
 def player_level_up(pid):
     """
     玩家升级处理
     """
-    player_data = rget(pid, CHAR)
+    player_data = server.players[pid][CHAR]
     lv = player_data['等级']
     if player_data['当前经验'] >= CHAR_LEVEL_EXP_REQ[lv]:
         player_data['当前经验'] -= CHAR_LEVEL_EXP_REQ[lv]
@@ -265,7 +266,7 @@ def player_level_up(pid):
         player_data['潜力'] += 5
         player_data['最大活力'] += 10
         player_data['最大体力'] += 10
-        rset(pid, CHAR, player_data)
+        server.players[pid][CHAR] = player_data
         refresh_player_attr(pid, send_data=True, recover=2)
         send2pid_in_scene(pid, S_人物一次性特效, {'玩家': pid, '特效': '升级'}, include_self=True)
         send2pid_hero_data(pid)

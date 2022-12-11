@@ -19,8 +19,7 @@ def player_cmd_handler(msg):
 
     if cmd == C_更新坐标:
         x, y, map_id = msg['x'], msg['y'], msg['mapid']
-        pdata = server.players[pid]
-        pdata['mx'], pdata['my'], pdata['地图'] = x, y, map_id
+        server.players[pid][CHAR]['mx'], server.players[pid][CHAR]['my'], server.players[pid][CHAR]['地图'] = x, y, map_id
     elif cmd == C_进入场景:
         map_id = msg['map_id']
         player_enter_scene(pid, map_id)

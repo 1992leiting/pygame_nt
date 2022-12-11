@@ -118,7 +118,7 @@ class GatewayServer(socketserver.BaseRequestHandler):
             # 从self.players中删除这个socket
             del self.players[sk]
             # 保存玩家数据
-
+            save_player_data(player.pid)
             # Test: 打印所有game server的pid
 
 

@@ -6,7 +6,7 @@ from common.constants import *
 
 def get_npc_in_scene(pid, map_id=0):
     if not map_id:
-        map_id = rget(pid, CHAR, '地图')
+        map_id = server.players[pid][CHAR]['地图']
     npcs = []
 
     # 脚本方式
@@ -47,7 +47,7 @@ def get_npc_in_scene(pid, map_id=0):
 def player_enter_scene(pid, map_id):
     # 取其他玩家数据
     for _pid in get_players_in_scene(pid, map_id):
-        player_data = rget(_pid, CHAR)
+        player_data = server.players[_pid][CHAR]
         send2pid(pid, S_添加玩家, player_data)
     # 通知其他玩家进入新场景
     my_data = server.players[pid]
@@ -57,10 +57,10 @@ def player_enter_scene(pid, map_id):
 
 
 def player_leave_scene(pid):
-    map_id = rget(pid, CHAR, '地图')
+    map_id = server.players[pid][CHAR]['地图']
     # 取其他玩家数据
     for _pid in get_players_in_scene(pid, map_id):
-        player_data = rget(_pid, CHAR)
+        player_data = server.players[_pid][CHAR]
         send2pid(pid, S_添加玩家, player_data)
     # 通知其他玩家离开原场景
     for _pid in get_players_in_scene(pid, map_id):
@@ -85,19 +85,30 @@ def player_set_path_request(pid, path: list):
 
 
 def player_speak(pid, ch, text):
-    map_id = rget(pid, CHAR, '地图')
+    map_id = server.players[pid][CHAR]['地图']
     if ch == '当前':
         print('发言给:', get_players_in_scene(pid, map_id, True))
         for _pid in get_players_in_scene(pid, map_id, True):
-            send2pid(_pid, S_频道发言, dict(频道=ch, 内容=text, 名称=rget(pid, CHAR, '名称')))
+            send2pid(_pid, S_频道发言, dict(频道=ch, 内容=text, 名称=server.players[pid][CHAR]['名称']))
             send2pid(_pid, S_角色发言显示, dict(player=pid, 内容=text))
 
 
 def scene_transfer(pid, map_id, x, y):
     player_leave_scene(pid)
-    rset(pid, CHAR, map_id, '地图')
-    rset(pid, CHAR, x, 'mx')
-    rset(pid, CHAR, y, 'my')
+    server.players[pid][CHAR]['地图'] = map_id
+    server.players[pid][CHAR]['mx'] = x
+    server.players[pid][CHAR]['my'] = y
     send_data = dict(map_id=map_id, x=x, y=y)
     send2pid(pid, S_地图传送, send_data)
     player_enter_scene(pid, map_id)
+
+
+def player_start_pvp_request(pid, pid2):
+    """
+    发起PVP
+    :param pid: 发起方
+    :param pid2: 被发起方
+    :return:
+    """
+    # TODO: 先处理单人, 后续处理组队的情况
+    pass

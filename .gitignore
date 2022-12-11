@@ -16,3 +16,7 @@
 /server/Script/sys/__pycache__/*.pyc
 /server/.idea/*.xml
 /server
+/server/__pycache__/*.pyc
+/server/common/__pycache__/*.pyc
+/server/player/__pycache__/*.pyc
+/server/scene/__pycache__/*.pyc
