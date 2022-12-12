@@ -27,7 +27,6 @@ pygame.display.set_icon(icon)
 
 clock = pygame.time.Clock()
 game.director = game_director
-# director.setup_from_config('game_ui.conf')
 game.director.add_child('gp_manager', PromptManager())
 print_node(game.director)
 

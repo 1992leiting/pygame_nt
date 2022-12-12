@@ -37,7 +37,6 @@ class BasicCharacter(Node):
         self.mask_rect = pygame.Rect(0, 0, 0, 0)
         self.mouse_filter = STOP
         self.setup_ui()
-        # self.setup_from_config('basic_character.conf')
 
     @property
     def speed(self):
@@ -473,7 +472,6 @@ class BattleUnit(BasicCharacter):
         self.backward_acc_cnt = 0  # 累计后退的次数(多段攻击且每次都退后)
         self.attack_acc = False  # 多段击退是否累加后退距离
         self.is_dead = False  # 是否死亡状态
-        self.color_recipe = (random.randint(1, 4), random.randint(1, 4), 0)
         self.setup_ui()
 
     def setup_ui(self):

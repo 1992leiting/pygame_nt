@@ -102,6 +102,8 @@ class BattleScene(Node):
         self.setup_units()
 
     def enter_battle_scene(self):
+        play_battle_music('战斗BOSS1')
+        game.mouse.change_state('普通')
         self.add_child('map_jpg', game.world.child('map_jpg'))
         self.child('map_jpg').x, self.child('map_jpg').y = -game.camera.x, -game.camera.y
 
@@ -155,31 +157,31 @@ class BattleScene(Node):
     def setup_units(self):
         self.child('units').clear_children()
         self.my_units = game.director.battle_units0
-        print('my units:', self.my_units)
         self.enemy_units = game.director.battle_units1
-        print('enemy units:', self.enemy_units)
         for i, unit in enumerate(self.my_units):
+            print('my units:', unit['名称'])
             num = i + 1
             bu = BattleUnit()
+            bu.set_data(unit)
             bu.direction = 2
             bu.x, bu.y = 我方位置[num]['x'] - 120, 我方位置[num]['y']
             bu.ori_x, bu.ori_y = bu.x, bu.y
             bu.tmp_x, bu.tmp_y = bu.x, bu.y
             bu.camp = OUR
             bu.bu_index = i
-            bu.set_data(unit)
             self.child('units').add_child('my_' + str(num), bu)
 
         for i, unit in enumerate(self.enemy_units):
+            print('enemy units:', unit['名称'])
             num = i + 1
             bu = BattleUnit()
+            bu.set_data(unit)
             bu.direction = 0
             bu.x, bu.y = 敌方位置[num]['x'] - 120, 敌方位置[num]['y']
             bu.ori_x, bu.ori_y = bu.x, bu.y
             bu.tmp_x, bu.tmp_y = bu.x, bu.y
             bu.camp = OPPO
             bu.bu_index = i
-            bu.set_data(unit)
             self.child('units').add_child('enemy_' + str(num), bu)
 
     def check_event(self):
