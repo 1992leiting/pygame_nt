@@ -59,6 +59,10 @@ class Director(Node):
         self._new_caption = None  # 游戏角色加载之后设置新的窗口标题
         self.sound_volume = 50  # 全局音量大小
 
+        # 战斗单位
+        self.battle_units0 = []  # 观战方
+        self.battle_units1 = []  # 对战方
+
         self.socket = socket.socket()
         self.connect_server()
         self.client = SocketClient(self.socket, self.director)

@@ -154,8 +154,10 @@ class BattleScene(Node):
 
     def setup_units(self):
         self.child('units').clear_children()
-        self.my_units = my_units
-        self.enemy_units = enemy_units
+        self.my_units = game.director.battle_units0
+        print('my units:', self.my_units)
+        self.enemy_units = game.director.battle_units1
+        print('enemy units:', self.enemy_units)
         for i, unit in enumerate(self.my_units):
             num = i + 1
             bu = BattleUnit()

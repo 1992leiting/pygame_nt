@@ -17,6 +17,10 @@ class Game:
         return self.director.get_node('scene/world_scene')
 
     @property
+    def battle_scene(self):
+        return self.director.get_node('scene/battle_scene')
+
+    @property
     def hero(self):
         return self.director.get_node('scene/world_scene/hero')
 

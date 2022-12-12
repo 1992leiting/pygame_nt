@@ -2,6 +2,7 @@ import random
 from common.socket_id import *
 from common.common import *
 from common.constants import *
+from common.battle_id import *
 
 
 def get_npc_in_scene(pid, map_id=0):
@@ -111,4 +112,5 @@ def player_start_pvp_request(pid, pid2):
     :return:
     """
     # TODO: 先处理单人, 后续处理组队的情况
-    pass
+    from battle.battle_start import start_pvp
+    start_pvp(B_玩家切磋, [pid], [pid2])

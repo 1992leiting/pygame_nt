@@ -79,7 +79,6 @@ class GatewayServer(socketserver.BaseRequestHandler):
                     account = msg['账号']
                     name = msg['名称']
                     model = msg['模型']
-                    server.tmp_client_socket[account] = self.request
                     from player.player_handler import create_player
                     create_player(self.request, account, name, model)
                 elif tp == C_账号登陆:
@@ -101,7 +100,7 @@ class GatewayServer(socketserver.BaseRequestHandler):
                     pid = msg['pid']
                     if player_login(self.request, account, pid):
                         self.players[self.request] = PlayerClient(account, pid, self.request)
-                    print('有角色进入:', self.players)
+                        print('有角色进入:', pid, self.players)
 
     def client_out(self, sk):
         """
@@ -137,6 +136,7 @@ if __name__ == '__main__':
     gateway_server = socketserver.ThreadingTCPServer(GATEWAY_SERVER, GatewayServer)  # 网关进程
     server.gateway = gateway_server
     start_tcp_server()
+    load_npc_objects()
     sprint('网关启动成功')
 
     while True:

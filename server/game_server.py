@@ -53,5 +53,8 @@ def player_cmd_handler(msg):
     elif cmd == C_角色升级:
         player_level_up(pid)
     elif cmd == C_攻击玩家:
-        pass
+        target = msg['target_pid']
+        map_id = msg['map_id']
+        x, y = msg['x'], msg['y']
+        player_start_pvp_request(pid, target)
 

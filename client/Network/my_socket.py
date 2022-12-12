@@ -126,6 +126,11 @@ class SocketClient:
             game.world.add_player_one_time_animation(msg['玩家'], msg['特效'])
         elif cmd == S_删除玩家:
             game.world.remove_player(msg['玩家'])
+        elif cmd == S_开始战斗:
+            game.director.battle_units0 = msg['我方']
+            game.director.battle_units1 = msg['敌方']
+            game.director.change_scene(BATTLE_SCENE)
+            game.battle_scene.setup_units()
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd
