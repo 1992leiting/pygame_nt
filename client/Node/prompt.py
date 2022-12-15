@@ -18,7 +18,7 @@ class PromptManager(ImageRect):
     def __init__(self, style=GAME_PROMPT, x=300, y=300):
         super(PromptManager, self).__init__()
         self.x, self.y = x, y
-        self.is_hover_enabled = True
+        self.is_hover_enabled = False
         self.is_draggable = False
         self.rsp_file = 'wzife.rsp'
         self.hash_id = 0x4CFB6A98

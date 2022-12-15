@@ -13,6 +13,7 @@ from Node.hp_effect import HpEffect
 from Node.animation import Animation8D
 from Node.image_rect import ImageRect
 from Game.res_manager import fill_res
+from Battle.cmd_menu import BattleCmdMenu
 
 
 敌方位置 = {1: {"y": 188, "x": 347}, 3: {"y": 158, "x": 407}, 2: {"y": 218, "x": 287}, 4: {"y": 128, "x": 467}, 5: {"y": 248, "x": 227}, 6: {"y": 233, "x": 396}, 7: {"y": 263, "x": 341}, 8: {"y": 203, "x": 456}, 9: {"y": 173, "x": 516}, 10: {"y": 293, "x": 281}}
@@ -59,9 +60,10 @@ class BattleScene(Node):
         self.my_units = {}  # 我方战斗单位
         self.enemy_units = {}  # 敌方战斗单位
         self.plist = []  # 战斗流程列信息
+        self.status = 0  # 0:操作,1:等待(战斗中或者等待战斗数据)
         self.process = 0  # 当前战斗流程序号
-        self.aunits = []  # 主动方, 第一个单位为攻击/施法者
-        self.punits = []  # 被动方, 第一个单位为被动主要单位, 比如群法点选单位
+        self.units0 = []  # 主动方, 第一个单位为攻击/施法者
+        self.units1 = []  # 被动方, 第一个单位为被动主要单位, 比如群法点选单位
         self.setup_ui()
 
     def setup_ui(self):
@@ -99,6 +101,9 @@ class BattleScene(Node):
         tip.time = time.time()
         self.add_child('spelling_tip', tip)
 
+        # 命令按钮
+        self.add_child('cmd_ui', BattleCmdMenu())
+
         self.setup_units()
 
     def enter_battle_scene(self):
@@ -109,7 +114,7 @@ class BattleScene(Node):
 
     def play_effect(self, skill, x, y, name='effect'):
         """
-        在战斗场景播放特效, 一般是坐标固定的特效, 比如反震
+        在战斗场景播放特效, 一般是坐标固定位置的特效, 比如反震
         :param skill: 技能/特效名称
         :param x: 坐标x
         :param y: 坐标y
@@ -167,7 +172,7 @@ class BattleScene(Node):
             bu.x, bu.y = 我方位置[num]['x'] - 120, 我方位置[num]['y']
             bu.ori_x, bu.ori_y = bu.x, bu.y
             bu.tmp_x, bu.tmp_y = bu.x, bu.y
-            bu.camp = OUR
+            bu.camp = OUR  # 我方单位
             bu.bu_index = i
             self.child('units').add_child('my_' + str(num), bu)
 
@@ -180,7 +185,7 @@ class BattleScene(Node):
             bu.x, bu.y = 敌方位置[num]['x'] - 120, 敌方位置[num]['y']
             bu.ori_x, bu.ori_y = bu.x, bu.y
             bu.tmp_x, bu.tmp_y = bu.x, bu.y
-            bu.camp = OPPO
+            bu.camp = OPPO  # 敌方单位
             bu.bu_index = i
             self.child('units').add_child('enemy_' + str(num), bu)
 
@@ -189,7 +194,7 @@ class BattleScene(Node):
         # test
         values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_1]):
-            self.aunits = [self.child('units').child('my_1')]
+            self.units0 = [self.child('units').child('my_1')]
             self.plist = [
                 {'流程': 1, '返回': False, '技能名称': '破血狂攻', '目标单位': [1]},
                 {'流程': 1, '返回': True, '技能名称': '破血狂攻', '目标单位': [1]},
@@ -198,7 +203,7 @@ class BattleScene(Node):
             ]
             self.next_process(False)
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_2]):
-            self.aunits = [self.child('units').child('my_2')]
+            self.units0 = [self.child('units').child('my_2')]
             self.plist = [
                 {'流程': 1, '返回': False, '技能名称': '连环击', '目标单位': [2]},
                 {'流程': 1, '返回': False, '技能名称': '连环击', '目标单位': [2]},
@@ -208,7 +213,7 @@ class BattleScene(Node):
             ]
             self.next_process(False)
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_3]):
-            self.aunits = [self.child('units').child('my_3')]
+            self.units0 = [self.child('units').child('my_3')]
             self.plist = [
                 {'流程': 1, '返回': True, '技能名称': '鹰击', '反震伤害': 120, '目标单位': [1]},
                 {'流程': 1, '返回': True, '技能名称': '鹰击', '反震伤害': 120, '目标单位': [2]},
@@ -218,14 +223,14 @@ class BattleScene(Node):
             ]
             self.next_process(False)
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_4]):
-            self.aunits = [self.child('units').child('my_4')]
+            self.units0 = [self.child('units').child('my_4')]
             self.plist = [
                 # {'流程': 50, '返回': True, '技能名称': '龙腾', '目标单位': [4]},  # '龙卷雨击', '奔雷咒', '地狱烈火', '水漫金山', '泰山压顶'
                 {'流程': 100, '返回': True, '技能名称': random.choice(['奔雷咒', '地狱烈火', '水漫金山', '泰山压顶']), '目标单位': random.sample(values, 5)},
             ]
             self.next_process(False)
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_5]):
-            self.aunits = [self.child('units').child('my_5')]
+            self.units0 = [self.child('units').child('my_5')]
             self.plist = [
                 # {'流程': 1, '返回': True, '技能名称': '', '目标单位': [5]},
                 {'流程': 1, '返回': False, '技能名称': '横扫千军', '反震伤害': 120, '目标单位': [4]},
@@ -235,7 +240,7 @@ class BattleScene(Node):
             self.next_process(False)
 
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_6]):
-            self.aunits = [self.child('units').child('my_4')]
+            self.units0 = [self.child('units').child('my_4')]
             self.plist = [
                 # {'流程': 1, '返回': True, '技能名称': '', '目标单位': [5]},
                 {'流程': 50, '返回': False, '技能名称': '烈火', '目标单位': [4]},
@@ -243,7 +248,7 @@ class BattleScene(Node):
             self.next_process(False)
 
         if self.director.match_kb_event(STOP, [pygame.KEYDOWN, pygame.K_7]):
-            self.aunits = [self.child('units').child('my_4')]
+            self.units0 = [self.child('units').child('my_4')]
             self.plist = [
                 {'流程': 150, '返回': False, '技能名称': '推气过宫', '目标单位': [1, 2, 3, 5], '目标阵营': 0},
                 {'流程': 50, '返回': False, '技能名 称': '唧唧歪歪', '目标单位': [1, 2, 3, 5], '目标阵营': 1},
@@ -268,22 +273,25 @@ class BattleScene(Node):
                 # 战斗施法提示
                 if self.plist[0]['技能名称']:
                     # print('show tip:', self.plist[0]['技能名称'])
-                    self.show_spelling_tip(self.aunits[0].name, self.plist[0]['技能名称'])
+                    self.show_spelling_tip(self.units0[0].name, self.plist[0]['技能名称'])
 
                 # 指定被攻击单位
-                self.punits = []
+                self.units1 = []
                 if self.plist[0].get('目标阵营') == 0:
                     for pu_num in self.plist[0]['目标单位']:
                         pu = self.child('units').child('my_' + str(pu_num))
-                        self.punits.append(pu)
+                        self.units1.append(pu)
                 else:
                     for pu_num in self.plist[0]['目标单位']:
                         pu = self.child('units').child('enemy_' + str(pu_num))
-                        self.punits.append(pu)
+                        self.units1.append(pu)
                 return
         self.process = 0  # 如果没有下一流程, 则重置流程编号
 
     def update(self):
+        # 命令状态时按钮才显示
+        self.child('cmd_menu').visible = (self.status == 0)
+
         # print('process: ', self.process)
 
         # 特效播放完成自动清除
@@ -299,66 +307,66 @@ class BattleScene(Node):
             return
 
         # 物理攻击开始流程
-        if self.process == 1 and self.aunits and self.punits and self.aunits[0].cur_action == '待战':
+        if self.process == 1 and self.units0 and self.units1 and self.units0[0].cur_action == '待战':
             # 主动方移动
-            self.aunits[0].path = [(self.punits[0].ori_x + 70, self.punits[0].ori_y + 70)]
+            self.units0[0].path = [(self.units1[0].ori_x + 70, self.units1[0].ori_y + 70)]
             self.process = 2
-        elif self.process == 2 and not self.aunits[0].path:
+        elif self.process == 2 and not self.units0[0].path:
             # 主动方移动结束, 换动作'攻击'
-            self.aunits[0].change_action('攻击')
+            self.units0[0].change_action('攻击')
             self.process = 3
         elif self.process == 3:
-            stage = self.aunits[0].attack_stage
+            stage = self.units0[0].attack_stage
             shaking = False
-            if len(self.aunits[0].attack_frame) > 1 and self.aunits[0].attack_frame[1] - self.aunits[0].attack_frame[0] > 2:
+            if len(self.units0[0].attack_frame) > 1 and self.units0[0].attack_frame[1] - self.units0[0].attack_frame[0] > 2:
                 shaking = True
-            if self.aunits[0].reach_attack_frame():
-                self.punits[0].is_shaking = shaking
+            if self.units0[0].reach_attack_frame():
+                self.units1[0].is_shaking = shaking
                 if stage == 0:
-                    self.punits[0].change_action('挨打')
+                    self.units1[0].change_action('挨打')
                     _skill = self.plist[0]['技能名称']
-                    self.punits[0].play_effect(_skill)
+                    self.units1[0].play_effect(_skill)
                     if _skill:
                         play_skill_effect_sound(_skill)
             # 主动方没有下一段攻击, 进入下一个process
-            if self.aunits[0].attack_stage == -1:
-                self.punits[0].move_backward()
+            if self.units0[0].attack_stage == -1:
+                self.units1[0].move_backward()
                 if self.plist[0].get('反震伤害'):
-                    self.aunits[0].change_action('挨打')
-                    self.play_effect('反震', self.punits[0].x, self.punits[0].y, '反震')
-                    self.show_hp_effect(random.randrange(200, 500), self.aunits[0])
-                self.show_hp_effect(random.randrange(800, 2000), self.punits[0])
+                    self.units0[0].change_action('挨打')
+                    self.play_effect('反震', self.units1[0].x, self.units1[0].y, '反震')
+                    self.show_hp_effect(random.randrange(200, 500), self.units0[0])
+                self.show_hp_effect(random.randrange(800, 2000), self.units1[0])
                 self.process = 4
         elif self.process == 4:
             if not (self.child('反震') and self.child('反震').frame_index < 9):
-                if self.aunits[0].reach_end_frame():
-                    self.aunits[0].change_action('待战')
-                    self.punits[0].backward_acc_cnt = 0
+                if self.units0[0].reach_end_frame():
+                    self.units0[0].change_action('待战')
+                    self.units1[0].backward_acc_cnt = 0
                     self.process = 5
         elif self.process == 5:
-            self.aunits[0].change_action('待战')
+            self.units0[0].change_action('待战')
             if self.plist[0]['返回']:
-                self.aunits[0].move_back(0)
+                self.units0[0].move_back(0)
                 self.process = 6
             else:
                 self.next_process()
         elif self.process == 6:
-            if not self.aunits[0].path:
-                self.aunits[0].add_buff('后发制人')
-                self.aunits[0].add_buff('红灯')
+            if not self.units0[0].path:
+                self.units0[0].add_buff('后发制人')
+                self.units0[0].add_buff('红灯')
                 self.next_process()
 
         # 法术攻击开始流程
         elif self.process == 50:
-            self.aunits[0].change_action('施法')
+            self.units0[0].change_action('施法')
             _skill = self.plist[0]['技能名称']
-            for pu in self.punits:
+            for pu in self.units1:
                 pu.play_effect(_skill)
                 play_skill_effect_sound(_skill)
             self.process = 51
         elif self.process == 51:
             all_end = True  # 所有被动单位的法术特效都结束
-            for pu in self.punits:
+            for pu in self.units1:
                 eff = pu.child('effect')
                 if eff:
                     stage = eff.attack_stage
@@ -381,7 +389,7 @@ class BattleScene(Node):
                 self.process = 52
         elif self.process == 52:
             all_end = True  # 所有被动单位动作结束
-            for pu in self.punits:
+            for pu in self.units1:
                 eff = pu.child('effect')
                 if not pu.path and eff.reach_end_frame():
                     pu.stop_effect()
@@ -394,7 +402,7 @@ class BattleScene(Node):
 
         # 全屏法术开始流程
         elif self.process == 100:
-            self.aunits[0].change_action('施法')
+            self.units0[0].change_action('施法')
             _skill = self.plist[0]['技能名称']
             self.show_fullscreen_effect(_skill)
             self.process = 101
@@ -406,12 +414,12 @@ class BattleScene(Node):
                 shaking = False
                 if len(feff.attack_frame) > 1 and feff.attack_frame[1] - feff.attack_frame[0] > 10:
                     shaking = True
-                for pu in self.punits:
+                for pu in self.units1:
                     pu.is_shaking = shaking
                     if pu.cur_action != '挨打':
                         pu.change_action('挨打')
             if feff.attack_stage == -1:
-                for pu in self.punits:
+                for pu in self.units1:
                     pu.move_backward()
                     self.show_hp_effect(random.randrange(800, 2000), pu)
                 self.process = 102
@@ -424,30 +432,30 @@ class BattleScene(Node):
 
         # 法术恢复/BUFF/道具流程
         elif self.process == 150:
-            self.aunits[0].change_action('施法')
+            self.units0[0].change_action('施法')
             _skill = self.plist[0]['技能名称']
-            for pu in self.punits:
+            for pu in self.units1:
                 pu.play_effect(_skill)
                 play_skill_effect_sound(_skill)
             self.process = 151
         elif self.process == 151:
-            for pu in self.punits:
+            for pu in self.units1:
                 eff = pu.child('effect')
                 # 只要有一个被动单位法术到达指定帧，则所有单位添加血量特效
                 if eff.frame_index == 5:
-                    for _pu in self.punits:
+                    for _pu in self.units1:
                         self.show_hp_effect(random.randrange(400, 450), _pu, HP_RECOVER)
                     self.process= 152
                     break
         elif self.process == 152:
             all_end = True  # 所有被动单位动作结束
-            for pu in self.punits:
+            for pu in self.units1:
                 eff = pu.child('effect')
                 if not pu.path and eff.reach_end_frame():
                     pu.stop_effect()
                 else:
                     all_end = False
-            if not self.aunits[0].cur_action == '待战':
+            if not self.units0[0].cur_action == '待战':
                 all_end = False
             if all_end:
                 self.next_process()

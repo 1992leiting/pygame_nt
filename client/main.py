@@ -1,7 +1,6 @@
 import time
 
 from Node.director import game_director
-from Nt.nt_item import ConfigItem
 from Common.common import *
 from UiLayer.FunctionLayer.function_layer import FunctionLayer
 from UiLayer.WindowLayer.window_layer import WindowLayer, Window
