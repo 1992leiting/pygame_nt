@@ -113,4 +113,5 @@ def player_start_pvp_request(pid, pid2):
     """
     # TODO: 先处理单人, 后续处理组队的情况
     from battle.battle_start import start_pvp
-    start_pvp(B_玩家切磋, [pid], [pid2])
+    # start_pvp(B_玩家切磋, [pid], [pid2])
+    start_pvp()

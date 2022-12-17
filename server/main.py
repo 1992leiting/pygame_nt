@@ -133,7 +133,7 @@ def start_tcp_server():
 
 if __name__ == '__main__':
     # 启动网关tcp服务
-    gateway_server = socketserver.ThreadingTCPServer(GATEWAY_SERVER, GatewayServer)  # 网关进程
+    gateway_server = socketserver.ThreadingTCPServer(GATEWAY_SERVER, GatewayServer)
     server.gateway = gateway_server
     start_tcp_server()
     load_npc_objects()

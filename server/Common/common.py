@@ -127,6 +127,7 @@ def send(sk, cmd: str, send_data: dict):
 
 def send2pid(pid, cmd: str, send_data: dict):
     print('send2pid', pid, server.players[pid])
+    send_data = send_data.copy()
     send_data['pid'] = pid
     sk = server.players[pid]['socket']
     send(sk, cmd, send_data)
@@ -243,6 +244,38 @@ def gdv(d, k, error_value=0):
     else:
         return d[k]
 
+def pget(pid, db, path: str) -> dict:
+    """
+    获取人物数据
+    :param pid: 玩家pid
+    :param db: CHAR/PET/ITEM
+    :param path: 字典路径
+    :return:
+    """
+    pdata = server.players[pid][db].copy()
+    if path:
+        args = path.split('/')
+        for arg in args:
+            pdata = pdata[arg]
+    return pdata
+
+def pset(pid, db, value, path: str):
+    """
+    人物数据赋值
+    :param pid: 玩家pid
+    :param db: CHAR/PET/ITEM
+    :param value: 值
+    :param path: 字典路径
+    :return:
+    """
+    args = path.split('/')
+    pdata = server.players[pid][db]
+    key = args[-1]
+    args.pop(-1)
+    for arg in args:
+        pdata = pdata[arg]
+    pdata[key] = value
+
 
 def save_player_data(pid):
     if pid in server.players:
@@ -259,3 +292,15 @@ def save_player_data(pid):
         dict2file(dt, os.path.join(pid_path, 'pet.json'))
         print('玩家数据已保存:{}'.format(pid))
 
+
+def get_pid_battle(pid):
+    """
+    根据pid找到对应的战斗
+    :param pid:
+    :return:
+    """
+    for bt in server.battles:
+        for bu in bt.all_player_units:
+            if 'id' in bu and bu['id'] == pid:
+                return bt
+    return None

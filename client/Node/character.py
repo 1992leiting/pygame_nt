@@ -27,6 +27,8 @@ class BasicCharacter(Node):
         self.suit = ''
         self.is_moving = False
         self.clear_path = False
+        self.left_click_callback = None
+        self.right_click_callback = None
         self.path = []
         self.direction = 0
         self.id = 0
@@ -307,8 +309,10 @@ class BasicCharacter(Node):
     def check_event(self):
         # super(BasicCharacter, self).check_event()
         if self.is_hover:
-            # 左键按下事件要吸收掉
+            # 左键/右键按下事件要吸收掉
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
+                pass
+            if self.director.match_mouse_event(self.mouse_filter, MOUSE_RIGHT_DOWN):
                 pass
             # 左键弹起则触发点击事件
             if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
@@ -454,12 +458,13 @@ class BattleUnit(BasicCharacter):
     def __init__(self):
         super(BattleUnit, self).__init__()
         self.bu_index = 0  # 战斗单位编号
-        self.ori_x, self.ori_y = 0, 0  # 单位的原始站位坐标
+        self.ori_px, self.ori_py = 0, 0  # 单位的原始站位坐标
         self.tmp_x, self.tmp_y = 0, 0  # 临时坐标
         self.shapes = bshapes
         self.h_speed = MOVING_SPEED * (60 // self.director.game_fps) * 15  # 保证速度不会因为fps变化而变化
         self.l_speed = self.h_speed / 10  # 高速/低速, 用于不同动作
         self.moving_speed = self.h_speed
+        self.battle_unit_id = 0  # 战斗的单位编号 0-19
         self.cur_action = '待战'
         self.is_ani_playing = True  # 动画是否在播放
         self.is_shaking = False  # 抖动
@@ -712,6 +717,15 @@ class BattleUnit(BasicCharacter):
 
         self.frame_index = 0
 
+    def set_speed(self, s):
+        """
+        设置速度, 0:低速, 1:高速
+        """
+        if s == 0:
+            self.moving_speed = self.l_speed
+        else:
+            self.moving_speed = self.h_speed
+
     def move(self):
         target = self.path[0]
         # self.direction = calc_direction((self.ori_x, self.ori_y), target)
@@ -735,7 +749,8 @@ class BattleUnit(BasicCharacter):
                 self.is_moving = True
                 _target = self.path[0]
                 th = self.moving_speed // 2 + 1
-                if abs(self.ori_x - int(_target[0])) <= th and abs(self.ori_y - int(_target[1])) <= th:
+                # if abs(self.ori_x - int(_target[0])) <= th and abs(self.ori_y - int(_target[1])) <= th:
+                if math.dist((self.ori_x, self.ori_y), _target) < th:
                     self.path.pop(0)
                 else:
                     self.move()
@@ -765,7 +780,6 @@ class BattleUnit(BasicCharacter):
         :param speed: 0:高速, 1:低速
         :return:
         """
-        print('返回:', self.model)
         fps_scale = 1
         self.is_moving_backward = 0  # 返回时重置击退标志位
         # self.change_action('奔跑')
@@ -775,7 +789,8 @@ class BattleUnit(BasicCharacter):
             self.moving_speed = self.h_speed
         else:
             self.moving_speed = self.l_speed * fps_scale
-        self.path = [(self.ori_x, self.ori_y)]
+        self.path = [(self.ori_px, self.ori_py)]
+        print('返回:', self.model, self.path)
 
     def reach_attack_frame(self):
         """
@@ -837,3 +852,19 @@ class BattleUnit(BasicCharacter):
         self.update_path()
         self.update_basic()
         self.update_battle_unit()
+
+    def check_event(self):
+        if self.is_hover:
+            # 左键/右键按下事件要吸收掉
+            if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_DOWN):
+                pass
+            if self.director.match_mouse_event(self.mouse_filter, MOUSE_RIGHT_DOWN):
+                pass
+            # 左键/右键弹起则触发点击事件
+            if self.director.match_mouse_event(self.mouse_filter, MOUSE_LEFT_RELEASE):
+                if self.left_click_callback:
+                    self.left_click_callback(self.battle_unit_id)
+            if self.director.match_mouse_event(self.mouse_filter, MOUSE_RIGHT_RELEASE):
+                if self.right_click_callback:
+                    self.right_click_callback(self.battle_unit_id)
+

@@ -139,7 +139,7 @@ def create_player(sk, account, name, model):
 
 
 def player_login(sk, account, pid) -> bool:
-    send(sk, S_系统提示, dict(内容='正在登陆...'))
+    # send(sk, S_系统提示, dict(内容='正在登陆...'))
     pid_path = os.path.join(DATA_PATH, account, str(pid))
     # 角色数据
     file = os.path.join(pid_path, 'char.json')

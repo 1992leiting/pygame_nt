@@ -357,20 +357,20 @@ class Node:
         for (name, node) in children:
             self.add_child(name, node)
 
-    def setup_from_config(self, config_file):
-        """
-        从config加载并设置节点
-        :param config_file:
-        :return:
-        """
-        with open(config_file, 'rb') as f:
-            from Common.common import new_node
-            config_item = pickle.load(f)
-            # node_type = type(new_node(config_item.node_type))
-            # if not isinstance(self, node_type):
-            #     raise TypeError('config节点类型:\'{}\'与本身节点类型\'{}\'不符!'.format(str(node_type), str(type(self))))
-        from Common.common import traverse_config_item
-        traverse_config_item(config_item, self)
+    # def setup_from_config(self, config_file):
+    #     """
+    #     从config加载并设置节点
+    #     :param config_file:
+    #     :return:
+    #     """
+    #     with open(config_file, 'rb') as f:
+    #         from Common.common import new_node
+    #         config_item = pickle.load(f)
+    #         # node_type = type(new_node(config_item.node_type))
+    #         # if not isinstance(self, node_type):
+    #         #     raise TypeError('config节点类型:\'{}\'与本身节点类型\'{}\'不符!'.format(str(node_type), str(type(self))))
+    #     from Common.common import traverse_config_item
+    #     traverse_config_item(config_item, self)
 
     def get_node(self, path: str):
         """

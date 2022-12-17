@@ -326,6 +326,17 @@ def int2hex(num: int):
     return s
 
 
+def gdv(d, k, error_value=0):
+    """
+    Get dict value, 获取字典对应键的值
+    若存在改键则返回值, 不存在则返回error_value
+    """
+    if k not in d:
+        return error_value
+    else:
+        return d[k]
+
+
 def set_bgm_volume(val: float):
     if val < 0:
         val = 0

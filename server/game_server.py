@@ -53,8 +53,14 @@ def player_cmd_handler(msg):
     elif cmd == C_角色升级:
         player_level_up(pid)
     elif cmd == C_攻击玩家:
+        from battle.battle_start import start_pvp
         target = msg['target_pid']
         map_id = msg['map_id']
         x, y = msg['x'], msg['y']
-        player_start_pvp_request(pid, target)
-
+        # player_start_pvp_request(pid, target)
+        start_pvp(B_玩家切磋, pid, target)
+    elif cmd == C_战斗命令:
+        print('战斗命令', msg)
+        battle = get_pid_battle(pid)
+        if battle:
+            battle.set_unit_cmd_by_pid(pid, msg)

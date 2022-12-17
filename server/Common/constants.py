@@ -7,6 +7,7 @@ class Server:
         self.players = {}  # 所有玩家信息
         self.tasks = {}  # 所有人物数据
         self.npc_objects = {}  # 所有的NPC数据
+        self.battles = []  # 所有的战斗类
 
 
 server = Server()

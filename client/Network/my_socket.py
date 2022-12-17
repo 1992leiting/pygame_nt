@@ -127,10 +127,16 @@ class SocketClient:
         elif cmd == S_删除玩家:
             game.world.remove_player(msg['玩家'])
         elif cmd == S_开始战斗:
-            game.director.battle_units0 = msg['我方']
-            game.director.battle_units1 = msg['敌方']
+            print('开始战斗...', msg)
+            game.director.battle_units = msg['单位信息']
+            game.battle_scene.camp = int(msg['阵营'])
             game.director.change_scene(BATTLE_SCENE)
             game.battle_scene.setup_units()
+        elif cmd == S_战斗流程:
+            process = msg['流程']
+            print('战斗流程:', process)
+            game.battle_scene.plist = process
+            game.battle_scene.next_process(False)
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd

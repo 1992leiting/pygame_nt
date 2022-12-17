@@ -60,8 +60,7 @@ class Director(Node):
         self.sound_volume = 50  # 全局音量大小
 
         # 战斗单位
-        self.battle_units0 = []  # 观战方
-        self.battle_units1 = []  # 对战方
+        self.battle_units = None
 
         self.socket = socket.socket()
         self.connect_server()
