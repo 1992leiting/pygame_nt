@@ -19,6 +19,7 @@ from UiLayer.WindowLayer.simple_create_player import SimpleCreatePlayer
 from UiLayer.WindowLayer.dialog import Dialog
 from UiLayer.WindowLayer.smap import Smap
 from UiLayer.WindowLayer.hero_bag import HeroBag
+from UiLayer.WindowLayer.battle_skill import BattleSkill
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -69,6 +70,10 @@ wl.add_child('小地图', win2)
 win2 = HeroBag()
 win2.enable = False
 wl.add_child('道具行囊', win2)
+
+win2 = BattleSkill()
+win2.enable = False
+wl.add_child('战斗技能栏', win2)
 
 
 while True:

@@ -153,6 +153,7 @@ class RichPrompt(ImageRect):
         self.icon_hash = 0
         self.text_title = ''
         self.text = ''
+        self.icon_margin = 0  # icon到左边缘和右边文字的距离
         fill_image_rect(self, 'wzife4.rsp', 0x80E0B578)
         icon = ImageRect()  # 大图标
         icon.x, icon.y = 2, 10
@@ -183,10 +184,20 @@ class RichPrompt(ImageRect):
         self.rich_text.set_text(self.text)
         total_height = 33 + self.rich_text.max_height
         self.height = max(172, total_height)
-        self.auto_sizing(self.width, self.height)
-        self.setup_outline()
+
         # 图标
         fill_image_rect(self.icon_image, self.icon_rsp, self.icon_hash)
+
+        # 如果是小尺寸图标
+        if self.icon_image.width < 60:
+            self.icon_margin = 20
+            self.icon_image.ori_x = self.icon_margin
+            self.rich_text.ori_x = self.icon_margin + self.icon_image.width + self.icon_margin
+            self.title_label.ori_x = self.icon_margin + self.icon_image.width + self.icon_margin
+            self.width = self.icon_margin + self.icon_image.width + self.icon_margin + 185 + 10
+
+        self.auto_sizing(self.width, self.height)
+        self.setup_outline()
 
     def show(self, icon_rsp, icon_hash, title, text:str):
         if not text.endswith('。'):

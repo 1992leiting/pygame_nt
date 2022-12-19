@@ -1,9 +1,10 @@
 from Node.node import Node
-from Game.res_manager import fill_image_rect
+from Game.res_manager import fill_image_rect, fill_animation8d
 from Node.image_rect import ImageRect
 from Common.common import *
 from Common.constants import *
 from Node.label import Label
+from Node.animation import Animation8D
 
 
 class BlockGroup(Node):
@@ -32,6 +33,8 @@ class ObjectBlock(Node):
         self.is_checked = False  # 是否选中
         self.is_enabled = True  # 是否禁止
         self.is_stacked = False  # 是否可叠加
+        self.left_click_callback = None
+        self.right_click_callback = None
         node = ImageRect()  # 图标
         self.block_group = None  # 所属的block group
         self.add_child('icon', node)
@@ -76,7 +79,17 @@ class ItemBlock(ObjectBlock):
         self.is_grasped = False  # 是否被抓住
         self.icon_rsp = ''
         self.icon_hash = 0
-        self.callback_func = None
+        self._event = None
+        self.index = -1  # 序号,用于定位物品
+
+    def reset(self):
+        node = ImageRect()  # 图标
+        self.add_child('icon', node)
+        self.item_name = ''
+        self.item_data = []
+        self.is_grasped = False  # 是否被抓住
+        self.icon_rsp = ''
+        self.icon_hash = 0
         self._event = None
         self.index = -1  # 序号,用于定位物品
 
@@ -121,5 +134,61 @@ class ItemBlock(ObjectBlock):
         if self.is_grasped and game.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
             self.is_grasped = False
             game.mouse.clear_grasp_icon()
-        if self.callback_func:
-            self.callback_func(self._event)
+
+class SkillBlock(ObjectBlock):
+    def __init__(self):
+        super().__init__()
+        self.width, self.height = 50, 50
+        self.skill_name = ''
+        self.icon_rsp = ''
+        self.icon_hash = 0
+        self.left_click_callback = None
+        self.right_click_callback = None
+        self._event = None
+        node = fill_animation8d(Animation8D(), 'wzife4.rsp', 0x5DC9B461)  # 焦点框
+        node.enable = False
+        self.add_child('hover_box', node)
+        node.center_x, node.center_y = self.center_x-2, self.center_y
+
+    def reset(self):
+        node = ImageRect()  # 图标
+        self.add_child('icon', node)
+        self.skill_name = ''
+        self.icon_rsp = ''
+        self.icon_hash = 0
+        self.left_click_callback = None
+        self.right_click_callback = None
+        self._event = None
+
+    def setup(self, name):
+        self.skill_name = name
+        # 图标
+        self.icon_rsp = BH_SKILL_DATA[name]['文件']
+        self.icon_hash = BH_SKILL_DATA[name]['大图标']
+        fill_image_rect(self.child('icon'), self.icon_rsp, self.icon_hash)
+        self.child('icon').center_x, self.child('icon').center_y = self.center_x - 1, self.center_y
+
+    def update(self):
+        super().update()
+        # 显示详情
+        if self.skill_name and self.is_hover:
+            big_icon_hash = BH_SKILL_DATA[self.skill_name]['大图标']
+            text = BH_SKILL_DATA[self.skill_name]['介绍']
+            if BH_SKILL_DATA[self.skill_name]['条件']:
+                text = text + '\n#G【条件】' + BH_SKILL_DATA[self.skill_name]['条件']
+            if BH_SKILL_DATA[self.skill_name]['消耗']:
+                text = text + '\n#Y【消耗】' + BH_SKILL_DATA[self.skill_name]['消耗']
+            if BH_SKILL_DATA[self.skill_name]['冷却']:
+                text = text + '\n#P【冷却】' + BH_SKILL_DATA[self.skill_name]['冷却']
+            game.rp.show(self.icon_rsp, big_icon_hash, self.skill_name, text)
+
+    def check_event(self):
+        super().check_event()
+        if self.is_hover:
+            if game.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
+                if self.left_click_callback:
+                    self.left_click_callback(self.skill_name)
+                print('技能点击:', self.skill_name)
+            if game.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
+                if self.right_click_callback:
+                    self.right_click_callback(self.skill_name)

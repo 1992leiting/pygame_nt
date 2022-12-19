@@ -220,6 +220,7 @@ class WindowLayer(Node):
         """
         if type(win) == str:
             win = self.child(win)
+            print('windows:', self.get_children())
         # visible为None时切换可视状态, 指定visible可以指定可视状态
         if visible is None:
             visible = not win.enable

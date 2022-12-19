@@ -126,7 +126,7 @@ def send(sk, cmd: str, send_data: dict):
 
 
 def send2pid(pid, cmd: str, send_data: dict):
-    print('send2pid', pid, server.players[pid])
+    # print('send2pid', pid, server.players[pid])
     send_data = send_data.copy()
     send_data['pid'] = pid
     sk = server.players[pid]['socket']
@@ -304,3 +304,7 @@ def get_pid_battle(pid):
             if 'id' in bu and bu['id'] == pid:
                 return bt
     return None
+
+
+def rand100():
+    return random.randint(1, 100)

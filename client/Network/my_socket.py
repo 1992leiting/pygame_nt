@@ -137,6 +137,17 @@ class SocketClient:
             print('战斗流程:', process)
             game.battle_scene.plist = process
             game.battle_scene.next_process(False)
+        elif cmd == S_战斗命令状态:
+            game.battle_scene.status = ST_人物命令
+        elif cmd == S_退出战斗:
+            game.director.change_scene(WORLD_SCENE)
+        elif cmd == S_战斗血量数据:
+            battle_id = msg['单位编号']
+            hp_data = msg['数据']
+            game.battle_scene.set_unit_hp_data(battle_id, hp_data)
+        elif cmd == S_战斗主动技能:
+            skills = msg['主动技能']
+            game.window_layer.child('战斗技能栏').setup_skills(skills)
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd

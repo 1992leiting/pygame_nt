@@ -1,5 +1,6 @@
 import pygame.image
 from Node.node import Node
+from Common.constants import *
 
 
 class ImageRect(Node):
@@ -93,4 +94,30 @@ class ImageRect(Node):
                 for i, point in enumerate(self.outline_points):
                     self.mask_outline['outline'][i] = (point[0] + self.x, point[1] + self.y)
                 pygame.draw.polygon(self.director.screen, self.mask_outline['color'], self.mask_outline['outline'], self.mask_outline['width'])
+
+
+class HpBar(ImageRect):
+    """
+    血条栏
+    """
+    def __init__(self):
+        super().__init__()
+        from Game.res_manager import fill_image_rect
+        from Node.progressbar import ProgressBar
+        fill_image_rect(self, 'addon.rsp', 0x4D0A334C)  # 血条背景
+        self.add_child('bar', ProgressBar())
+        fill_image_rect(self.bar, 'addon.rsp', 0x4FD9FFF3)  # 血条
+
+    @property
+    def bar(self):
+        return self.child('bar')
+
+    def set_ratio(self, a, b):
+        self.bar.set_ratio(a, b)
+    #
+    def update(self):
+        super().update()
+        self.bar.center_x = self.center_x
+        self.bar.ori_y = 1
+
 

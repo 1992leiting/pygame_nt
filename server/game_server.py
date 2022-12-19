@@ -47,9 +47,10 @@ def player_cmd_handler(msg):
         name = msg['name']  # 对话对象的名称
         option = msg['option']
         id = msg['id']
+        name = msg['name']
         dialog_type = msg['type']
         if dialog_type == 'npc':
-            trigger_npc_response(pid, id, option)
+            trigger_npc_response(pid, id, name, option)
     elif cmd == C_角色升级:
         player_level_up(pid)
     elif cmd == C_攻击玩家:
@@ -64,3 +65,8 @@ def player_cmd_handler(msg):
         battle = get_pid_battle(pid)
         if battle:
             battle.set_unit_cmd_by_pid(pid, msg)
+    elif cmd == C_战斗回合执行完成:
+        print('战斗执行完成:', pid)
+        battle = get_pid_battle(pid)
+        if battle:
+            battle.set_unit_param_by_pid(pid, '战斗执行完成', True)

@@ -16,3 +16,8 @@ def start_pvp(battle_id, pid0, pid1, *args):
     server.battles.append(battle)
     battle.start()
 
+def start_pve(battle_id, pid0, pve_units):
+    battle = Battle(battle_id, pid0, 0, pve_units=pve_units)
+    server.battles.append(battle)
+    battle.start()
+

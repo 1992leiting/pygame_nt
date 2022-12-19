@@ -103,16 +103,14 @@ max_shape_list = pd.read_excel(data_dir + 'max_hash对应表.xlsx', index_col='m
 BH_NPC_FILE = data_dir + 'BH_NPC数据.xlsx'
 BH_MAP_FILE = data_dir + 'BH_地图数据.xlsx'
 BH_ITEM_FILE = data_dir + 'BH_物品数据.xlsx'
+BH_SKILL_FILE = data_dir + 'BH_技能数据.xlsx'
 BH_NPC_DATA = pd.read_excel(BH_NPC_FILE, index_col='地图编号').fillna('').T.to_dict()
 BH_MAP_DATA = pd.read_excel(BH_MAP_FILE, index_col='地图编号').fillna('').T.to_dict()
 BH_ITEM_DATA = pd.read_excel(BH_ITEM_FILE, index_col='名称').fillna('').T.to_dict()
+BH_SKILL_DATA = pd.read_excel(BH_SKILL_FILE, index_col='技能名称').fillna('').T.to_dict()
 # ashapes = pd.read_csv(data_dir + 'ashapes.csv', index_col='名称').T.to_dict()
 
 ALPHABET = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz'
-
-# 血量类型
-HP_DROP = 1  # 掉血
-HP_RECOVER = 2  # 加血
 
 # 服务器
 SERVER_IP = '127.0.0.1'  # 'ddns.leiting6.cn'
@@ -124,8 +122,8 @@ SIM_HEI = 'simhei.ttf'
 ADOBE_SONG = 'mod_AdobeSong.ttf'
 
 # 阵营
-OUR = 1  # 我方
-OPPO = 2  # 敌方
+NEAR = 1  # 近战方
+FAR = 2  # 对战方
 
 # 行走相关
 MOVING_SPEED = 2
@@ -148,6 +146,10 @@ IGNORE = 2  # 忽略事件
 # 场景代号
 WORLD_SCENE = 0
 BATTLE_SCENE= 1
+
+# 伤害类型
+RECOVER = 0  # 恢复
+DAMAGE = 1  # 伤害
 
 # 战斗的状态
 ST_人物命令 = 0  # 玩家进行命令操作

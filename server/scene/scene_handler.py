@@ -79,7 +79,6 @@ def player_set_path_request(pid, path: list):
     # TODO
     # 如果移动(path非空), 则广播给同场景玩家
     if path:
-        print('发送路径:', path)
         send2pid(pid, S_发送路径, dict(路径=path))
         for _pid in get_players_in_scene(pid, None):
             send2pid(_pid, S_玩家寻路, dict(玩家=pid, 路径=path))

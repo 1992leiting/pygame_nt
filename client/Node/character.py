@@ -11,6 +11,7 @@ from Node.magic_effect import MagicEffect, BuffEffect
 from Node.node import Node
 from Node.prompt import GamePrompt, PromptManager
 from Common.socket_id import *
+from Node.image_rect import HpBar
 
 
 class BasicCharacter(Node):
@@ -64,12 +65,12 @@ class BasicCharacter(Node):
 
     def setup_ui(self):
         # UI层
+        self.add_child('shadow', Node())  # 脚底阴影
         self.add_child('front_buff', Node())  # 后置buff
         self.add_child('char_stand', Animation8D())  # 身体动画
         self.add_child('char_walk', Animation8D())  # 身体动画
         self.add_child('weapon_stand', Animation8D())  # 武器动画
         self.add_child('weapon_walk', Animation8D())  # 武器动画
-        self.add_child('shadow', Node())  # 脚底阴影
         self.add_child('title', Node())  # 称谓
         self.add_child('name', Node())  # 名称
         self.add_child('front_buff', Node())  # 前置buff
@@ -468,7 +469,7 @@ class BattleUnit(BasicCharacter):
         self.cur_action = '待战'
         self.is_ani_playing = True  # 动画是否在播放
         self.is_shaking = False  # 抖动
-        self.camp = OUR  # 阵营(我方/敌方)
+        self.camp = NEAR  # 阵营(我方/敌方)
         self.is_moving_backward = 0  # 是否在击退状态
         self.backward_frame_cnt = 0  # 击退时的帧数计数器(用于计算动作保持时间)
         self.backward_fade_in = False  # 击退时的慢放效果
@@ -477,15 +478,18 @@ class BattleUnit(BasicCharacter):
         self.backward_acc_cnt = 0  # 累计后退的次数(多段攻击且每次都退后)
         self.attack_acc = False  # 多段击退是否累加后退距离
         self.is_dead = False  # 是否死亡状态
+        self.hp_current = 1 # 当前气血
+        self.hp_max = 1  # 最大气血
         self.setup_ui()
 
     def setup_ui(self):
         # UI层
+        self.add_child('shadow', Node())  # 脚底阴影
         self.add_child('behind_buff', Node())  # 后置buff
         self.add_child('hp_bar', Node())  # 血条
         self.add_child('char', Node())  # 身体动画
         self.add_child('weapon', Node())  # 武器动画
-        self.add_child('shadow', Node())  # 脚底阴影
+        self.add_child('hp_bar', HpBar())  # 血条
         self.add_child('name', Node())  # 名称
         self.add_child('front_buff', Node())  # 前置buff
         self.add_child('effect', Node())  # 特效(攻击特效,升级特效等)
@@ -526,6 +530,24 @@ class BattleUnit(BasicCharacter):
         # fr = self.frame_num // 2 + af[self.attack_stage]
         fr = [i + self.frame_num//2 for i in af]
         return fr
+
+    @property
+    def moving_state(self):
+        """
+        运动状态, False表示一些动作还未完成
+        """
+        rt = True
+        if self.path:
+            rt = False
+        if self.is_moving_back:
+            rt = False
+        if self.is_moving_backward:
+            rt = False
+        if self.is_moving:
+            rt = False
+        if self.is_dead and self.is_ani_playing:
+            rt = False
+        return rt
 
     def setup(self):
         self.setup_basic()
@@ -574,12 +596,19 @@ class BattleUnit(BasicCharacter):
         fill_image_rect(shadow, 'shape.rsp', 0xDCE4B562)  # 3705976162
         self.add_child('shadow', shadow)
 
+        self.child('hp_bar').center_x = self.center_x
+        self.child('hp_bar').ori_y = -self.child('char').height
+
         self.attack_acc = get_model_attack_frame(self.model, get_weapon_type(self.weapon))[1]
 
-        # if self.child('effect'):
-        #     eff = self.child('effect')
-        #     self.remove_child('effect')
-        #     self.add_child('effect', eff)
+    def update_hp_bar(self, a, b):
+        """
+        设置HP bar的比例
+        :param a: 当前血量
+        :param b: 最大血量
+        """
+        self.hp_current, self.hp_max = a, b
+        self.child('hp_bar').set_ratio(a, b)
 
     def update_battle_unit(self):
         if self.child('name'):
@@ -627,6 +656,9 @@ class BattleUnit(BasicCharacter):
                 self.cur_char_animation.is_modulated = True
                 print('染色文件不存在:', wpal_file)
 
+        # 血条显示
+        self.child('hp_bar').enable = (self.camp ==  NEAR)
+
         # 鼠标指向时指针变化
         if self.is_hover:
             if self.director.char_hover != self.id:
@@ -645,7 +677,7 @@ class BattleUnit(BasicCharacter):
             self.x = self.tmp_x + dx
             self.y = self.tmp_y + dy
             if self.child('effect'):
-                self.child('effect').x, self.child('effect').y = self.ori_x, self.ori_y
+                self.child('effect').x, self.child('effect').y = self.ori_px, self.ori_py
 
         # 部分动作到达最终帧后停止更新
         if self.cur_action in ['挨打', '防御', '死亡'] and self.reach_end_frame():
@@ -655,6 +687,9 @@ class BattleUnit(BasicCharacter):
         if self.is_moving_back:
             if not self.path and not self.is_dead:
                 self.change_action('待战')
+                self.is_moving_back = False
+            elif not self.path and self.is_dead:
+                self.change_action('死亡')
                 self.is_moving_back = False
 
         # 施法动作完成后, 换动作'待战'
@@ -708,7 +743,7 @@ class BattleUnit(BasicCharacter):
 
             if act == '挨打':  # 挨打动作时稍微移动
                 self.is_moving_back = False
-                if self.camp == OUR:
+                if self.camp == NEAR:
                     self.x -= 5
                     self.y -= 5
                 else:
@@ -728,7 +763,6 @@ class BattleUnit(BasicCharacter):
 
     def move(self):
         target = self.path[0]
-        # self.direction = calc_direction((self.ori_x, self.ori_y), target)
         vector = pygame.Vector2()
         vector.x, vector.y = int(target[0]) - self.x, int(target[1]) - self.y
         if vector.length() == 0:
@@ -749,7 +783,6 @@ class BattleUnit(BasicCharacter):
                 self.is_moving = True
                 _target = self.path[0]
                 th = self.moving_speed // 2 + 1
-                # if abs(self.ori_x - int(_target[0])) <= th and abs(self.ori_y - int(_target[1])) <= th:
                 if math.dist((self.ori_x, self.ori_y), _target) < th:
                     self.path.pop(0)
                 else:
@@ -769,14 +802,14 @@ class BattleUnit(BasicCharacter):
         self.moving_speed = self.l_speed
         self.is_shaking = shaking
         self.is_dead = death
-        if self.camp == OUR:
+        if self.camp == NEAR:
             self.path = [(self.x + dis, self.y + dis)]
         else:
             self.path = [(self.x - dis, self.y - dis)]
 
     def move_back(self, speed=0):
         """
-        返回到ori_x, ori_y
+        返回到ori_px, ori_py
         :param speed: 0:高速, 1:低速
         :return:
         """

@@ -121,10 +121,17 @@ class BattleScene(Node):
             self.status = ST_等待状态
             send(C_战斗命令, self.battle_cmd)
 
+    def set_unit_hp_data(self, battle_id, hp_data):
+        unit = self.unit(battle_id)
+        # 人物气血条
+        unit.update_hp_bar(hp_data[0]['气血'], hp_data[0]['最大气血'])
+
     def enter_battle_scene(self):
         play_battle_music('战斗BOSS1')
         game.mouse.change_state('普通')
-        self.add_child('map_jpg', game.world.child('map_jpg'))
+        map_jpg = ImageRect()
+        map_jpg.image = game.world.child('map_jpg').image
+        self.add_child('map_jpg', map_jpg)
         self.child('map_jpg').x, self.child('map_jpg').y = -game.camera.x, -game.camera.y
 
     def play_effect(self, skill, x, y, name='effect'):
@@ -144,7 +151,7 @@ class BattleScene(Node):
         eff.set_fps(int(fps_scale * EFFECT_FPS))
         self.add_child(name, eff)
 
-    def show_hp_effect(self, value, bu, hp_type=HP_DROP):
+    def show_hp_animation(self, value, bu, hp_type=DAMAGE):
         """
         显示血量特效, child_name命名: hpe_dw_战斗单位编号(bu_index)
         :param value: 血量数值
@@ -152,10 +159,16 @@ class BattleScene(Node):
         :param hp_type: 掉血/加血
         :return:
         """
+        # 加血/掉血并刷新血条
+        if hp_type == DAMAGE:
+            bu.hp_current -= value
+        else:
+            bu.hp_current += value
+        bu.update_hp_bar(bu.hp_current, bu.hp_max)
+        # 显示血量动画
         hpe = HpEffect(value, hp_type)
         hpe.x, hpe.y = bu.x, bu.y - 40
         child_name = 'hpe_{}_{}'.format(bu.camp, bu.bu_index)
-        # print('hp name:', child_name)
         self.child('hp_effect').add_child(child_name, hpe)
 
     def show_fullscreen_effect(self, name):
@@ -190,7 +203,7 @@ class BattleScene(Node):
                     bu.x, bu.y = 我方位置[num]['x'] - 120, 我方位置[num]['y']
                     bu.ori_px, bu.ori_py = bu.x, bu.y
                     bu.tmp_x, bu.tmp_y = bu.x, bu.y
-                    bu.camp = OUR  # 我方单位
+                    bu.camp = NEAR  # 我方单位
                     bu.bu_index = i
                     bu.left_click_callback = self.on_unit_left_click  # 点击单位回调函数
                     bu.right_click_callback = self.on_unit_right_click
@@ -208,7 +221,7 @@ class BattleScene(Node):
                     bu.x, bu.y = 敌方位置[num]['x'] - 120, 敌方位置[num]['y']
                     bu.ori_px, bu.ori_py = bu.x, bu.y
                     bu.tmp_x, bu.tmp_y = bu.x, bu.y
-                    bu.camp = OPPO  # 敌方单位
+                    bu.camp = FAR  # 敌方单位
                     bu.bu_index = i
                     bu.left_click_callback = self.on_unit_left_click  # 点击单位回调函数
                     bu.right_click_callback = self.on_unit_right_click
@@ -226,7 +239,7 @@ class BattleScene(Node):
                     bu.x, bu.y = 敌方位置[num]['x'] - 120, 敌方位置[num]['y']
                     bu.ori_px, bu.ori_py = bu.x, bu.y
                     bu.tmp_x, bu.tmp_y = bu.x, bu.y
-                    bu.camp = OUR  # 我方单位
+                    bu.camp = FAR
                     bu.bu_index = i
                     bu.left_click_callback = self.on_unit_left_click  # 点击单位回调函数
                     bu.right_click_callback = self.on_unit_right_click
@@ -244,7 +257,7 @@ class BattleScene(Node):
                     bu.x, bu.y = 我方位置[num]['x'] - 120, 我方位置[num]['y']
                     bu.ori_px, bu.ori_py = bu.x, bu.y
                     bu.tmp_x, bu.tmp_y = bu.x, bu.y
-                    bu.camp = OPPO  # 敌方单位
+                    bu.camp = NEAR
                     bu.bu_index = i
                     bu.left_click_callback = self.on_unit_left_click  # 点击单位回调函数
                     bu.right_click_callback = self.on_unit_right_click
@@ -266,13 +279,19 @@ class BattleScene(Node):
             print('BU为空:', index)
         return bu
 
+    def all_process_end(self):
+        self.process = 0
+        self.status = ST_等待状态
+        send(C_战斗回合执行完成, {})
+
     def next_process(self, pop=True):
         """
         进行下一流程
         :param pop: 是否删除当前第一个流程()
         :return:
         """
-        print('next process...', pop)
+        print('next process...', self.plist)
+        self.status = ST_执行状态
         if self.plist:
             if pop:
                 self.plist.pop(0)  # 删除已经执行完的上一流程
@@ -293,9 +312,9 @@ class BattleScene(Node):
                     self.units1.append(pu)
                 return
             else:
-                self.process = 0  # 如果没有下一流程, 则重置流程编号
+                self.all_process_end()
         else:
-            self.process = 0  # 如果没有下一流程, 则重置流程编号
+            self.all_process_end()
 
     def update(self):
         # print('process: ', self.process)
@@ -313,10 +332,13 @@ class BattleScene(Node):
             return
 
         # 物理攻击开始流程
-        if self.process == 1 and self.units0 and self.units1 and self.units0[0].cur_action == '待战':
+        if self.process == 1 and self.units0 and self.units1 and self.units0[0].cur_action in ['待战', '死亡']:
             # 主动方移动
             self.units0[0].set_speed(1)
-            self.units0[0].path = [(self.units1[0].ori_x, self.units1[0].ori_y)]
+            if self.units1[0].camp == FAR:
+                self.units0[0].path = [(self.units1[0].ori_px + 70, self.units1[0].ori_py + 50)]
+            else:
+                self.units0[0].path = [(self.units1[0].ori_px - 70, self.units1[0].ori_py - 50)]
             self.process = 2
         elif self.process == 2 and not self.units0[0].path:
             # 主动方移动结束, 换动作'攻击'
@@ -337,12 +359,12 @@ class BattleScene(Node):
                         play_skill_effect_sound(_skill)
             # 主动方没有下一段攻击, 进入下一个process
             if self.units0[0].attack_stage == -1:
-                self.units1[0].move_backward()
+                self.units1[0].move_backward(death=self.plist[0]['目标单位'][0]['死亡'])
                 if self.plist[0].get('反震伤害'):
                     self.units0[0].change_action('挨打')
                     self.play_effect('反震', self.units1[0].x, self.units1[0].y, '反震')
-                    self.show_hp_effect(self.plist[0]['反震伤害'], self.units0[0])
-                self.show_hp_effect(self.plist[0]['伤害'], self.units1[0])
+                    self.show_hp_animation(self.plist[0]['反震伤害']['数值'], self.units0[0])
+                self.show_hp_animation(self.plist[0]['伤害']['数值'], self.units1[0], self.plist[0]['伤害']['类型'])
                 self.process = 4
         elif self.process == 4:
             if not (self.child('反震') and self.child('反震').frame_index < 9):
@@ -356,9 +378,10 @@ class BattleScene(Node):
                 self.units0[0].move_back(0)
                 self.process = 6
             else:
-                self.next_process()
+                if self.units0[0].moving_state and self.units1[0].moving_state:
+                    self.next_process()
         elif self.process == 6:
-            if not self.units0[0].path:
+            if self.units0[0].moving_state and self.units1[0].moving_state:
                 self.next_process()
 
         # 法术攻击开始流程
@@ -387,7 +410,7 @@ class BattleScene(Node):
                     else:
                         pu.change_action('挨打')
                         pu.move_backward()
-                        self.show_hp_effect(random.randrange(800, 2000), pu)
+                        self.show_hp_animation(random.randrange(800, 2000), pu)
                 else:
                     all_end = False
             if all_end:
@@ -426,7 +449,7 @@ class BattleScene(Node):
             if feff.attack_stage == -1:
                 for pu in self.units1:
                     pu.move_backward()
-                    self.show_hp_effect(random.randrange(800, 2000), pu)
+                    self.show_hp_animation(random.randrange(800, 2000), pu)
                 self.process = 102
         elif self.process == 102:
             feff = self.child('full_screen_effect').child('effect')
@@ -449,7 +472,7 @@ class BattleScene(Node):
                 # 只要有一个被动单位法术到达指定帧，则所有单位添加血量特效
                 if eff.frame_index == 5:
                     for _pu in self.units1:
-                        self.show_hp_effect(random.randrange(400, 450), _pu, HP_RECOVER)
+                        self.show_hp_animation(random.randrange(400, 450), _pu, RECOVER)
                     self.process= 152
                     break
         elif self.process == 152:

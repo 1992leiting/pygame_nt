@@ -19,26 +19,26 @@ class BattleCmdMenu(Node):
 
         self.child('char_cmd').add_child('bg', set_node_attr(ImageRect(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xF5A9A3F5, 'x': -3, 'y': dy*0-2}))
         self.child('char_cmd').child('bg').auto_sizing(h=248)
-        self.child('char_cmd').add_child('111', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x839C6C7D, 'y': dy*0}))
-        self.child('char_cmd').add_child('112', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x2E8F2187, 'y': dy*1}))
-        self.child('char_cmd').add_child('113', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x389DCCF5, 'y': dy*2}))
-        self.child('char_cmd').add_child('114', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x1587C26E, 'y': dy*3}))
-        self.child('char_cmd').add_child('115', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xA662D44B, 'y': dy*4}))
-        self.child('char_cmd').add_child('116', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x0467A0A8, 'y': dy*5}))
-        self.child('char_cmd').add_child('117', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x8A8A21AD, 'y': dy*6}))
-        self.child('char_cmd').add_child('118', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xA2E2DC42, 'y': dy*7}))
-        self.child('char_cmd').add_child('119', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xE1A79F93, 'y': dy*8}))
-        self.child('char_cmd').add_child('120', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xEFB4F757, 'y': dy*9}))
-        self.child('char_cmd').add_child('121', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x2ACB414D, 'y': dy*10}))
-        self.child('char_cmd').add_child('122', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x132041E1, 'y': dy*11}))
+        self.child('char_cmd').add_child('法术', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x839C6C7D, 'y': dy*0}))
+        self.child('char_cmd').add_child('法宝', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x2E8F2187, 'y': dy*1}))
+        self.child('char_cmd').add_child('特技', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x389DCCF5, 'y': dy*2}))
+        self.child('char_cmd').add_child('道具', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x1587C26E, 'y': dy*3}))
+        self.child('char_cmd').add_child('防御', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xA662D44B, 'y': dy*4}))
+        self.child('char_cmd').add_child('保护', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x0467A0A8, 'y': dy*5}))
+        self.child('char_cmd').add_child('指挥', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x8A8A21AD, 'y': dy*6}))
+        self.child('char_cmd').add_child('召唤', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xA2E2DC42, 'y': dy*7}))
+        self.child('char_cmd').add_child('召还', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xE1A79F93, 'y': dy*8}))
+        self.child('char_cmd').add_child('自动', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xEFB4F757, 'y': dy*9}))
+        self.child('char_cmd').add_child('捕捉', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x2ACB414D, 'y': dy*10}))
+        self.child('char_cmd').add_child('逃跑', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x132041E1, 'y': dy*11}))
 
         self.child('pet_cmd').add_child('bg', set_node_attr(ImageRect(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xB5B958DF, 'x': -3, 'y': dy*0-2}))
         self.child('pet_cmd').child('bg').auto_sizing(h=108)
-        self.child('pet_cmd').add_child('112', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x839C6C7D,'y': dy*0}))
-        self.child('pet_cmd').add_child('113', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x1587C26E,'y': dy*1}))
-        self.child('pet_cmd').add_child('114', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xA662D44B,'y': dy*2}))
-        self.child('pet_cmd').add_child('115', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x0467A0A8,'y': dy*3}))
-        self.child('pet_cmd').add_child('116', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x132041E1,'y': dy*4}))
+        self.child('pet_cmd').add_child('法术', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x839C6C7D,'y': dy*0}))
+        self.child('pet_cmd').add_child('道具', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x1587C26E,'y': dy*1}))
+        self.child('pet_cmd').add_child('防御', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0xA662D44B,'y': dy*2}))
+        self.child('pet_cmd').add_child('保护', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x0467A0A8,'y': dy*3}))
+        self.child('pet_cmd').add_child('逃跑', set_node_attr(Button(), {'rsp_file': 'wzife.rsp', 'hash_id': 0x132041E1,'y': dy*4}))
 
     @property
     def char_cmd(self):
@@ -59,3 +59,7 @@ class BattleCmdMenu(Node):
         else:
             self.char_cmd.visible = False
             self.pet_cmd.visible = False
+
+    def check_event(self):
+        if self.child('char_cmd').child('法术').event:
+            game.window_layer.switch_window('战斗技能栏')

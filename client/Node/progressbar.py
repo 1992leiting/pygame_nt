@@ -26,7 +26,7 @@ class ProgressBar(Node):
         :param b: 最大值
         :return:
         """
-        self._progress = int(a * 100 / b)
+        self._progress = int(int(a) * 100 / int(b))
         self.setup()
 
     def setup(self):

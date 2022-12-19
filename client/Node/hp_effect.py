@@ -11,7 +11,7 @@ class HpEffect(Node):
     """
     加血/掉血特效, 字符跳动效果
     """
-    def __init__(self, value: int, hp_type=HP_DROP):
+    def __init__(self, value: int, hp_type=DAMAGE):
         super(HpEffect, self).__init__()
         self.value = value
         self.hp_type = hp_type
@@ -24,9 +24,9 @@ class HpEffect(Node):
         digits = str(self.value)
         for i, digit in enumerate(digits):
             dg = Animation8D()
-            if self.hp_type == HP_DROP:
+            if self.hp_type == DAMAGE:
                 fill_res(dg, 'misc.rsp', 0x30F737D8)
-            elif self.hp_type == HP_RECOVER:
+            elif self.hp_type == RECOVER:
                 fill_res(dg, 'misc.rsp', 0x3CF8F9FE)
             dg.is_playing = False
             dg.frame_index = int(digit)

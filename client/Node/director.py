@@ -126,6 +126,7 @@ class Director(Node):
         if s == WORLD_SCENE:
             self.child('scene').child('world_scene').enable = True
             self.child('scene').child('battle_scene').enable = False
+            play_scene_bgm(game.world.map_id)
         elif s == BATTLE_SCENE:
             self.child('scene').child('world_scene').enable = False
             self.child('scene').child('battle_scene').enable = True
