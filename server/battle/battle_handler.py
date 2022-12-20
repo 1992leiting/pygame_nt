@@ -13,18 +13,6 @@ ST_战斗计算 = 1  # 进行战斗计算
 ST_战斗执行 = 2  # 计算完等玩家返回状态
 
 
-class Unit:
-    def __init__(self):
-        self.type = BT_怪物
-        self.team_id = 0  # 0/1, teams0/teams1
-        self.data = {}  # 单位的常规属性,非战斗属性
-        self.cmd = {}  # 操作指令
-
-    def load_from_bu_data(self, data: dict):
-        self.data = data
-        return self
-
-
 class Battle(Thread):
     def __init__(self, id: int, pid0: int, pid1: int, map_id: int=0, pve_units=None):
         super().__init__()
@@ -219,11 +207,34 @@ class Battle(Thread):
         unit_id = self.get_unit_id_by_pid(pid)
         self.units[unit_id][param] = value
 
-    def can_unit_act(self, unit_id):
+    def can_unit_act(self, unit_id, action=None, skill_name=None):
+        """
+        判断单位是否能执行操作
+        :param unit_id: 单位编号
+        :param action: 操作类型, 攻击/法术/防御/...
+        :param skill_name: 技能名称
+        :return:
+        """
         unit = self.units[unit_id]
+        if not unit:
+            return False
         if unit['死亡']:
             return False
         return True
+
+    def can_unit_be_attacked(self, target_id, action=None, skill_name=None):
+        """
+        判断目标单位是否可以被攻击
+        :param target_id: 单位编号
+        :param action: 操作类型, 攻击/法术/防御/...
+        :param skill_name: 技能名称
+        :return:
+        """
+        unit = self.units[target_id]
+        if not unit:
+            return False
+        if unit['死亡']:
+            return False
 
     def start_calculation(self):
         print('执行战斗计算...')
@@ -348,6 +359,13 @@ class Battle(Thread):
         点选目标 = target_id
         目标数 = 3  # TODO:取技能目标数
         目标 = self.pick_enemy_units(attack_id, 点选目标, 目标数)
+
+        重复攻击 = False  # 横扫千军/烟雨剑法等攻击间不返回的技能
+        起始伤害 = 1  # 相对于普攻的伤害系数
+        叠加伤害 = 0  # 多次攻击每次的伤害增益,可以是负数
+        允许保护 = True  # 是否允许保护
+        增加伤害 = 0  # 伤害结果增加
+        结尾气血 = 0  # 横扫等攻击方掉血
 
     def unit_hp_drop(self, target_id, value, attack_id=None, magic_name=None) -> bool:
         """
