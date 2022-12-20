@@ -139,6 +139,7 @@ class SocketClient:
             game.battle_scene.next_process(False)
         elif cmd == S_战斗命令状态:
             game.battle_scene.status = ST_人物命令
+            game.battle_scene.reset_cmd()
         elif cmd == S_退出战斗:
             game.director.change_scene(WORLD_SCENE)
         elif cmd == S_战斗血量数据:

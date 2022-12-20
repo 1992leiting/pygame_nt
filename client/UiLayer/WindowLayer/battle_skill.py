@@ -25,7 +25,8 @@ class BattleSkill(Window):
     def setup_skills(self, skills:list):
         self.skills = skills
         for i, skill in enumerate(self.skills):
-            self.child('skill_'+str(i)).setup(skill)
+            self.child('skill_block_'+str(i)).setup(skill)
+            self.child('skill_block_' + str(i)).left_click_callback = game.battle_scene.on_battle_skill_left_click
 
     def setup_win_config(self, file=None, given_node=None):
         super().setup_win_config()
@@ -36,8 +37,7 @@ class BattleSkill(Window):
             for j in range(2):
                 skill = SkillBlock()
                 skill.x, skill.y = _x, _y
-                print(_x, _y)
-                self.add_child('skill_' + str(index), skill)
+                self.add_child('skill_block_' + str(index), skill)
                 _x += _w
                 index += 1
             _x = 27

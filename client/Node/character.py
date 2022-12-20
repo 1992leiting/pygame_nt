@@ -532,7 +532,7 @@ class BattleUnit(BasicCharacter):
         return fr
 
     @property
-    def moving_state(self):
+    def action_end(self):
         """
         运动状态, False表示一些动作还未完成
         """

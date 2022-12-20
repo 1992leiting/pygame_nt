@@ -146,7 +146,7 @@ class Battle(Thread):
         pdata['战斗执行完成'] = False
         pdata['死亡'] = False
         pdata['技能'] = []
-        pdata['主动技能'] = ['牛刀小试', '鹰击']
+        pdata['主动技能'] = ['牛刀小试', '横扫千军']
         self.units[pos] = pdata
         send2pid(pid, S_战斗主动技能, dict(主动技能=pdata['主动技能']))
 
@@ -216,11 +216,13 @@ class Battle(Thread):
         :return:
         """
         unit = self.units[unit_id]
+        rt = True
         if not unit:
-            return False
+            rt = False
         if unit['死亡']:
-            return False
-        return True
+            rt = False
+        print('单位是否能执行:', unit_id, action, skill_name, rt)
+        return rt
 
     def can_unit_be_attacked(self, target_id, action=None, skill_name=None):
         """
@@ -231,10 +233,13 @@ class Battle(Thread):
         :return:
         """
         unit = self.units[target_id]
+        rt = True
         if not unit:
-            return False
+            rt = False
         if unit['死亡']:
-            return False
+            rt = False
+        print('单位是否能被攻击:', target_id, action, skill_name, rt)
+        return rt
 
     def start_calculation(self):
         print('执行战斗计算...')
@@ -254,19 +259,44 @@ class Battle(Thread):
         self.battle_process = []
 
     def pick_enemy_units(self, battle_id, target0, num):
-        target_list = [target0]
-        if self.units[battle_id]['阵营'] == 1:
-            pick_list = self.team0_valid_units.copy()
-        else:
-            pick_list = self.team1_valid_units.copy()
-        for unit in pick_list:
-            if unit['单位编号'] == target0:
-                pick_list.remove(unit)
-        sorted(pick_list, key=lambda x: x['速度'], reverse=True)
-        num = min(num, len(target_list))
-        return target_list[:num]
+        """
+        按照速度排序选择对方单位
+        :param battle_id:
+        :param target0:
+        :param num:
+        :return:
+        """
+        print('选择对方单位:', target0, num)
+        num -= 1
+        target_list = [self.units[target0]]
+        if num > 0:
+            if self.units[battle_id]['阵营'] == 1:
+                pick_list = self.team0_valid_units.copy()
+            else:
+                pick_list = self.team1_valid_units.copy()
+            sorted(pick_list, key=lambda x: x['速度'], reverse=True)
+            for unit in pick_list:
+                if unit['单位编号'] == target0:
+                    pick_list.remove(unit)
+            for unit in pick_list:
+                if not self.can_unit_be_attacked(unit['单位编号']):
+                    pick_list.remove(unit)
+            _pick = []
+            for p in pick_list:
+                _pick.append(p['单位编号'])
+            print(_pick)
+            num = min(num, len(pick_list))
+            target_list += pick_list[:num]
+        return target_list
 
     def pick_my_units(self, battle_id, target0, num):
+        """
+        按照速度排序选择己方单位
+        :param battle_id:
+        :param target0:
+        :param num:
+        :return:
+        """
         target_list = [target0]
         return target_list
 
@@ -301,17 +331,20 @@ class Battle(Thread):
         for bu in self.acting_units:
             if self.can_unit_act(bu['单位编号']):
                 if bu['战斗命令']['类型'] == '攻击':
-                    self.cal_普通攻击(bu['单位编号'])
+                    self.cal_普通攻击计算(bu['单位编号'])
+                if bu['战斗命令']['类型'] == '法术':
+                    self.cal_法术计算(bu['单位编号'])
                 # 每个单位执行动作之后都判断战斗是否结束
                 self.battle_end = self.cal_战斗结算()
                 if self.battle_end:
                     break
 
-    def cal_基础物理伤害(self, attack_id, target_id):
+    def cal_基础物理伤害计算(self, attack_id, target_id, magic_name=None):
         """
         基础属性/修炼, 和非物理伤害结果相关的计算
         :param attack_id:
         :param target_id:
+        :param magic_name:
         :return:
         """
         伤害 = self.units[attack_id]['伤害']
@@ -320,17 +353,19 @@ class Battle(Thread):
         结果 = int(结果 * random.randint(90, 110)/100)  # 10%的波动
         return 结果
 
-    def cal_最终物理伤害(self, attack_id, target_id, damage):
+    def cal_最终物理伤害计算(self, attack_id, target_id, damage, magic_name=None):
         """
         对最终物理伤害结果生效的计算放在这里
         :param attack_id:
         :param target_id:
         :param damage:
+        :param magic_name:
         :return:
         """
         return damage
 
-    def cal_普通攻击(self, attack_id):
+    def cal_普通攻击计算(self, attack_id):
+        print('cal_普通攻击计算:', attack_id)
         target_id = self.units[attack_id]['战斗命令']['目标']
         必杀 = False  # 必杀
         躲避 = False  # 躲避
@@ -339,8 +374,8 @@ class Battle(Thread):
         反击 = False  # 反击
         保护 = False  # 保护
 
-        伤害 = self.cal_基础物理伤害(attack_id, target_id)
-        最终伤害 = self.cal_最终物理伤害(attack_id, target_id, 伤害)
+        基础伤害 = self.cal_基础物理伤害计算(attack_id, target_id)
+        最终伤害 = self.cal_最终物理伤害计算(attack_id, target_id, 基础伤害)
         if 最终伤害 <= 0:
             最终伤害 = 1
         death = self.unit_hp_drop(target_id, 最终伤害, attack_id)  # 挨打方是否死亡
@@ -348,24 +383,86 @@ class Battle(Thread):
         self.battle_process.append(_process)
 
     def cal_法术计算(self, attack_id):
+        print('法术计算:', attack_id)
         法术名称 = self.units[attack_id]['战斗命令']['参数']
         目标 = self.units[attack_id]['战斗命令']['目标']
         法术等级 = 1  # TODO:法术等级判断
 
         if 法术名称 in SK_物攻技能:
-            self.cal_物攻技能(attack_id, 目标, 法术名称, 法术等级)
+            self.cal_物攻技能准备(attack_id, 目标, 法术名称, 法术等级)
 
-    def cal_物攻技能(self, attack_id, target_id, name, lv):
+    def cal_物攻技能准备(self, attack_id, target_id, magic_name, lv):
+        print('cal_物攻技能准备:', attack_id, target_id, magic_name, lv)
         点选目标 = target_id
         目标数 = 3  # TODO:取技能目标数
-        目标 = self.pick_enemy_units(attack_id, 点选目标, 目标数)
+        法术名称 = magic_name
+        法术等级 = lv
 
         重复攻击 = False  # 横扫千军/烟雨剑法等攻击间不返回的技能
-        起始伤害 = 1  # 相对于普攻的伤害系数
-        叠加伤害 = 0  # 多次攻击每次的伤害增益,可以是负数
+        基础系数 = 1  # 相对于普攻的伤害系数
+        叠加系数 = 0  # 多次攻击每次的伤害增益
         允许保护 = True  # 是否允许保护
         增加伤害 = 0  # 伤害结果增加
         结尾气血 = 0  # 横扫等攻击方掉血
+        返回 = True  # 此次攻击完成是否返回
+
+        if 法术名称 == '牛刀小试':
+            基础系数 = 1.1
+        elif 法术名称 == '烟雨剑法':
+            基础系数 = 1.2
+            重复攻击 = True
+        elif 法术名称 == '横扫千军':
+            基础系数 = 1.2
+            叠加系数 = 0.3
+            重复攻击 = True
+
+        if 重复攻击:  # 如果是重复攻击技能,默认攻击完不返回
+            返回 = False
+
+        if 重复攻击:
+            目标 = [self.units[target_id]]*目标数
+        else:
+            目标 = self.pick_enemy_units(attack_id, 点选目标, 目标数)
+        攻击停止 = False
+        次数 = 0
+
+        _target = []
+        for t in 目标:
+            _target.append(t['单位编号'])
+        print('目标:', _target)
+
+        for unit in 目标:
+            if 攻击停止:
+                if not self.units[attack_id]['死亡']:
+                    break
+            if self.can_unit_act(attack_id, '法术', 法术名称):
+                if self.can_unit_be_attacked(unit['单位编号'], '法术', 法术名称):
+                    次数 += 1
+                    self.cal_物攻技能计算(attack_id, unit['单位编号'], 法术名称, 基础系数, 叠加系数*次数, 允许保护, 返回)
+                else:
+                    self.battle_process[-1]['返回'] = True
+                    攻击停止 = True
+            else:
+                self.battle_process[-1]['返回'] = True
+                攻击停止 = True
+        self.battle_process[-1]['返回'] = True
+
+    def cal_物攻技能计算(self, attack_id, target_id, magic_name, 基础系数, 叠加系数, 允许保护, 返回):
+        print('cal_物攻技能计算:', attack_id, target_id, magic_name, 基础系数, 叠加系数, 允许保护, 返回)
+        _process = dict(流程=1, 攻击方=attack_id, 伤害=dict(数值=0, 类型=DAMAGE), 目标单位=[dict(编号=target_id, 特效=magic_name)], 返回=返回)
+        self.battle_process.append(_process)
+        必杀 = False
+        躲避 = False
+        防御 = False
+        反震 = False
+        反击 = False
+        基础伤害 = int(self.cal_基础物理伤害计算(attack_id, target_id, magic_name) * (基础系数 + 叠加系数))
+        最终伤害 = self.cal_最终物理伤害计算(attack_id, target_id, 基础伤害, magic_name)
+        if 最终伤害 <= 0:
+            最终伤害 = 1
+        death = self.unit_hp_drop(target_id, 最终伤害, attack_id)  # 挨打方是否死亡
+        _process['伤害']['数值'] = 最终伤害
+        _process['目标单位'][0]['死亡'] = death
 
     def unit_hp_drop(self, target_id, value, attack_id=None, magic_name=None) -> bool:
         """
@@ -378,7 +475,7 @@ class Battle(Thread):
         """
         # 减少气血: 气血/气血上限/最大气血, TODO: 处理伤势
         self.units[target_id]['气血'] -= value
-        if self.units[target_id]['气血'] < 0:
+        if self.units[target_id]['气血'] <= 0:
             self.units[target_id]['气血'] = 0
             self.units[target_id]['死亡'] = True
         return self.units[target_id]['死亡']

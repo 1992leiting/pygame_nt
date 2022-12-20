@@ -110,11 +110,25 @@ class BattleScene(Node):
         # 命令按钮
         self.add_child('cmd_menu', BattleCmdMenu())
 
+    def reset_cmd(self):
+        self.battle_cmd = {ST_人物命令: empty_cmd.copy(), ST_召唤兽命令: empty_cmd.copy()}  # 人物和召唤兽的战斗命令
+
     def set_battle_cmd(self, tp=None, target=None, camp=None, param=None, add=None):
         """
         设置战斗命令
         """
-        self.battle_cmd[self.status] = dict(类型=tp, 目标=target, 阵营=camp, 参数=param, 附加=add)
+        if tp :
+            self.battle_cmd[self.status]['类型'] = tp
+        if target :
+            self.battle_cmd[self.status]['目标'] = target
+        if camp :
+            self.battle_cmd[self.status]['阵营'] = camp
+        if param :
+            self.battle_cmd[self.status]['参数'] = param
+        if add :
+            self.battle_cmd[self.status]['附加'] = add
+
+    def next_status(self):
         if self.status == ST_人物命令:
             self.status = ST_召唤兽命令
         elif self.status == ST_召唤兽命令:
@@ -265,10 +279,22 @@ class BattleScene(Node):
 
     def on_unit_left_click(self, unit_id):
         print('点击BU:', unit_id)
-        self.set_battle_cmd('攻击', unit_id)
+        if self.status not in [ST_人物命令, ST_召唤兽命令]:
+            return
+        if not self.battle_cmd[self.status]['类型']:
+            self.set_battle_cmd(tp='攻击')
+        self.set_battle_cmd(target=unit_id)
+        game.mouse.set_last_state()
+        self.next_status()
 
     def on_unit_right_click(self, unit_id):
         pass
+
+    def on_battle_skill_left_click(self, skill_name):
+        print('点击技能:', skill_name)
+        game.window_layer.switch_window('战斗技能栏', False)
+        game.mouse.change_state('道具')
+        self.set_battle_cmd(tp='法术', param=skill_name)
 
     def check_event(self):
         super(BattleScene, self).check_event()
@@ -353,7 +379,7 @@ class BattleScene(Node):
                 self.units1[0].is_shaking = shaking
                 if stage == 0:
                     self.units1[0].change_action('挨打')
-                    _skill = gdv(self.plist[0], '技能名称')
+                    _skill = self.plist[0]['目标单位'][0]['特效']
                     self.units1[0].play_effect(_skill)
                     if _skill:
                         play_skill_effect_sound(_skill)
@@ -378,10 +404,10 @@ class BattleScene(Node):
                 self.units0[0].move_back(0)
                 self.process = 6
             else:
-                if self.units0[0].moving_state and self.units1[0].moving_state:
+                if self.units0[0].action_end and self.units1[0].action_end:
                     self.next_process()
         elif self.process == 6:
-            if self.units0[0].moving_state and self.units1[0].moving_state:
+            if self.units0[0].action_end and self.units1[0].action_end:
                 self.next_process()
 
         # 法术攻击开始流程

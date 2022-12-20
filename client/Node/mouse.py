@@ -39,6 +39,8 @@ class Mouse(Node):
         self.is_hover_enabled = False
 
     def set_last_state(self):
+        if self.state == '普通':
+            return
         self.change_state(self.last_state)
 
     def change_state(self, st):
