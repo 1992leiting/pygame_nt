@@ -149,6 +149,10 @@ class SocketClient:
         elif cmd == S_战斗主动技能:
             skills = msg['主动技能']
             game.window_layer.child('战斗技能栏').setup_skills(skills)
+        elif cmd == S_战斗单位取消buff:
+            unit_id = msg['编号']
+            buff_name = msg['名称']
+            game.battle_scene.unit_remove_buff(int(unit_id), buff_name)
 
     def send(self, cmd: str, send_data: dict):
         send_data['cmd'] = cmd

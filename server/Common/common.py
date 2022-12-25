@@ -306,5 +306,11 @@ def get_pid_battle(pid):
     return None
 
 
-def rand100():
-    return random.randint(1, 100)
+def rand100(value):
+    """
+    判断100%几率是否触发
+    :param value: 触发几率
+    :return:
+    """
+    rd = random.randint(1, 100)
+    return rd <= value

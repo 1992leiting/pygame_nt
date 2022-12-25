@@ -77,7 +77,7 @@ wl.add_child('战斗技能栏', win2)
 
 
 while True:
-
+    # print('main...')
     game.director.screen.fill((0, 0, 0))
     game.director.event_handler.update()
     game.director.update()

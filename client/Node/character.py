@@ -869,15 +869,16 @@ class BattleUnit(BasicCharacter):
     def add_buff(self, name):
         beff = BuffEffect(name)
         if beff.is_in_front:
-            self.child('front_buff').add_child('name', beff)
+            self.child('front_buff').add_child(name, beff)
         else:
-            self.child('behind_buff').add_child('name', beff)
+            self.child('behind_buff').add_child(name, beff)
         if beff.is_on_top:
             # dy = self.child('char').height - 5
             dy = 75
             beff.y -= dy
 
     def remove_buff(self, name):
+        print('单位remove buff:', self.name, name)
         self.child('front_buff').remove_child(name)
         self.child('behind_buff').remove_child(name)
 

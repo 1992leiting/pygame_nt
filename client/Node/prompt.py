@@ -153,15 +153,19 @@ class RichPrompt(ImageRect):
         self.icon_hash = 0
         self.text_title = ''
         self.text = ''
+        self.is_hover_enabled = False
         self.icon_margin = 0  # icon到左边缘和右边文字的距离
         fill_image_rect(self, 'wzife4.rsp', 0x80E0B578)
         icon = ImageRect()  # 大图标
+        icon.is_hover_enabled = False
         icon.x, icon.y = 2, 10
         self.add_child('icon', icon)
         lb = Label(size=20, color=get_color('黄'), font_name=ADOBE_SONG, bold=True)  # 标题
         lb.x, lb.y = 123, 10
+        lb.is_hover_enabled = False
         self.add_child('title', lb)
         rt = RichText(width=185, font_size=15)  # 文本
+        rt.is_hover_enabled = False
         rt.x, rt.y = 123, 33
         self.add_child('text', rt)
 
@@ -206,4 +210,16 @@ class RichPrompt(ImageRect):
             self.icon_rsp, self.icon_hash, self.text_title, self.text = icon_rsp, icon_hash, title, text
             self.setup()
         self.enable = True
+
+    def update(self):
+        super().update()
+        # 自动调整位置
         self.x, self.y = game.director.mouse_pos
+        self.bottom_left_y = game.director.mouse_pos[1] - 10
+        if self.top_left_y < 0:
+            self.top_left_y = game.director.mouse_pos[1] + 30
+        self.center_x = game.director.mouse_pos[0]
+        if self.top_left_x < 0:
+            self.top_left_x = 10
+        if self.top_right_x > game.director.window_w:
+            self.top_right_x = game.director.window_w - 10

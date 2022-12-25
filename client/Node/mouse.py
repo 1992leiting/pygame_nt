@@ -2,6 +2,7 @@ from Node.node import Node
 from Node.animation import Animation8D
 import pygame
 from Node.image_rect import ImageRect
+from Common.constants import *
 
 
 class Mouse(Node):
@@ -53,6 +54,12 @@ class Mouse(Node):
     def clear_grasp_icon(self):
         img = ImageRect()
         self.add_child('grasp', img)  # 抓取对象的图标
+
+    def check_event(self):
+        super().check_event()
+        if self.state != '普通':
+            if game.director.match_mouse_event(STOP, MOUSE_RIGHT_RELEASE):
+                self.change_state('普通')
 
     def update(self):
         self.child('mouse_ani').x, self.child('mouse_ani').y = pygame.mouse.get_pos()

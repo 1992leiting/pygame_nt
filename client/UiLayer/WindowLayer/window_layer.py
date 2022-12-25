@@ -146,13 +146,14 @@ class Window(Node):
         if self.is_hover:
             if self.director.match_mouse_event(STOP, MOUSE_LEFT_DOWN):
                 self.is_pressed = True
+                self.last_x, self.last_y = self.x, self.y
                 self.press_x, self.press_y = pygame.mouse.get_pos()
             elif self.director.match_mouse_event(STOP, MOUSE_LEFT_RELEASE):
                 self.is_pressed = False
                 self.last_x, self.last_y = self.x, self.y
-        else:  # 鼠标不在rect内则重置按下状态
-            self.is_pressed = False
-            self.last_x, self.last_y = self.x, self.y
+        # else:  # 鼠标不在rect内则重置按下状态
+        #     self.is_pressed = False
+        #     self.last_x, self.last_y = self.x, self.y
         if self.director.is_mouse_left_released:  # 双重保障, 全局鼠标左键弹起标志位为true则说明鼠标没有按下
             self.is_pressed = False
             self.last_x, self.last_y = self.x, self.y

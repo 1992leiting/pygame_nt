@@ -12,10 +12,15 @@ ST_等待命令 = 0  # 等待玩家输入命令
 ST_战斗计算 = 1  # 进行战斗计算
 ST_战斗执行 = 2  # 计算完等玩家返回状态
 
+# 取消buff方式
+BCAST = 0
+PROCESS = 1
+
 
 class Battle(Thread):
     def __init__(self, id: int, pid0: int, pid1: int, map_id: int=0, pve_units=None):
         super().__init__()
+        self.round = 0  # 回合数
         self.is_running = True
         self.battle_id = id
         self.pid0 = pid0
@@ -147,6 +152,7 @@ class Battle(Thread):
         pdata['死亡'] = False
         pdata['技能'] = []
         pdata['主动技能'] = ['牛刀小试', '横扫千军']
+        pdata['法术状态'] = {}
         self.units[pos] = pdata
         send2pid(pid, S_战斗主动技能, dict(主动技能=pdata['主动技能']))
 
@@ -170,6 +176,7 @@ class Battle(Thread):
         unit_data['战斗命令'] = {}
         unit_data['战斗执行完成'] = False
         unit_data['死亡'] = False
+        unit_data['法术状态'] = {}
         self.units[pos] = unit_data
 
     def get_unit_id_by_pid(self, pid):
@@ -201,17 +208,19 @@ class Battle(Thread):
         if self.battle_id == B_赵捕头战斗测试:
             for bu in self.team1_valid_units:
                 bu['战斗命令'] = dict(类型='攻击', 目标=0, 阵营=0, 参数=None, 附加=None)
-                print('PVE单位命令', bu['名称'], bu['战斗命令'])
 
     def set_unit_param_by_pid(self, pid, param, value):
         unit_id = self.get_unit_id_by_pid(pid)
         self.units[unit_id][param] = value
 
-    def can_unit_act(self, unit_id, action=None, skill_name=None):
+    def unit_has_buff(self, target_id, name):
+        return gdv(self.units[target_id]['法术状态'], name, None)
+
+    def unit_can_act(self, unit_id, action=None, skill_name=None):
         """
         判断单位是否能执行操作
         :param unit_id: 单位编号
-        :param action: 操作类型, 攻击/法术/防御/...
+        :param action: 操作类型, 攻击/法术/防御/使用道具/使用法宝...
         :param skill_name: 技能名称
         :return:
         """
@@ -221,10 +230,13 @@ class Battle(Thread):
             rt = False
         if unit['死亡']:
             rt = False
+        if self.unit_has_buff(unit_id, '横扫千军'):
+            print(f'{unit_id}有横扫状态')
+            rt = False
         print('单位是否能执行:', unit_id, action, skill_name, rt)
         return rt
 
-    def can_unit_be_attacked(self, target_id, action=None, skill_name=None):
+    def unit_can_be_attacked(self, target_id, action=None, skill_name=None):
         """
         判断目标单位是否可以被攻击
         :param target_id: 单位编号
@@ -241,6 +253,11 @@ class Battle(Thread):
         print('单位是否能被攻击:', target_id, action, skill_name, rt)
         return rt
 
+    def unit_has_active_skill(self, unit_id, skill_name):
+        if self.units[unit_id] and skill_name in self.units[unit_id]['主动技能']:
+            return True
+        return False
+
     def start_calculation(self):
         print('执行战斗计算...')
         self.cal_准备计算()
@@ -251,17 +268,12 @@ class Battle(Thread):
             if bu:
                 bu['战斗命令'] = {}
                 bu['战斗执行完成'] = False
-        # 发送战斗流程给玩家
-        for bu in self.all_player_units:
-            _pid = bu['id']
-            send2pid(_pid, S_战斗流程, dict(流程=self.battle_process))
-        # 清空战斗流程
-        self.battle_process = []
+        self.send_battle_process()
 
-    def pick_enemy_units(self, battle_id, target0, num):
+    def pick_enemy_units(self, unit_id, target0, num):
         """
         按照速度排序选择对方单位
-        :param battle_id:
+        :param unit_id:
         :param target0:
         :param num:
         :return:
@@ -270,7 +282,7 @@ class Battle(Thread):
         num -= 1
         target_list = [self.units[target0]]
         if num > 0:
-            if self.units[battle_id]['阵营'] == 1:
+            if self.units[unit_id]['阵营'] == 1:
                 pick_list = self.team0_valid_units.copy()
             else:
                 pick_list = self.team1_valid_units.copy()
@@ -279,7 +291,7 @@ class Battle(Thread):
                 if unit['单位编号'] == target0:
                     pick_list.remove(unit)
             for unit in pick_list:
-                if not self.can_unit_be_attacked(unit['单位编号']):
+                if not self.unit_can_be_attacked(unit['单位编号']):
                     pick_list.remove(unit)
             _pick = []
             for p in pick_list:
@@ -289,10 +301,10 @@ class Battle(Thread):
             target_list += pick_list[:num]
         return target_list
 
-    def pick_my_units(self, battle_id, target0, num):
+    def pick_my_units(self, unit_id, target0, num):
         """
         按照速度排序选择己方单位
-        :param battle_id:
+        :param unit_id:
         :param target0:
         :param num:
         :return:
@@ -329,7 +341,7 @@ class Battle(Thread):
         # 按照速度排序
         self.acting_units = sorted(self.all_valid_units, key=lambda x: x['速度'], reverse=True)
         for bu in self.acting_units:
-            if self.can_unit_act(bu['单位编号']):
+            if self.unit_can_act(bu['单位编号']):
                 if bu['战斗命令']['类型'] == '攻击':
                     self.cal_普通攻击计算(bu['单位编号'])
                 if bu['战斗命令']['类型'] == '法术':
@@ -362,11 +374,6 @@ class Battle(Thread):
         :param magic_name:
         :return:
         """
-        return damage
-
-    def cal_普通攻击计算(self, attack_id):
-        print('cal_普通攻击计算:', attack_id)
-        target_id = self.units[attack_id]['战斗命令']['目标']
         必杀 = False  # 必杀
         躲避 = False  # 躲避
         防御 = False  # 挨打方主动防御
@@ -374,13 +381,32 @@ class Battle(Thread):
         反击 = False  # 反击
         保护 = False  # 保护
 
+        必杀几率 = 5  # 自带5%必杀几率
+        if self.unit_has_active_skill(attack_id, '高级必杀'):
+            必杀几率 += 20
+        elif self.unit_has_active_skill(attack_id, '必杀'):
+            必杀几率 += 10
+        必杀 = rand100(必杀几率)
+        if 必杀:
+            damage *= 2
+            self.battle_process[-1]['目标单位'][0]['伤害']['必杀'] = 必杀
+
+        return damage
+
+    def cal_普通攻击计算(self, attack_id):
+        target_id = self.units[attack_id]['战斗命令']['目标']
+
+        # 创建普攻流程
+        _process = dict(流程=1, 攻击方=attack_id, 目标单位=[dict(编号=target_id, 特效=None, 死亡=False, 伤害=dict(数值=0, 类型=DAMAGE))], 返回=True)
+        self.battle_process.append(_process)
+
         基础伤害 = self.cal_基础物理伤害计算(attack_id, target_id)
         最终伤害 = self.cal_最终物理伤害计算(attack_id, target_id, 基础伤害)
         if 最终伤害 <= 0:
             最终伤害 = 1
         death = self.unit_hp_drop(target_id, 最终伤害, attack_id)  # 挨打方是否死亡
-        _process = dict(流程=1, 攻击方=attack_id, 伤害=dict(数值=最终伤害, 类型=DAMAGE), 目标单位=[dict(编号=target_id, 特效=None, 死亡=death)], 返回=True)
-        self.battle_process.append(_process)
+        self.battle_process[-1]['目标单位'][0]['死亡'] = death
+        self.battle_process[-1]['目标单位'][0]['伤害']['数值'] = 最终伤害
 
     def cal_法术计算(self, attack_id):
         print('法术计算:', attack_id)
@@ -403,7 +429,7 @@ class Battle(Thread):
         叠加系数 = 0  # 多次攻击每次的伤害增益
         允许保护 = True  # 是否允许保护
         增加伤害 = 0  # 伤害结果增加
-        结尾气血 = 0  # 横扫等攻击方掉血
+        结尾掉血 = 0  # 横扫等攻击方掉血等
         返回 = True  # 此次攻击完成是否返回
 
         if 法术名称 == '牛刀小试':
@@ -435,8 +461,8 @@ class Battle(Thread):
             if 攻击停止:
                 if not self.units[attack_id]['死亡']:
                     break
-            if self.can_unit_act(attack_id, '法术', 法术名称):
-                if self.can_unit_be_attacked(unit['单位编号'], '法术', 法术名称):
+            if self.unit_can_act(attack_id, '法术', 法术名称):
+                if self.unit_can_be_attacked(unit['单位编号'], '法术', 法术名称):
                     次数 += 1
                     self.cal_物攻技能计算(attack_id, unit['单位编号'], 法术名称, 基础系数, 叠加系数*次数, 允许保护, 返回)
                 else:
@@ -446,10 +472,17 @@ class Battle(Thread):
                 self.battle_process[-1]['返回'] = True
                 攻击停止 = True
         self.battle_process[-1]['返回'] = True
+        # 物理攻击结算
+        if 法术名称 == '横扫千军':
+            结尾掉血 = self.units[attack_id]['气血'] // 10
+            self.unit_hp_drop(attack_id, 结尾掉血)
+            self.battle_process[-1]['添加状态'] = 法术名称
+            self.unit_add_buff(attack_id, 法术名称)
+            self.battle_process[-1]['结尾掉血'] = 结尾掉血
 
     def cal_物攻技能计算(self, attack_id, target_id, magic_name, 基础系数, 叠加系数, 允许保护, 返回):
         print('cal_物攻技能计算:', attack_id, target_id, magic_name, 基础系数, 叠加系数, 允许保护, 返回)
-        _process = dict(流程=1, 攻击方=attack_id, 伤害=dict(数值=0, 类型=DAMAGE), 目标单位=[dict(编号=target_id, 特效=magic_name)], 返回=返回)
+        _process = dict(流程=1, 攻击方=attack_id, 目标单位=[dict(编号=target_id, 特效=magic_name, 伤害=dict(数值=0, 类型=DAMAGE))], 返回=返回)
         self.battle_process.append(_process)
         必杀 = False
         躲避 = False
@@ -461,8 +494,51 @@ class Battle(Thread):
         if 最终伤害 <= 0:
             最终伤害 = 1
         death = self.unit_hp_drop(target_id, 最终伤害, attack_id)  # 挨打方是否死亡
-        _process['伤害']['数值'] = 最终伤害
+        _process['目标单位'][0]['伤害']['数值'] = 最终伤害
         _process['目标单位'][0]['死亡'] = death
+
+    def unit_add_buff(self, target_id, name, attack_id=None, buff_level=1):
+        buff = dict(名称=name, 回合=1, 伤害=0, 防御=0, 速度=0, 法防属性=0,
+                    法伤属性=0, 躲闪=0, 命中=0, 等级=buff_level, 攻击方=attack_id)
+        if name == '横扫千军':
+            buff['防御'] = -int(self.units[target_id]['防御'] * 0.5)
+            self.units[target_id]['法术状态'][name] = buff
+
+        # buff的附属属性生效
+        self.units[target_id]['伤害'] += buff['伤害']
+        self.units[target_id]['防御'] += buff['伤害']
+        self.units[target_id]['速度'] += buff['速度']
+        self.units[target_id]['法防属性'] += buff['法防属性']
+        self.units[target_id]['法伤属性'] += buff['法伤属性']
+        self.units[target_id]['命中'] += buff['命中']
+
+        # 添加buff
+        self.units[target_id]['法术状态'][name] = buff
+
+    def unit_remove_buff(self, target_id, name, mode=PROCESS):
+        if name in self.units[target_id]['法术状态']:
+            buff = self.units[target_id]['法术状态'][name]
+
+            # buff的附属属性还原
+            self.units[target_id]['伤害'] -= buff['伤害']
+            self.units[target_id]['防御'] -= buff['伤害']
+            self.units[target_id]['速度'] -= buff['速度']
+            self.units[target_id]['法防属性'] -= buff['法防属性']
+            self.units[target_id]['法伤属性'] -= buff['法伤属性']
+            self.units[target_id]['命中'] -= buff['命中']
+
+            del self.units[target_id]['法术状态'][name]
+
+
+            if mode == PROCESS:
+                # 流程方式
+                _process = dict(流程=500, 攻击方=target_id, buff名称=name)
+                self.battle_process.append(_process)
+            else:
+                # 广播方式
+                for bu in self.all_player_units:
+                    _pid = bu['id']
+                    send2pid(_pid, S_战斗单位取消buff, dict(编号=target_id, 名称=name))
 
     def unit_hp_drop(self, target_id, value, attack_id=None, magic_name=None) -> bool:
         """
@@ -500,6 +576,28 @@ class Battle(Thread):
                 if u['阵营'] == bu['阵营']:
                     send2pid(bu['id'], S_战斗血量数据, dict(单位编号=u['单位编号'], 数据=hp_data))
 
+    def send_battle_process(self):
+        # 发送战斗流程给玩家
+        for bu in self.all_player_units:
+            _pid = bu['id']
+            send2pid(_pid, S_战斗流程, dict(流程=self.battle_process))
+        # 清空战斗流程
+        self.battle_process = []
+
+    def next_round(self):
+        # 回合开始
+        self.round += 1
+        print(f'-----------回合{self.round}-----------')
+        self.send_player_hp_data()  # 发送血量数据
+        # buff回合刷新
+        for bu in self.all_valid_units:
+            for buff_name, buff in bu['法术状态'].copy().items():
+                print('buff:', buff_name, buff['回合'])
+                if buff['回合'] <= 0:
+                    self.unit_remove_buff(bu['单位编号'], buff_name, mode=BCAST)
+                else:
+                    bu['法术状态'][buff_name]['回合'] -= 1
+
     def exit_battle(self):
         """
         退出战斗
@@ -518,7 +616,7 @@ class Battle(Thread):
     def run(self):
         # 战斗开始的数据加载
         self.load_units()  # 加载战斗单位
-        self.send_player_hp_data()  # 发送血量数据
+        self.next_round()
         # 战斗过程的循环
         while self.is_running:
             # 等待战斗单位下达指令
@@ -534,7 +632,7 @@ class Battle(Thread):
                     if self.battle_end:  # 战斗结束
                         self.exit_battle()
                     # 战斗未结束, 进入命令状态
-                    self.send_player_hp_data()  # 刷新血量数据
+                    self.next_round()
                     for bu in self.all_player_units:
                         _pid = bu['id']
                         send2pid(_pid, S_战斗命令状态, {})

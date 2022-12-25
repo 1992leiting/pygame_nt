@@ -305,6 +305,9 @@ class BattleScene(Node):
             print('BU为空:', index)
         return bu
 
+    def unit_remove_buff(self, unit_id, name):
+        self.unit(unit_id).remove_buff(name)
+
     def all_process_end(self):
         self.process = 0
         self.status = ST_等待状态
@@ -383,6 +386,9 @@ class BattleScene(Node):
                     self.units1[0].play_effect(_skill)
                     if _skill:
                         play_skill_effect_sound(_skill)
+                    _crit = gdv(self.plist[0]['目标单位'][0]['伤害'], '必杀')
+                    if _crit:
+                        self.units1[0].play_effect('暴击')
             # 主动方没有下一段攻击, 进入下一个process
             if self.units0[0].attack_stage == -1:
                 self.units1[0].move_backward(death=self.plist[0]['目标单位'][0]['死亡'])
@@ -390,7 +396,11 @@ class BattleScene(Node):
                     self.units0[0].change_action('挨打')
                     self.play_effect('反震', self.units1[0].x, self.units1[0].y, '反震')
                     self.show_hp_animation(self.plist[0]['反震伤害']['数值'], self.units0[0])
-                self.show_hp_animation(self.plist[0]['伤害']['数值'], self.units1[0], self.plist[0]['伤害']['类型'])
+                if gdv(self.plist[0], '结尾掉血'):
+                    self.show_hp_animation(gdv(self.plist[0], '结尾掉血'), self.units0[0])
+                if gdv(self.plist[0], '添加状态'):
+                    self.units0[0].add_buff(gdv(self.plist[0], '添加状态'))
+                self.show_hp_animation(self.plist[0]['目标单位'][0]['伤害']['数值'], self.units1[0], self.plist[0]['目标单位'][0]['伤害']['类型'])
                 self.process = 4
         elif self.process == 4:
             if not (self.child('反震') and self.child('反震').frame_index < 9):
@@ -513,3 +523,10 @@ class BattleScene(Node):
                 all_end = False
             if all_end:
                 self.next_process()
+
+        # 取消法术状态
+        elif self.process == 500:
+            buff_name = self.plist[0]['buff名称']
+            target = self.plist[0]['攻击方']
+            self.unit(target).remove_buff(buff_name)
+            self.next_process()
