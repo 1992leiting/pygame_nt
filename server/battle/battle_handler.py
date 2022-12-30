@@ -233,7 +233,7 @@ class Battle(Thread):
         if self.unit_has_buff(unit_id, '横扫千军'):
             print(f'{unit_id}有横扫状态')
             rt = False
-        print('单位是否能执行:', unit_id, action, skill_name, rt)
+        # print('单位是否能执行:', unit_id, action, skill_name, rt)
         return rt
 
     def unit_can_be_attacked(self, target_id, action=None, skill_name=None):
@@ -273,12 +273,12 @@ class Battle(Thread):
     def pick_enemy_units(self, unit_id, target0, num):
         """
         按照速度排序选择对方单位
-        :param unit_id:
-        :param target0:
-        :param num:
+        :param unit_id: 发起单位
+        :param target0: 点选目标
+        :param num: 人数
         :return:
         """
-        print('选择对方单位:', target0, num)
+        # print('选择对方单位:', target0, num)
         num -= 1
         target_list = [self.units[target0]]
         if num > 0:
@@ -287,18 +287,19 @@ class Battle(Thread):
             else:
                 pick_list = self.team1_valid_units.copy()
             sorted(pick_list, key=lambda x: x['速度'], reverse=True)
+            candidates = []
             for unit in pick_list:
                 if unit['单位编号'] == target0:
-                    pick_list.remove(unit)
-            for unit in pick_list:
-                if not self.unit_can_be_attacked(unit['单位编号']):
-                    pick_list.remove(unit)
+                    continue
+                elif not self.unit_can_be_attacked(unit['单位编号']):
+                    continue
+                candidates.append(unit)
             _pick = []
-            for p in pick_list:
+            for p in candidates:
                 _pick.append(p['单位编号'])
-            print(_pick)
-            num = min(num, len(pick_list))
-            target_list += pick_list[:num]
+            print('_pick:', _pick)
+            num = min(num, len(candidates))
+            target_list += candidates[:num]
         return target_list
 
     def pick_my_units(self, unit_id, target0, num):
@@ -409,7 +410,7 @@ class Battle(Thread):
         self.battle_process[-1]['目标单位'][0]['伤害']['数值'] = 最终伤害
 
     def cal_法术计算(self, attack_id):
-        print('法术计算:', attack_id)
+        # print('法术计算:', attack_id)
         法术名称 = self.units[attack_id]['战斗命令']['参数']
         目标 = self.units[attack_id]['战斗命令']['目标']
         法术等级 = 1  # TODO:法术等级判断
@@ -418,7 +419,7 @@ class Battle(Thread):
             self.cal_物攻技能准备(attack_id, 目标, 法术名称, 法术等级)
 
     def cal_物攻技能准备(self, attack_id, target_id, magic_name, lv):
-        print('cal_物攻技能准备:', attack_id, target_id, magic_name, lv)
+        # print('cal_物攻技能准备:', attack_id, target_id, magic_name, lv)
         点选目标 = target_id
         目标数 = 3  # TODO:取技能目标数
         法术名称 = magic_name
@@ -466,8 +467,9 @@ class Battle(Thread):
                     次数 += 1
                     self.cal_物攻技能计算(attack_id, unit['单位编号'], 法术名称, 基础系数, 叠加系数*次数, 允许保护, 返回)
                 else:
-                    self.battle_process[-1]['返回'] = True
-                    攻击停止 = True
+                    # self.battle_process[-1]['返回'] = True
+                    # 攻击停止 = True
+                    continue
             else:
                 self.battle_process[-1]['返回'] = True
                 攻击停止 = True
@@ -481,7 +483,7 @@ class Battle(Thread):
             self.battle_process[-1]['结尾掉血'] = 结尾掉血
 
     def cal_物攻技能计算(self, attack_id, target_id, magic_name, 基础系数, 叠加系数, 允许保护, 返回):
-        print('cal_物攻技能计算:', attack_id, target_id, magic_name, 基础系数, 叠加系数, 允许保护, 返回)
+        # print('cal_物攻技能计算:', attack_id, target_id, magic_name, 基础系数, 叠加系数, 允许保护, 返回)
         _process = dict(流程=1, 攻击方=attack_id, 目标单位=[dict(编号=target_id, 特效=magic_name, 伤害=dict(数值=0, 类型=DAMAGE))], 返回=返回)
         self.battle_process.append(_process)
         必杀 = False
