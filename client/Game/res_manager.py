@@ -300,6 +300,8 @@ def fill_emoji(emoji, rsp_file, hash_id):
 def fill_button(btn, rsp_file, hash_id):
     res = read_rsp(rsp_file, hash_id)
     frames = res.frames[0]  # 只使用第一个方向的帧
+    btn.rsp_file = rsp_file
+    btn.hash_id = hash_id
     btn.img_normal = frames[0]
     btn.img_hover = frames[0]
     btn.img_pressed = frames[0]
@@ -312,6 +314,10 @@ def fill_button(btn, rsp_file, hash_id):
         btn.img_hover = frames[2]
     if len(frames) >= 4:
         btn.img_disable = frames[3]
+    btn.raw_img_normal = btn.img_normal.copy()
+    btn.raw_img_hover = btn.img_hover.copy()
+    btn.raw_img_pressed = btn.img_pressed.copy()
+    btn.raw_img_disable = btn.img_disable.copy()
     btn.width, btn.height = res.width, res.height
     btn.kx, btn.ky = res.kx, res.ky
 

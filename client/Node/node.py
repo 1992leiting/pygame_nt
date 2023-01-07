@@ -1,5 +1,4 @@
 import time
-
 import pygame
 from numpy import rec
 from Common.constants import *
@@ -310,7 +309,7 @@ class Node:
             return self._children[name]
         return None
 
-    def get_children(self):
+    def get_children(self) -> dict:
         return self._children
 
     def add_child(self, name, obj):

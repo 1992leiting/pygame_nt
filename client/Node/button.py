@@ -13,6 +13,10 @@ class Button(Node):
         self.img_hover = None
         self.img_pressed = None
         self.img_disable = None
+        self.raw_img_normal = None
+        self.raw_img_hover = None
+        self.raw_img_pressed = None
+        self.raw_img_disable = None
         self.cur_img = None  # 当前正在显示的image
         self.is_pressed = False
         self.is_locked = False
@@ -61,10 +65,10 @@ class Button(Node):
 
     def auto_sizing(self):
         from Common.common import auto_sizing
-        self.img_normal = auto_sizing(self.img_normal, self.width, self.height)
-        self.img_pressed = auto_sizing(self.img_pressed, self.width, self.height)
-        self.img_hover = auto_sizing(self.img_hover, self.width, self.height)
-        self.img_disable = auto_sizing(self.img_disable, self.width, self.height)
+        self.img_normal = auto_sizing(self.raw_img_normal, self.width, self.height)
+        self.img_pressed = auto_sizing(self.raw_img_pressed, self.width, self.height)
+        self.img_hover = auto_sizing(self.raw_img_hover, self.width, self.height)
+        self.img_disable = auto_sizing(self.raw_img_disable, self.width, self.height)
 
     def check_event(self):
         if not self.is_active:

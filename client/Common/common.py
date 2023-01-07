@@ -440,6 +440,15 @@ def add_onetime_animation(node, rsp_file, hash_id, x=None, y=None, fps=None):
     node.add_child('onetime', ani)
     ani.play()
 
+def clamp(val, min, max):
+    if min >= max:
+        return val
+    if val < min:
+        val = min
+    if val > max:
+        val = max
+    return val
+
 
 def get_weapon_type(w_name):
     if w_name in ["红缨枪", "曲尖枪", "锯齿矛", "乌金三叉戟", "火焰枪", "墨杆金钩", "玄铁矛", "金蛇信", "丈八点钢矛", "暗夜", "梨花", "霹雳", "刑天之逆", "五虎断魂", "飞龙在天", "天龙破城", "弑皇"]:

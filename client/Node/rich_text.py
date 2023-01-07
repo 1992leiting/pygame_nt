@@ -6,6 +6,7 @@ from Node.node import Node
 from Node.label import Label
 from Common.constants import *
 from Node.emoji import Emoji
+from Node.scrollable_node import ScrollableNode
 
 
 class Word:
@@ -58,7 +59,7 @@ class Word:
         surf.blit(self.font_surface, (x - self.width_offset, y - self.height_offset))
 
 
-class RichText(Node):
+class RichText(ScrollableNode):
     def __init__(self, text='', width=200, height=200, font_size=14, font_name=DEFAULT_FONT, h_center=False):
         super(RichText, self).__init__()
         self.text = text  # 所有文本内容
@@ -70,13 +71,14 @@ class RichText(Node):
         self.font_name = font_name  # 字体名称
         self.dx, self.dy = 0, 0  # 文本基于surface左上角偏移的坐标
         self.width, self.height = width, height
+        self.scroll_step = 8  # 滚动步进
         self.actual_width = 0  # 实际宽度,如果没满一行,实际宽度可能<self.width,如果多余一行则=self.width
         self.max_height = self.height  # 解析之后获得的最大高度值(用于调整dynamic/static_surface大小)
+        self.disp_height = self.height  # 显示内容的高度
         self.surface = pygame.Surface((self.width, self.height), flags=pygame.SRCALPHA)  # 显示内容的surface
-        self.static_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示静态元素的surface，如文字
-        self.dynamic_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示动态元素的surface，如emoji
+        self.static_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示静态元素的完整surface，如文字
+        self.dynamic_surface = pygame.Surface((self.width, self.max_height), flags=pygame.SRCALPHA)  # 显示动态元素的完整surface，如emoji
         self._cnt = 0
-        self.scroll = 0  # 纵向滚动的像素数量
         self.h_center_aligned = h_center # 上下居中,只针对数字
         self._parse()
         
@@ -92,6 +94,7 @@ class RichText(Node):
     def append_text(self, text):
         self.text = self.text + '\n' + text
         self._parse()
+        self.scroll_to_bottom()
 
     def _parse(self):
         """
@@ -260,6 +263,11 @@ class RichText(Node):
         else:
             self.actual_width = self.width
 
+    def scroll_to_pos(self, pos=None):
+        print('rich text scroll:', self.max_height, self.disp_height, self.scroll_value)
+        super().scroll_to_pos()
+        self.surface = pygame.Surface((self.width, self.height), flags=pygame.SRCALPHA)
+
     def draw(self):
         self.surface.fill((0, 0, 0, 0))
         self.dynamic_surface.fill((0, 0, 0, 0))
@@ -270,20 +278,14 @@ class RichText(Node):
                 if word.cur_frame:
                     _frame = word.cur_frame.copy()
                     self.dynamic_surface.blit(_frame, (word.x, word.y - word.ky + word.shift_y))
-        self.surface.blit(self.dynamic_surface, (0, self.scroll))
-        self.surface.blit(self.static_surface, (0, self.scroll))
+        self.surface.blit(self.dynamic_surface, (0, self.scroll_value))
+        self.surface.blit(self.static_surface, (0, self.scroll_value))
         self.director.screen.blit(self.surface, (self.x, self.y))
 
     def check_event(self):
         super(RichText, self).check_event()
 
         if self.is_hover:
-            s = self.director.get_mouse_scroll(self.mouse_filter) * 8  # 鼠标滚动转换为滚动像素数量
+            s = self.director.get_mouse_scroll(self.mouse_filter) * self.scroll_step  # 鼠标滚动转换为滚动像素数量
             if s:
-                self.scroll += s
-                # 设置滚动像素的上下限
-                if self.scroll > 0:
-                    self.scroll = 0
-                if self.scroll < -self.max_height + self.height:
-                    self.scroll = -self.max_height + self.height
-                self.surface = pygame.Surface((self.width, self.height), flags=pygame.SRCALPHA)
+                self.scroll(s)

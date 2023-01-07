@@ -20,6 +20,7 @@ from UiLayer.WindowLayer.dialog import Dialog
 from UiLayer.WindowLayer.smap import Smap
 from UiLayer.WindowLayer.hero_bag import HeroBag
 from UiLayer.WindowLayer.battle_skill import BattleSkill
+from Node.scrollbar import Scrollbar
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -74,6 +75,12 @@ wl.add_child('道具行囊', win2)
 win2 = BattleSkill()
 win2.enable = False
 wl.add_child('战斗技能栏', win2)
+
+# 滚动条测试
+# sb = Scrollbar()
+# sb.x, sb.y = 100, 100
+# sb.setup()
+# game.director.add_child('test_sb', sb)
 
 
 while True:
