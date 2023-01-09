@@ -6,7 +6,9 @@ from UiLayer.FunctionLayer.function_layer import FunctionLayer
 from UiLayer.WindowLayer.window_layer import WindowLayer, Window
 from Node.button import ButtonClassicRed
 from Node.image_rect import ImageRect
+from Node.label import Label
 from Node.text_edit import TextEdit
+from Node.rich_text import RichText
 from Game.res_manager import fill_res
 from UiLayer.WindowLayer.hero_attr import HeroAttr
 from UiLayer.WindowLayer.hero_skill import HeroSkill
@@ -21,6 +23,7 @@ from UiLayer.WindowLayer.smap import Smap
 from UiLayer.WindowLayer.hero_bag import HeroBag
 from UiLayer.WindowLayer.battle_skill import BattleSkill
 from Node.scrollbar import Scrollbar
+from Node.list_view import *
 
 pygame.display.set_caption("梦幻西游ONLINE - pygame")
 icon = pygame.image.load('my.ico')
@@ -81,6 +84,17 @@ wl.add_child('战斗技能栏', win2)
 # sb.x, sb.y = 100, 100
 # sb.setup()
 # game.director.add_child('test_sb', sb)
+
+# ListView测试
+lv = ListView()
+lv.x, lv.y = 10, 10
+# li = ListItem()
+li = Label(text='测试item1')
+lv.add_child('1', li)
+# li = ListItem()
+li = Label(text='测试item2\n22222')
+lv.add_child('2', li)
+game.director.add_child('lv', lv)
 
 
 while True:

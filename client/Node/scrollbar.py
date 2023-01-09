@@ -60,7 +60,7 @@ class Scrollbar(Node):
         """
         当前滚动条位置所代表的比例
         """
-        print('update ratio:', self.height, self.bar.height, self.bar.ori_y)
+        # print('update ratio:', self.height, self.bar.height, self.bar.ori_y)
         scroll_range = self.height - self.button_up.height - self.button_down.height - self.bar.height
         bar_top_pos = self.bar.ori_y - self.button_up.height
         self.ratio = bar_top_pos/scroll_range
@@ -89,7 +89,7 @@ class Scrollbar(Node):
         scroll_range = self.height - self.button_up.height - self.button_down.height - self.bar.height
         bar_top_pos = int(scroll_range * self.ratio)
         self.bar.ori_y = bar_top_pos + self.button_up.height
-        print('ratio:', self.ratio)
+        # print('ratio:', self.ratio)
         # 如果有绑定节点,更新绑定节点滚动值
         if self.binding_node and update_binding_node:
             self.binding_node.ratio = self.ratio

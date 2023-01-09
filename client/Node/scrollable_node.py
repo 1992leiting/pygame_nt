@@ -87,7 +87,8 @@ class ScrollableNode(Node):
         """
         滚动具体的长度(像素数)
         """
-        self.scroll_value += px
+        print('scroll:', px)
+        self._scroll_value += px
         if self.scroll_bar:
             self.scroll_bar.ratio = self.ratio
 
@@ -115,3 +116,9 @@ class ScrollableNode(Node):
 
     def scroll_to_bottom(self):
         self.ratio = 1
+
+    def check_event(self):
+        if self.is_hover:
+            s = self.director.get_mouse_scroll(self.mouse_filter) * self.scroll_step  # 鼠标滚动转换为滚动像素数量
+            if s:
+                self.scroll(s)

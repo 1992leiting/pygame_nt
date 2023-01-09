@@ -169,7 +169,7 @@ class RichText(ScrollableNode):
                 elif i < len(char_list) - 2 and (char_list[i + 1] + char_list[i + 2]) == 'dw':
                     chl_name = 'dw'
                 if chl_name is not None:
-                    print('频道emoji:', chl_name)
+                    # print('频道emoji:', chl_name)
                     skip = 2
                     from Game.res_manager import fill_res
                     emoji = Emoji()
@@ -264,7 +264,7 @@ class RichText(ScrollableNode):
             self.actual_width = self.width
 
     def scroll_to_pos(self, pos=None):
-        print('rich text scroll:', self.max_height, self.disp_height, self.scroll_value)
+        # print('rich text scroll:', self.max_height, self.disp_height, self.scroll_value)
         super().scroll_to_pos()
         self.surface = pygame.Surface((self.width, self.height), flags=pygame.SRCALPHA)
 

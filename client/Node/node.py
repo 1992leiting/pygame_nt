@@ -12,12 +12,7 @@ class Node:
     基础节点类，其他所有UI类型都继承Node
     Node提供各种基础属性和方法
     """
-    def __init__(self, director=False):
-        # if not director:
-        #     from Node.director import game_director
-        #     self.director = game_director
-        # else:
-        #     self.director = self
+    def __init__(self):
         self.node_name = ''
         self.level = 0  # 节点层级, 根节点为0级, 其子节点为1级, 类推
         self.uuid = str(uuid4())  # 唯一标识符
@@ -28,6 +23,7 @@ class Node:
         self.ori_x, self.ori_y = 0, 0  # 原始坐标, 相对于父节点的坐标
         self.press_x, self.press_y = 0, 0  # 鼠标按下时坐标
         self.last_x, self.last_y = 0, 0  # 拖拽时使用, 上一次记录的xy
+        self.shift_x, self.shift_y = 0, 0  # 显示时xy偏移
         self.is_draggable = False  # 是否运行拖动
         self.kx, self.ky = 0, 0
         self.width, self.height = 0, 0
@@ -72,6 +68,10 @@ class Node:
     @surface.setter
     def surface(self, sf):
         self._surface = sf
+
+    @property
+    def size(self):
+        return self.width, self.height
 
     """
     x, y是节点的全局坐标(自身坐标所有父节点坐标的和), 位置为左上角
@@ -298,6 +298,24 @@ class Node:
         rect = pygame.Rect(self.x - self.kx, self.y - self.ky, self.width, self.height)
         return rect
 
+    def __getattribute__(self, item):
+        """
+        重写__getattribute__方法
+        访问类属性时首先尝试返回自带属性,如果不存在则尝试返回child(可能为空)
+        -->实现用访问属性的方法(A.child1)访问child
+        """
+        try:
+            return super().__getattribute__(item)
+        except AttributeError:
+            if item in self._children:
+                return self._children[item]
+            else:
+                # return None
+                raise AttributeError('Node attribute not exist:{}.{}'.format(self.node_name, item))
+
+    # def __setattr__(self, key, value):
+    #     self.__dict__[key] = value
+
     def get_parent(self):
         return self._parent
 
@@ -307,9 +325,11 @@ class Node:
     def child(self, name):
         if name in self._children:
             return self._children[name]
-        return None
+        else:
+            # print('Warning: Node child not exist - {}.{}'.format(self.node_name, name))
+            return None
 
-    def get_children(self) -> dict:
+    def get_children(self):
         return self._children
 
     def add_child(self, name, obj):
